@@ -1,9 +1,18 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ShieldAlert, LayoutDashboard, LogOut } from 'lucide-react';
+import { AuthGuard } from "@/components/providers/auth-guard";
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const supabase = createClient();
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#F5F7FA]">
+    <AuthGuard>
+      <div className="min-h-screen flex flex-col bg-[#F5F7FA]">
       {/* Admin Navbar */}
       <header className="bg-[#0F172A] text-white sticky top-0 z-50 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -37,13 +46,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               ← Ke Situs Publik
             </Link>
-            <Link
-              href="/login"
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                // AuthGuard will handle redirect once session is null
+              }}
               className="flex items-center gap-1.5 text-[11px] text-white/50 hover:text-rose-400 transition-colors border border-white/10 rounded-md px-2.5 py-1.5"
             >
               <LogOut className="w-3 h-3" />
               Keluar
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -58,5 +70,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         LaporKuy Admin Panel — Internal Use Only
       </footer>
     </div>
+    </AuthGuard>
   );
 }

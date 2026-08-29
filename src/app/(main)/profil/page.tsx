@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useLaporKuyStore } from '@/lib/store';
+import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,8 +26,10 @@ import {
 } from 'lucide-react';
 
 export default function ProfilPage() {
-  const { profile, reports, updateProfile, isInitialized } = useLaporKuyStore();
+  const router = useRouter();
+  const { profile, reports, updateProfile, isInitialized, logout } = useLaporKuyStore();
   const [activeTab, setActiveTab] = useState<'ringkasan' | 'laporan' | 'pengaturan'>('ringkasan');
+  const supabase = createClient();
 
   const myReports = reports.filter((r) => r.userId === profile.id || r.userName === profile.name);
 
@@ -280,15 +284,16 @@ export default function ProfilPage() {
             ))}
           </Card>
 
-          <Link href="/login">
-            <Button
-              variant="outline"
-              className="w-full justify-start text-red-600 border-[#D9DEE5] hover:bg-red-50 hover:text-red-700 hover:border-red-200 rounded-xl shadow-none text-sm gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Keluar Sistem
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await supabase.auth.signOut();
+            }}
+            className="w-full justify-start text-red-600 border-[#D9DEE5] hover:bg-red-50 hover:text-red-700 hover:border-red-200 rounded-xl shadow-none text-sm gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Keluar Sistem
+          </Button>
         </div>
 
         {/* MAIN CONTENT */}

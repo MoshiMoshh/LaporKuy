@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { AIChatWidget } from "@/components/ui/ai-chat-widget";
+import { AuthGuard } from "@/components/providers/auth-guard";
 
 export default function MainLayout({
   children,
@@ -8,11 +9,13 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col pb-16 md:pb-0">
+    <AuthGuard>
+      <div className="min-h-screen flex flex-col pb-16 md:pb-0">
       <Navbar />
       <main className="flex-1">{children}</main>
       <BottomNav />
       <AIChatWidget />
     </div>
+    </AuthGuard>
   );
 }

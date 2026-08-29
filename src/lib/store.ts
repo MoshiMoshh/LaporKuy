@@ -16,6 +16,7 @@ const STORAGE_KEYS = {
   QUESTS: 'laporkuy_quests_v2',
   REWARDS: 'laporkuy_rewards_v2',
   NOTIFS: 'laporkuy_notifs_v2',
+  AUTH: 'laporkuy_auth_v2',
 };
 
 // Helper for local storage
@@ -46,6 +47,7 @@ export function useLaporKuyStore() {
   const [quests, setQuests] = useState<Quest[]>(mockQuests);
   const [rewards, setRewards] = useState<Reward[]>(mockRewards);
   const [notifications, setNotifications] = useState<NotificationItem[]>(mockNotifications);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load initial data
@@ -55,6 +57,7 @@ export function useLaporKuyStore() {
     setQuests(getInitialData(STORAGE_KEYS.QUESTS, mockQuests));
     setRewards(getInitialData(STORAGE_KEYS.REWARDS, mockRewards));
     setNotifications(getInitialData(STORAGE_KEYS.NOTIFS, mockNotifications));
+    setIsLoggedIn(getInitialData(STORAGE_KEYS.AUTH, false));
     setIsInitialized(true);
 
     const handleUpdate = () => {
@@ -63,6 +66,7 @@ export function useLaporKuyStore() {
       setQuests(getInitialData(STORAGE_KEYS.QUESTS, mockQuests));
       setRewards(getInitialData(STORAGE_KEYS.REWARDS, mockRewards));
       setNotifications(getInitialData(STORAGE_KEYS.NOTIFS, mockNotifications));
+      setIsLoggedIn(getInitialData(STORAGE_KEYS.AUTH, false));
     };
 
     window.addEventListener('laporkuy_store_updated', handleUpdate);
@@ -259,6 +263,18 @@ export function useLaporKuyStore() {
     saveData(STORAGE_KEYS.PROFILE, updatedProfile);
   };
 
+  // Auth actions
+  const login = () => {
+    setIsLoggedIn(true);
+    saveData(STORAGE_KEYS.AUTH, true);
+  };
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    saveData(STORAGE_KEYS.AUTH, false);
+    // Optionally reset profile to initial state if needed
+  };
+
   return {
     reports,
     profile,
@@ -266,6 +282,7 @@ export function useLaporKuyStore() {
     rewards,
     notifications,
     isInitialized,
+    isLoggedIn,
     addReport,
     toggleUpvote,
     addComment,
@@ -274,5 +291,7 @@ export function useLaporKuyStore() {
     redeemReward,
     markNotificationsRead,
     updateProfile,
+    login,
+    logout,
   };
 }
