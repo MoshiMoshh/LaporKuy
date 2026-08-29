@@ -3,30 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
-import { createClient } from '@/lib/supabase/client';
 import { ShieldCheck } from 'lucide-react';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isInitialized, isLoggedIn, login, logout } = useLaporKuyStore();
+  const { isInitialized, isLoggedIn } = useLaporKuyStore();
   const [isReady, setIsReady] = useState(false);
-  const supabase = createClient();
 
-  // Sync Supabase Auth with Zustand
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        if (!isLoggedIn) login();
-      } else {
-        if (isLoggedIn) logout();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [isLoggedIn, login, logout, supabase]);
 
   useEffect(() => {
     if (!isInitialized) return;
