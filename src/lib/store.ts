@@ -123,7 +123,7 @@ export function useLaporKuyStore() {
     });
 
     // Setup realtime listener for reports (optional but cool)
-    // Use a unique channel name to prevent "cannot add callbacks after subscribe" error in StrictMode
+    // Using a unique channel name prevents errors during React StrictMode double-mounts
     const channelName = `public:reports:${Math.random().toString(36).substring(7)}`;
     const channel = supabase.channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => {
