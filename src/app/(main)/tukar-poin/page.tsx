@@ -22,9 +22,9 @@ export default function TukarPoinPage() {
     return true;
   });
 
-  const handleConfirmRedeem = () => {
+  const handleConfirmRedeem = async () => {
     if (!selectedReward) return;
-    const success = redeemReward(selectedReward.id);
+    const success = await redeemReward(selectedReward.id);
 
     if (success) {
       setShowConfetti(true);

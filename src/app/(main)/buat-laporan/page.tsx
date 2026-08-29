@@ -120,14 +120,14 @@ export default function BuatLaporanPage() {
   };
 
   // Submit Handler
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!photoUrl || !aiResult) return;
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const created = addReport({
+    try {
+      const created = await addReport({
         title: `${aiResult.category} di ${location.district}`,
         category: aiResult.category,
         severity: aiResult.severity as any,
@@ -151,7 +151,10 @@ export default function BuatLaporanPage() {
       setTimeout(() => {
         router.push(`/laporan/${created.id}`);
       }, 2500);
-    }, 1000);
+    } catch (error) {
+      console.error("Gagal mengirim laporan:", error);
+      setIsSubmitting(false);
+    }
   };
 
   return (

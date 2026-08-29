@@ -2,44 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Report, UserProfile, Quest, Reward, NotificationItem, Comment } from '@/types';
-import {
-  initialReports,
-  mockUserProfile,
-  mockQuests,
-  mockRewards,
-  mockNotifications,
-} from './mock-data';
+import { createClient } from '@/lib/supabase/client';
+import { mockUserProfile, initialReports, mockQuests, mockRewards, mockNotifications } from './mock-data';
 
-const STORAGE_KEYS = {
-  REPORTS: 'laporkuy_reports_v2',
-  PROFILE: 'laporkuy_profile_v2',
-  QUESTS: 'laporkuy_quests_v2',
-  REWARDS: 'laporkuy_rewards_v2',
-  NOTIFS: 'laporkuy_notifs_v2',
-  AUTH: 'laporkuy_auth_v2',
-};
+const supabase = createClient();
 
-// Helper for local storage
-function getInitialData<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function saveData<T>(key: string, data: T) {
-  if (typeof window !== 'undefined') {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-      window.dispatchEvent(new Event('laporkuy_store_updated'));
-    } catch (e) {
-      console.error('Failed to save to localStorage:', e);
-    }
-  }
-}
+// mock user for demo if not logged in (to match initial mock data)
+const MOCK_USER_ID = 'usr-001';
 
 export function useLaporKuyStore() {
   const [reports, setReports] = useState<Report[]>(initialReports);
@@ -50,31 +19,111 @@ export function useLaporKuyStore() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load initial data
   useEffect(() => {
-    setReports(getInitialData(STORAGE_KEYS.REPORTS, initialReports));
-    setProfile(getInitialData(STORAGE_KEYS.PROFILE, mockUserProfile));
-    setQuests(getInitialData(STORAGE_KEYS.QUESTS, mockQuests));
-    setRewards(getInitialData(STORAGE_KEYS.REWARDS, mockRewards));
-    setNotifications(getInitialData(STORAGE_KEYS.NOTIFS, mockNotifications));
-    setIsLoggedIn(getInitialData(STORAGE_KEYS.AUTH, false));
-    setIsInitialized(true);
+    async function loadData() {
+      const userId = MOCK_USER_ID; 
 
-    const handleUpdate = () => {
-      setReports(getInitialData(STORAGE_KEYS.REPORTS, initialReports));
-      setProfile(getInitialData(STORAGE_KEYS.PROFILE, mockUserProfile));
-      setQuests(getInitialData(STORAGE_KEYS.QUESTS, mockQuests));
-      setRewards(getInitialData(STORAGE_KEYS.REWARDS, mockRewards));
-      setNotifications(getInitialData(STORAGE_KEYS.NOTIFS, mockNotifications));
-      setIsLoggedIn(getInitialData(STORAGE_KEYS.AUTH, false));
+      try {
+        const [
+          { data: reportsData },
+          { data: profileData },
+          { data: questsData },
+          { data: rewardsData },
+          { data: notifsData }
+        ] = await Promise.all([
+          supabase.from('reports').select('*, comments(*)').order('created_at', { ascending: false }),
+          supabase.from('profiles').select('*').eq('id', userId).single(),
+          supabase.from('quests').select('*'),
+          supabase.from('rewards').select('*'),
+          supabase.from('notifications').select('*').eq('user_id', userId).order('timestamp', { ascending: false })
+        ]);
+
+        if (reportsData && reportsData.length > 0) {
+          setReports(reportsData.map((r: any) => ({
+            ...r,
+            photoUrl: r.photo_url,
+            afterPhotoUrl: r.after_photo_url,
+            createdAt: r.created_at,
+            updatedAt: r.updated_at,
+            userId: r.user_id,
+            userName: r.user_name,
+            userAvatar: r.user_avatar,
+            isUrgent: r.is_urgent,
+            aiAuthenticityScore: r.ai_authenticity_score,
+            aiConfidence: r.ai_confidence,
+            assignedDinas: r.assigned_dinas,
+            slaTargetDays: r.sla_target_days,
+            slaDaysRemaining: r.sla_days_remaining,
+            comments: (r.comments || []).map((c: any) => ({
+               ...c,
+               createdAt: c.created_at,
+               isOfficial: c.is_official
+            }))
+          })));
+        }
+
+        if (profileData) {
+          setProfile({
+            ...profileData,
+            nextLevelXp: profileData.next_level_xp,
+            streakDays: profileData.streak_days,
+            trustScore: profileData.trust_score,
+            impactCount: profileData.impact_count,
+            totalReports: profileData.total_reports,
+            completedReports: profileData.completed_reports,
+            totalUpvotesReceived: profileData.total_upvotes_received
+          } as UserProfile);
+        }
+
+        if (questsData && questsData.length > 0) {
+          setQuests(questsData.map((q: any) => ({
+            ...q,
+            rewardPoints: q.reward_points,
+            isClaimed: q.is_claimed,
+            expiresIn: q.expires_in
+          })));
+        }
+
+        if (rewardsData && rewardsData.length > 0) {
+          setRewards(rewardsData.map((r: any) => ({
+            ...r,
+            pointsCost: r.points_cost,
+            imageUrl: r.image_url,
+            partnerName: r.partner_name
+          })));
+        }
+
+        if (notifsData && notifsData.length > 0) {
+          setNotifications(notifsData.map((n: any) => ({
+            ...n,
+            isRead: n.is_read
+          })));
+        }
+      } catch (err) {
+        console.error("Failed to load from Supabase, using mock data fallback", err);
+      }
+
+      // Check auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+      setIsInitialized(true);
+    }
+    
+    loadData();
+
+    // Setup realtime listener for reports (optional but cool)
+    const channel = supabase.channel('public:reports')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => {
+         loadData(); // Re-fetch on any change
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    window.addEventListener('laporkuy_store_updated', handleUpdate);
-    return () => window.removeEventListener('laporkuy_store_updated', handleUpdate);
   }, []);
 
-  // Submit new report
-  const addReport = (newReportData: Omit<Report, 'id' | 'createdAt' | 'updatedAt' | 'upvotes' | 'comments'>) => {
+  const addReport = async (newReportData: Omit<Report, 'id' | 'createdAt' | 'updatedAt' | 'upvotes' | 'comments'>) => {
     const newId = `REP-${Math.floor(1000 + Math.random() * 9000)}`;
     const now = new Date().toISOString();
     
@@ -83,7 +132,7 @@ export function useLaporKuyStore() {
       id: newId,
       createdAt: now,
       updatedAt: now,
-      upvotes: 1, // Auto upvote by creator
+      upvotes: 1, 
       comments: [],
       hasUpvoted: true,
       slaTargetDays: 3,
@@ -91,189 +140,168 @@ export function useLaporKuyStore() {
       assignedDinas: newReportData.assignedDinas || 'Dinas Bina Marga & Sumber Daya Air'
     };
 
-    const updatedReports = [newReport, ...reports];
-    setReports(updatedReports);
-    saveData(STORAGE_KEYS.REPORTS, updatedReports);
+    setReports(prev => [newReport, ...prev]);
 
-    // Update Profile Points & XP (+15 points for submitting)
-    const updatedProfile: UserProfile = {
-      ...profile,
-      points: profile.points + 15,
-      xp: profile.xp + 25,
-      totalReports: profile.totalReports + 1,
-    };
-    setProfile(updatedProfile);
-    saveData(STORAGE_KEYS.PROFILE, updatedProfile);
-
-    // Update Daily Quest
-    const updatedQuests = quests.map(q => {
-      if (q.id === 'q-1') return { ...q, progress: Math.min(q.target, q.progress + 1) };
-      return q;
+    await supabase.from('reports').insert({
+      id: newReport.id,
+      title: newReport.title,
+      category: newReport.category,
+      severity: newReport.severity,
+      address: newReport.address,
+      district: newReport.district,
+      lat: newReport.lat,
+      lng: newReport.lng,
+      photo_url: newReport.photoUrl,
+      description: newReport.description,
+      status: newReport.status,
+      user_id: profile.id,
+      user_name: profile.name,
+      user_avatar: profile.avatar,
+      upvotes: 1,
+      is_urgent: newReport.isUrgent || false,
+      assigned_dinas: newReport.assignedDinas,
+      sla_target_days: newReport.slaTargetDays,
+      sla_days_remaining: newReport.slaDaysRemaining,
+      created_at: now,
+      updated_at: now
     });
-    setQuests(updatedQuests);
-    saveData(STORAGE_KEYS.QUESTS, updatedQuests);
 
-    // Add Notification
-    const newNotif: NotificationItem = {
-      id: `n-${Date.now()}`,
-      title: `Laporan #${newId} Terkirim!`,
-      message: `Laporan "${newReport.title}" telah diterima & mendapat +15 poin!`,
-      timestamp: 'Baru saja',
-      type: 'status',
-      isRead: false,
-      link: `/laporan/${newId}`
-    };
-    const updatedNotifs = [newNotif, ...notifications];
-    setNotifications(updatedNotifs);
-    saveData(STORAGE_KEYS.NOTIFS, updatedNotifs);
-
+    const newPoints = profile.points + 15;
+    const newXp = profile.xp + 25;
+    setProfile(prev => ({ ...prev, points: newPoints, xp: newXp, totalReports: prev.totalReports + 1 }));
+    await supabase.from('profiles').update({
+        points: newPoints,
+        xp: newXp,
+        total_reports: profile.totalReports + 1
+    }).eq('id', profile.id);
+    
     return newReport;
   };
 
-  // Upvote report
-  const toggleUpvote = (reportId: string) => {
-    const updatedReports = reports.map(r => {
-      if (r.id === reportId) {
-        const isUpvoted = !r.hasUpvoted;
-        return {
-          ...r,
-          upvotes: isUpvoted ? r.upvotes + 1 : r.upvotes - 1,
-          hasUpvoted: isUpvoted
-        };
-      }
-      return r;
-    });
-    setReports(updatedReports);
-    saveData(STORAGE_KEYS.REPORTS, updatedReports);
+  const toggleUpvote = async (reportId: string) => {
+    const report = reports.find(r => r.id === reportId);
+    if (!report) return;
 
-    // Update quest progress for upvoting
-    const updatedQuests = quests.map(q => {
-      if (q.id === 'q-2') return { ...q, progress: Math.min(q.target, q.progress + 1) };
-      return q;
-    });
-    setQuests(updatedQuests);
-    saveData(STORAGE_KEYS.QUESTS, updatedQuests);
+    const isUpvoted = !report.hasUpvoted;
+    const newUpvotes = isUpvoted ? report.upvotes + 1 : Math.max(0, report.upvotes - 1);
+
+    setReports(prev => prev.map(r => r.id === reportId ? { ...r, upvotes: newUpvotes, hasUpvoted: isUpvoted } : r));
+
+    await supabase.from('reports').update({ upvotes: newUpvotes }).eq('id', reportId);
   };
 
-  // Add Comment
-  const addComment = (reportId: string, content: string) => {
+  const addComment = async (reportId: string, content: string) => {
+    const newId = `c-${Date.now()}`;
+    const now = new Date().toISOString();
+
     const newComment: Comment = {
-      id: `c-${Date.now()}`,
+      id: newId,
       author: profile.name,
       role: 'warga',
       avatar: profile.avatar,
       content,
-      createdAt: new Date().toISOString()
+      createdAt: now
     };
 
-    const updatedReports = reports.map(r => {
-      if (r.id === reportId) {
-        return { ...r, comments: [...r.comments, newComment] };
-      }
-      return r;
+    setReports(prev => prev.map(r => r.id === reportId ? { ...r, comments: [...r.comments, newComment] } : r));
+
+    await supabase.from('comments').insert({
+      id: newId,
+      report_id: reportId,
+      author: newComment.author,
+      role: newComment.role,
+      avatar: newComment.avatar,
+      content: newComment.content,
+      created_at: now,
+      is_official: false
     });
-    setReports(updatedReports);
-    saveData(STORAGE_KEYS.REPORTS, updatedReports);
   };
 
-  // Update Admin Status
-  const updateReportStatus = (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string) => {
-    const updatedReports = reports.map(r => {
+  const updateReportStatus = async (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string) => {
+    const now = new Date().toISOString();
+    
+    // Update local state directly for fast UI updates
+    setReports(prev => prev.map(r => {
       if (r.id === reportId) {
-        const updatedComments = notes ? [
-          ...r.comments,
-          {
-            id: `c-admin-${Date.now()}`,
-            author: 'Admin LaporKuy',
-            role: 'admin' as const,
-            isOfficial: true,
-            content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
-            createdAt: new Date().toISOString()
-          }
-        ] : r.comments;
+        const newComments = notes ? [...r.comments, {
+          id: `c-admin-${Date.now()}`,
+          author: 'Admin LaporKuy',
+          role: 'admin' as const,
+          content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
+          createdAt: now,
+          isOfficial: true
+        }] : r.comments;
 
-        return {
-          ...r,
-          status: newStatus,
-          updatedAt: new Date().toISOString(),
-          afterPhotoUrl: afterPhotoUrl || r.afterPhotoUrl,
-          comments: updatedComments
-        };
+        return { ...r, status: newStatus, updatedAt: now, afterPhotoUrl: afterPhotoUrl || r.afterPhotoUrl, comments: newComments };
       }
       return r;
-    });
-    setReports(updatedReports);
-    saveData(STORAGE_KEYS.REPORTS, updatedReports);
+    }));
+    
+    await supabase.from('reports').update({
+       status: newStatus,
+       updated_at: now,
+       after_photo_url: afterPhotoUrl || null
+    }).eq('id', reportId);
+
+    if (notes) {
+      await supabase.from('comments').insert({
+        id: `c-admin-${Date.now()}`,
+        report_id: reportId,
+        author: 'Admin LaporKuy',
+        role: 'admin',
+        content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
+        created_at: now,
+        is_official: true
+      });
+    }
   };
 
-  // Claim Quest
-  const claimQuest = (questId: string) => {
+  const claimQuest = async (questId: string) => {
     const quest = quests.find(q => q.id === questId);
     if (!quest || quest.isClaimed) return;
 
-    const updatedQuests = quests.map(q => q.id === questId ? { ...q, isClaimed: true } : q);
-    setQuests(updatedQuests);
-    saveData(STORAGE_KEYS.QUESTS, updatedQuests);
+    setQuests(prev => prev.map(q => q.id === questId ? { ...q, isClaimed: true } : q));
+    const newPoints = profile.points + quest.rewardPoints;
+    setProfile(prev => ({ ...prev, points: newPoints }));
 
-    const updatedProfile = { ...profile, points: profile.points + quest.rewardPoints };
-    setProfile(updatedProfile);
-    saveData(STORAGE_KEYS.PROFILE, updatedProfile);
+    await supabase.from('quests').update({ is_claimed: true }).eq('id', questId);
+    await supabase.from('profiles').update({ points: newPoints }).eq('id', profile.id);
   };
 
-  // Redeem Reward
-  const redeemReward = (rewardId: string) => {
+  const redeemReward = async (rewardId: string) => {
     const reward = rewards.find(r => r.id === rewardId);
     if (!reward || reward.stock <= 0 || profile.points < reward.pointsCost) return false;
 
-    const updatedRewards = rewards.map(r => r.id === rewardId ? { ...r, stock: r.stock - 1 } : r);
-    setRewards(updatedRewards);
-    saveData(STORAGE_KEYS.REWARDS, updatedRewards);
+    setRewards(prev => prev.map(r => r.id === rewardId ? { ...r, stock: r.stock - 1 } : r));
+    const newPoints = profile.points - reward.pointsCost;
+    setProfile(prev => ({ ...prev, points: newPoints }));
 
-    const updatedProfile = { ...profile, points: profile.points - reward.pointsCost };
-    setProfile(updatedProfile);
-    saveData(STORAGE_KEYS.PROFILE, updatedProfile);
-
-    // Add Notification
-    const newNotif: NotificationItem = {
-      id: `n-${Date.now()}`,
-      title: `Reward Berhasil Ditukar!`,
-      message: `Kamu telah menukar ${reward.pointsCost} poin untuk ${reward.title}. Cek email/WhatsApp untuk kode voucher.`,
-      timestamp: 'Baru saja',
-      type: 'reward',
-      isRead: false,
-      link: '/tukar-poin'
-    };
-    setNotifications([newNotif, ...notifications]);
-    saveData(STORAGE_KEYS.NOTIFS, [newNotif, ...notifications]);
-
+    await supabase.from('rewards').update({ stock: reward.stock - 1 }).eq('id', rewardId);
+    await supabase.from('profiles').update({ points: newPoints }).eq('id', profile.id);
+    
     return true;
   };
 
-  // Mark all notifications read
-  const markNotificationsRead = () => {
-    const updatedNotifs = notifications.map(n => ({ ...n, isRead: true }));
-    setNotifications(updatedNotifs);
-    saveData(STORAGE_KEYS.NOTIFS, updatedNotifs);
+  const markNotificationsRead = async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    await supabase.from('notifications').update({ is_read: true }).eq('user_id', profile.id);
   };
 
-  // Update user profile
-  const updateProfile = (updatedData: Partial<UserProfile>) => {
-    const updatedProfile = { ...profile, ...updatedData };
-    setProfile(updatedProfile);
-    saveData(STORAGE_KEYS.PROFILE, updatedProfile);
+  const updateProfile = async (updatedData: Partial<UserProfile>) => {
+    setProfile(prev => ({ ...prev, ...updatedData }));
+    
+    const dbUpdate: any = {};
+    if (updatedData.name) dbUpdate.name = updatedData.name;
+    if (updatedData.avatar) dbUpdate.avatar = updatedData.avatar;
+    if (updatedData.phone) dbUpdate.phone = updatedData.phone;
+    
+    if (Object.keys(dbUpdate).length > 0) {
+      await supabase.from('profiles').update(dbUpdate).eq('id', profile.id);
+    }
   };
 
-  // Auth actions
-  const login = () => {
-    setIsLoggedIn(true);
-    saveData(STORAGE_KEYS.AUTH, true);
-  };
-
-  const logout = () => {
-    setIsLoggedIn(false);
-    saveData(STORAGE_KEYS.AUTH, false);
-    // Optionally reset profile to initial state if needed
-  };
+  const login = () => setIsLoggedIn(true);
+  const logout = () => setIsLoggedIn(false);
 
   return {
     reports,
