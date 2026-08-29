@@ -7,8 +7,7 @@ import { mockUserProfile, initialReports, mockQuests, mockRewards, mockNotificat
 
 const supabase = createClient();
 
-// mock user for demo if not logged in (to match initial mock data)
-const MOCK_USER_ID = 'usr-001';
+// No mock user anymore, using Supabase Auth
 
 export function useLaporKuyStore() {
   const [reports, setReports] = useState<Report[]>(initialReports);
@@ -21,21 +20,21 @@ export function useLaporKuyStore() {
 
   useEffect(() => {
     async function loadData() {
-      const userId = MOCK_USER_ID; 
+      // Check auth session first
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || null;
+      setIsLoggedIn(!!session);
 
       try {
+        // Fetch public data
         const [
           { data: reportsData },
-          { data: profileData },
           { data: questsData },
-          { data: rewardsData },
-          { data: notifsData }
+          { data: rewardsData }
         ] = await Promise.all([
           supabase.from('reports').select('*, comments(*)').order('created_at', { ascending: false }),
-          supabase.from('profiles').select('*').eq('id', userId).single(),
           supabase.from('quests').select('*'),
-          supabase.from('rewards').select('*'),
-          supabase.from('notifications').select('*').eq('user_id', userId).order('timestamp', { ascending: false })
+          supabase.from('rewards').select('*')
         ]);
 
         if (reportsData && reportsData.length > 0) {
@@ -62,19 +61,6 @@ export function useLaporKuyStore() {
           })));
         }
 
-        if (profileData) {
-          setProfile({
-            ...profileData,
-            nextLevelXp: profileData.next_level_xp,
-            streakDays: profileData.streak_days,
-            trustScore: profileData.trust_score,
-            impactCount: profileData.impact_count,
-            totalReports: profileData.total_reports,
-            completedReports: profileData.completed_reports,
-            totalUpvotesReceived: profileData.total_upvotes_received
-          } as UserProfile);
-        }
-
         if (questsData && questsData.length > 0) {
           setQuests(questsData.map((q: any) => ({
             ...q,
@@ -93,23 +79,48 @@ export function useLaporKuyStore() {
           })));
         }
 
-        if (notifsData && notifsData.length > 0) {
-          setNotifications(notifsData.map((n: any) => ({
-            ...n,
-            isRead: n.is_read
-          })));
+        // Fetch user-specific data if logged in
+        if (userId) {
+          const [{ data: profileData }, { data: notifsData }] = await Promise.all([
+            supabase.from('profiles').select('*').eq('id', userId).single(),
+            supabase.from('notifications').select('*').eq('user_id', userId).order('timestamp', { ascending: false })
+          ]);
+
+          if (profileData) {
+            setProfile({
+              ...profileData,
+              nextLevelXp: profileData.next_level_xp,
+              streakDays: profileData.streak_days,
+              trustScore: profileData.trust_score,
+              impactCount: profileData.impact_count,
+              totalReports: profileData.total_reports,
+              completedReports: profileData.completed_reports,
+              totalUpvotesReceived: profileData.total_upvotes_received
+            } as UserProfile);
+          }
+
+          if (notifsData && notifsData.length > 0) {
+            setNotifications(notifsData.map((n: any) => ({
+              ...n,
+              isRead: n.is_read
+            })));
+          }
         }
       } catch (err) {
         console.error("Failed to load from Supabase, using mock data fallback", err);
       }
 
-      // Check auth session
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
       setIsInitialized(true);
     }
     
     loadData();
+
+    // Listen to auth state changes to reload data automatically (e.g. after login)
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        loadData();
+      }
+    });
 
     // Setup realtime listener for reports (optional but cool)
     const channel = supabase.channel('public:reports')
@@ -120,6 +131,7 @@ export function useLaporKuyStore() {
 
     return () => {
       supabase.removeChannel(channel);
+      authListener.subscription.unsubscribe();
     };
   }, []);
 
@@ -300,8 +312,12 @@ export function useLaporKuyStore() {
     }
   };
 
-  const login = () => setIsLoggedIn(true);
-  const logout = () => setIsLoggedIn(false);
+  const login = () => { /* Now handled by login page OAuth flow */ };
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
+    setProfile(mockUserProfile); // reset
+  };
 
   return {
     reports,
