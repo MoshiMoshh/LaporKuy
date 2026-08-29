@@ -12,6 +12,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
 
+
   useEffect(() => {
     if (!isInitialized) return;
 
