@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useLaporKuyStore } from '@/lib/store';
-import { MapView } from '@/components/map/map-view';
+import dynamic from 'next/dynamic';
+const MapView = dynamic(() => import('@/components/map/map-view').then(mod => mod.MapView), { ssr: false });
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

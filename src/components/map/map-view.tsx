@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Report } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { MapPin, Flame, AlertTriangle, Layers, ThumbsUp, ChevronRight, Eye, Globe2, Compass } from 'lucide-react';
+import { MapPin, ThumbsUp, Eye, Compass } from 'lucide-react';
 import Link from 'next/link';
+
+// Leaflet imports
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface MapViewProps {
   reports: Report[];
@@ -18,6 +23,17 @@ interface MapViewProps {
 
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 'qNmsb52QZkhFrzAr5QnL';
 
+// Component to handle map interactions
+function MapController({ selectedPin }: { selectedPin: Report | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (selectedPin && selectedPin.lat && selectedPin.lng) {
+      map.flyTo([selectedPin.lat, selectedPin.lng], 15, { duration: 1.5 });
+    }
+  }, [selectedPin, map]);
+  return null;
+}
+
 export function MapView({
   reports,
   mapMode = 'marker',
@@ -28,166 +44,92 @@ export function MapView({
   const [selectedPin, setSelectedPin] = useState<Report | null>(reports[0] || null);
   const [mapTheme, setMapTheme] = useState<'dataviz-dark' | 'streets-v2' | 'satellite'>('dataviz-dark');
 
-  const getCategoryColor = (category: string) => {
+  const getTileUrl = () => {
+    return `https://api.maptiler.com/maps/${mapTheme}/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`;
+  };
+
+  const getCategoryColorHex = (category: string) => {
     switch (category) {
-      case 'Jalan Rusak':
-        return 'bg-rose-500 text-white border-rose-600';
-      case 'Lampu Mati':
-        return 'bg-amber-500 text-white border-amber-600';
-      case 'Sampah':
-        return 'bg-emerald-500 text-white border-emerald-600';
-      case 'Banjir':
-        return 'bg-blue-500 text-white border-blue-600';
-      case 'Trotoar Rusak':
-        return 'bg-purple-500 text-white border-purple-600';
-      default:
-        return 'bg-slate-700 text-white border-slate-800';
+      case 'Jalan Rusak': return '#f43f5e'; // rose-500
+      case 'Lampu Mati': return '#f59e0b'; // amber-500
+      case 'Sampah': return '#10b981'; // emerald-500
+      case 'Banjir': return '#3b82f6'; // blue-500
+      case 'Trotoar Rusak': return '#a855f7'; // purple-500
+      default: return '#334155'; // slate-700
     }
   };
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isAutoPanning, setIsAutoPanning] = useState(false);
-  const dragStart = useRef({ x: 0, y: 0 });
-  const initialPan = useRef({ x: 0, y: 0 });
+  const createCustomIcon = (report: Report, isSelected: boolean) => {
+    const color = getCategoryColorHex(report.category);
+    const ring = isSelected ? 'box-shadow: 0 0 0 4px white;' : '';
+    const zIndex = isSelected ? 1000 : 1;
+    
+    const htmlString = `
+      <div style="background-color: ${color}; color: white; padding: 4px 8px; border-radius: 999px; font-weight: bold; font-size: 11px; white-space: nowrap; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; ${ring}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        ${report.category}
+      </div>
+    `;
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (e.button !== 0) return;
-    setIsDragging(true);
-    dragStart.current = { x: e.clientX, y: e.clientY };
-    initialPan.current = { x: pan.x, y: pan.y };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    setPan({
-      x: initialPan.current.x + dx,
-      y: initialPan.current.y + dy,
+    return L.divIcon({
+      html: htmlString,
+      className: 'custom-leaflet-marker',
+      iconSize: [100, 24],
+      iconAnchor: [50, 24],
+      popupAnchor: [0, -24],
     });
   };
 
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-  };
-
-  // MapTiler static tile map for Surabaya Center (-7.2575, 112.7521)
-  const mapTilerUrl = `https://api.maptiler.com/maps/${mapTheme}/static/112.7521,-7.2575,13/1280x720.png?key=${MAPTILER_KEY}`;
+  // Center of Surabaya
+  const centerPosition: [number, number] = [-7.2575, 112.7521];
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
+    <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
       
-      {/* ════ DRAGGABLE MAP LAYER ════ */}
-      <div 
-        className={`absolute inset-0 touch-none select-none z-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        <div 
-          className={`absolute inset-0 w-[200vw] h-[200vh] -left-[50vw] -top-[50vh] ${isAutoPanning ? 'transition-transform duration-500 ease-out' : 'transition-transform duration-0'}`}
-          style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }}
+      <div className="absolute inset-0 z-0">
+        <MapContainer 
+          center={centerPosition} 
+          zoom={13} 
+          scrollWheelZoom={true}
+          style={{ width: '100%', height: '100%', background: '#020617' }}
+          zoomControl={false}
         >
-          {/* MapTiler Satellite / Streets / Dark Layer */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-60 dark:opacity-50"
-            style={{ 
-              backgroundImage: `url(${mapTilerUrl})`,
-              filter: mapTheme === 'dataviz-dark' ? 'contrast(1.1) brightness(0.9)' : 'none'
-            }}
+          <TileLayer
+            attribution='&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url={getTileUrl()}
           />
+          
+          <MapController selectedPin={selectedPin} />
 
-          {/* Map Graphic Overlay Background (Simulated High-Tech City Grid Map) */}
-          <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
+          {reports.map((report, idx) => {
+            // Generate some random coordinates near Surabaya center if missing
+            const lat = report.lat || -7.2575 + (Math.random() - 0.5) * 0.05;
+            const lng = report.lng || 112.7521 + (Math.random() - 0.5) * 0.05;
+            
+            // Just update the object so it stays consistent on click
+            if (!report.lat || !report.lng) {
+              report.lat = lat;
+              report.lng = lng;
+            }
 
-          {/* Heatmap Gradient Overlay when Heatmap Mode active */}
-          {mapMode === 'heatmap' && (
-            <div className="absolute inset-0 pointer-events-none opacity-70 bg-[radial-gradient(circle_at_50%_40%,rgba(239,68,68,0.6)_0%,rgba(245,158,11,0.4)_35%,rgba(16,185,129,0.2)_70%,transparent_100%)] animate-pulse" />
-          )}
+            const isSelected = selectedPin?.id === report.id;
 
-          {/* Predictive Zone Highlight Layer */}
-          {showPredictiveZone && (
-            <div className="absolute top-1/3 left-1/3 w-64 h-64 rounded-full border-2 border-dashed border-rose-400/80 bg-rose-500/10 flex items-center justify-center pointer-events-none animate-ping duration-1000">
-              <Badge className="bg-rose-600 text-white shadow-lg text-[10px] uppercase tracking-wider font-bold">
-                ⚠️ AI Predicted Risk Zone (Banjir Hujan)
-              </Badge>
-            </div>
-          )}
-
-          {/* Interactive Map Pin Markers */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-full h-full max-w-4xl max-h-[800px]">
-              {reports.map((report, idx) => {
-                // Distribute markers visually across map grid
-                const positions = [
-                  { top: '35%', left: '28%' },
-                  { top: '65%', left: '72%' },
-                  { top: '25%', left: '80%' },
-                  { top: '55%', left: '20%' },
-                  { top: '45%', left: '50%' },
-                ];
-                const pos = positions[idx % positions.length];
-
-                const isSelected = selectedPin?.id === report.id;
-
-                return (
-                  <div
-                    key={report.id}
-                    style={{ top: pos.top, left: pos.left }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer"
-                    onPointerDown={(e) => {
-                      // Prevent map drag when clicking a pin
-                      e.stopPropagation();
-                    }}
-                    onClick={(e) => {
-                      setSelectedPin(report);
-                      onSelectReport?.(report);
-
-                      // Auto-pan to center
-                      if (containerRef.current) {
-                        const containerRect = containerRef.current.getBoundingClientRect();
-                        const pinRect = e.currentTarget.getBoundingClientRect();
-                        
-                        // Calculate difference from center of container to center of pin
-                        const dx = (containerRect.width / 2) - (pinRect.left - containerRect.left + pinRect.width / 2);
-                        
-                        // Offset Y slightly downwards on mobile so the popup doesn't block the pin
-                        const isMobile = window.innerWidth < 768;
-                        const yOffset = isMobile ? (containerRect.height / 4) : 0;
-                        const dy = (containerRect.height / 2) - (pinRect.top - containerRect.top + pinRect.height / 2) + yOffset;
-                        
-                        setIsAutoPanning(true);
-                        setPan(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-                        
-                        // Reset transition duration after animation completes
-                        setTimeout(() => setIsAutoPanning(false), 500);
-                      }
-                    }}
-                  >
-                    {/* Marker Ping Pulse */}
-                    <span className={`absolute -inset-1 rounded-full opacity-75 animate-ping ${mapMode === 'heatmap' ? 'bg-rose-500' : 'bg-primary'}`} />
-
-                    {/* Marker Pin Icon */}
-                    <div
-                      className={`relative flex items-center gap-1 px-2.5 py-1 rounded-full shadow-xl border text-xs font-bold transition-all transform hover:scale-115 ${
-                        isSelected ? 'ring-4 ring-white scale-110 z-20' : 'z-10'
-                      } ${getCategoryColor(report.category)}`}
-                    >
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span>{report.category}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+            return (
+              <Marker 
+                key={report.id} 
+                position={[lat, lng]} 
+                icon={createCustomIcon(report, isSelected)}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedPin(report);
+                    onSelectReport?.(report);
+                  },
+                }}
+              >
+              </Marker>
+            );
+          })}
+        </MapContainer>
       </div>
 
       {/* ════ STATIC UI LAYER ════ */}
@@ -198,7 +140,7 @@ export function MapView({
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-700 flex items-center gap-1">
               <Compass className="w-3.5 h-3.5 text-cyan-400" />
-              Surabaya & Sekitarnya
+              Peta Interaktif Surabaya
             </Badge>
             <span className="text-xs text-slate-400 font-medium">
               {reports.length} Laporan Terdaftar
@@ -230,12 +172,6 @@ export function MapView({
                 🛰️ Satelit
               </button>
             </div>
-
-            <Badge
-              className={mapMode === 'marker' ? 'bg-primary text-primary-foreground text-xs' : 'bg-slate-800 text-slate-400 text-xs'}
-            >
-              {mapMode === 'marker' ? 'Pin Markers' : 'Heatmap Density'}
-            </Badge>
           </div>
         </div>
 
@@ -283,15 +219,19 @@ export function MapView({
               </div>
             </Card>
           )}
-
-          {/* MapTiler Attribution Badge */}
-          <div className="mt-2 flex justify-end">
-            <span className="text-[9px] text-slate-500/80 bg-slate-950/60 px-2 py-0.5 rounded backdrop-blur-sm">
-              Maps by MapTiler &copy; OpenStreetMap
-            </span>
-          </div>
         </div>
       </div>
+      
+      {/* Required CSS to ensure Leaflet renders properly inside container */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .leaflet-container {
+          background: transparent !important;
+        }
+        .custom-leaflet-marker {
+          background: transparent;
+          border: none;
+        }
+      `}} />
     </div>
   );
 }

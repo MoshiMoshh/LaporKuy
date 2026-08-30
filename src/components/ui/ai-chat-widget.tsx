@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, X, Send, HelpCircle } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatMessage {
   id: string;
@@ -199,13 +201,19 @@ export function AIChatWidget() {
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
+                  className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm overflow-hidden break-words ${
                     msg.role === 'user'
                       ? 'bg-gradient-to-br from-[#0057B8] to-cyan-500 text-white rounded-br-sm'
-                      : 'bg-white/90 dark:bg-slate-800/90 border border-slate-100 dark:border-white/5 text-slate-800 dark:text-slate-200 rounded-bl-sm backdrop-blur-md'
+                      : 'bg-white/90 dark:bg-slate-800/90 border border-slate-100 dark:border-white/5 text-slate-800 dark:text-slate-200 rounded-bl-sm backdrop-blur-md prose prose-sm prose-slate dark:prose-invert prose-p:leading-snug prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-a:text-blue-500 prose-strong:font-bold'
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === 'user' ? (
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  ) : (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
               </div>
             ))}
