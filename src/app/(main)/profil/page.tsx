@@ -35,6 +35,15 @@ export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState<'ringkasan' | 'laporan' | 'pengaturan'>('ringkasan');
   const supabase = createClient();
 
+  const handleTabChange = (tab: 'ringkasan' | 'laporan' | 'pengaturan') => {
+    setActiveTab(tab);
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setTimeout(() => {
+        document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+    }
+  };
+
   const myReports = reports.filter((r) => r.userId === profile.id || r.userName === profile.name);
 
   const [name, setName] = useState('');
@@ -153,29 +162,31 @@ export default function ProfilPage() {
       {/* ── HEADER ── */}
       <div className="bg-[#003B73] text-white pt-10 pb-32">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-20">
-          <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start text-center sm:text-left">
-
+          <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
+            
             {/* Avatar */}
-            <div className="relative shrink-0">
-              <img
-                src={avatarSrc}
-                alt={name || profile.name}
-                className="w-24 h-24 rounded-2xl object-cover border-[3px] border-white/20 shadow-xl block bg-[#0057B8]"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
-                }}
-              />
-              <span className="absolute -bottom-3 sm:-right-3 left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0 bg-[#0057B8] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-md border border-white/20 whitespace-nowrap">
-                Level {profile.level || "Warga"}
-              </span>
+            <div className="relative shrink-0 flex justify-center w-full sm:w-auto">
+              <div className="relative">
+                <img
+                  src={avatarSrc}
+                  alt={name || profile.name}
+                  className="w-24 h-24 rounded-2xl object-cover border-[3px] border-white/20 shadow-xl block bg-[#0057B8]"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
+                  }}
+                />
+                <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#0057B8] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-md border border-white/20 whitespace-nowrap">
+                  Level {profile.level || "Warga"}
+                </span>
+              </div>
             </div>
 
             {/* Info */}
-            <div className="flex-1 min-w-0 mt-3 sm:mt-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
+            <div className="flex-1 w-full text-center sm:text-left mt-2 sm:mt-0 flex flex-col items-center sm:items-start">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
                 {name || profile.name}
               </h1>
-              <div className="flex items-center justify-center sm:justify-start gap-3 text-blue-200 text-sm mb-4">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-blue-200 text-sm mb-4">
                 <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-md text-xs font-medium border border-white/10">
                   <User className="w-3.5 h-3.5" />
                   Warga Terverifikasi
@@ -187,7 +198,7 @@ export default function ProfilPage() {
               </div>
 
               {/* XP Bar */}
-              <div className="flex items-center justify-center sm:justify-start gap-3 max-w-sm w-full mx-auto sm:mx-0">
+              <div className="flex items-center gap-3 w-full max-w-[240px] sm:max-w-sm">
                 <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
                   <div
                     className="h-full bg-blue-400 rounded-full transition-all duration-1000 ease-out"
@@ -201,13 +212,15 @@ export default function ProfilPage() {
             </div>
 
             {/* Settings shortcut */}
-            <button
-              onClick={() => setActiveTab('pengaturan')}
-              className="mt-4 sm:mt-0 shrink-0 flex items-center gap-2 text-sm font-semibold text-white bg-white/10 border border-white/20 rounded-xl px-4 py-2 hover:bg-white/20 transition-all shadow-sm"
-            >
-              <Settings className="w-4 h-4" />
-              Edit Profil
-            </button>
+            <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-4 sm:mt-0 shrink-0">
+              <button
+                onClick={() => handleTabChange('pengaturan')}
+                className="flex items-center gap-2 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-xl px-4 py-2 hover:bg-white/20 transition-all shadow-sm"
+              >
+                <Settings className="w-4 h-4" />
+                Edit Profil
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -225,8 +238,8 @@ export default function ProfilPage() {
             ].map(({ value, label, icon: Icon, color }) => (
               <div key={label} className="flex flex-col items-center py-4 gap-1.5 hover:bg-slate-50 transition-colors rounded-xl mx-1">
                 <Icon className={`w-6 h-6 ${color} mb-1`} />
-                <span className="text-2xl font-extrabold text-slate-800 leading-none">{value}</span>
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+                <span className="text-2xl font-bold text-slate-800 leading-none">{value}</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
                   {label}
                 </span>
               </div>
@@ -246,7 +259,7 @@ export default function ProfilPage() {
                 {navItems.map(({ key, label, icon: Icon }) => (
                   <button
                     key={key}
-                    onClick={() => setActiveTab(key)}
+                    onClick={() => handleTabChange(key)}
                     className={`w-full flex items-center justify-between px-4 py-2.5 text-sm rounded-xl transition-all duration-200 ${
                       activeTab === key
                         ? 'bg-[#0057B8]/10 text-[#0057B8] font-semibold'
@@ -276,7 +289,7 @@ export default function ProfilPage() {
           </div>
 
           {/* MAIN CONTENT */}
-          <div className="min-w-0">
+          <div id="main-content" className="min-w-0 scroll-mt-20">
 
             {/* ── TAB 1: RINGKASAN ── */}
             {activeTab === 'ringkasan' && (
@@ -292,7 +305,7 @@ export default function ProfilPage() {
                       { value: myReports.filter(r => r.status === 'Diproses').length, label: 'Diproses', color: 'text-amber-600' },
                     ].map(({ value, label, color }) => (
                       <Card key={label} className="p-5 rounded-2xl border border-[#D9DEE5] bg-white shadow-none text-center hover:border-slate-300 transition-colors">
-                        <div className={`text-3xl font-extrabold ${color} mb-2 leading-none`}>{value}</div>
+                        <div className={`text-3xl font-bold ${color} mb-2 leading-none`}>{value}</div>
                         <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</div>
                       </Card>
                     ))}
@@ -304,7 +317,7 @@ export default function ProfilPage() {
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Aktivitas Terbaru</h2>
                     <button
-                      onClick={() => setActiveTab('laporan')}
+                      onClick={() => handleTabChange('laporan')}
                       className="text-xs font-semibold text-[#0057B8] hover:underline"
                     >
                       Lihat semua

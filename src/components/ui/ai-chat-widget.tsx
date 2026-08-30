@@ -111,8 +111,53 @@ export function AIChatWidget() {
     }
   };
 
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const initialPos = useRef({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (isOpen || e.button !== 0) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    initialPos.current = { x: position.x, y: position.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    setPosition({
+      x: initialPos.current.x + dx,
+      y: initialPos.current.y + dy,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+  };
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    // Prevent opening if the user was just dragging it
+    const moveX = Math.abs(position.x - initialPos.current.x);
+    const moveY = Math.abs(position.y - initialPos.current.y);
+    if (isDragging || moveX > 5 || moveY > 5) {
+      e.preventDefault();
+      // Reset the initialPos so we can click again without moving
+      initialPos.current = { x: position.x, y: position.y };
+      return;
+    }
+    setIsOpen(true);
+  };
+
   return (
-    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
+    <div 
+      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 touch-none"
+      style={!isOpen ? { transform: `translate(${position.x}px, ${position.y}px)` } : {}}
+    >
       {isOpen ? (
         <Card className="w-80 sm:w-[400px] shadow-2xl border border-white/20 dark:border-white/10 bg-background/70 backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-300 overflow-hidden flex flex-col">
           <CardHeader className="bg-gradient-to-r from-[#0057B8] to-cyan-500 text-white p-4 flex flex-row items-center justify-between border-b border-white/10 relative">
@@ -138,7 +183,10 @@ export function AIChatWidget() {
               size="icon"
               variant="ghost"
               className="h-8 w-8 text-white hover:bg-white/20 rounded-full transition-colors relative z-10"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                // Reset position when closed if desired, or keep it. Let's keep it.
+              }}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -192,10 +240,14 @@ export function AIChatWidget() {
         </Card>
       ) : (
         <Button
-          onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full shadow-[0_0_20px_rgba(0,87,184,0.3)] hover:shadow-[0_0_30px_rgba(0,87,184,0.5)] hover:-translate-y-1 transition-all bg-gradient-to-br from-[#0057B8] to-cyan-500 text-white flex items-center justify-center group"
+          onClick={handleButtonClick}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className="h-14 w-14 rounded-full shadow-[0_0_20px_rgba(0,87,184,0.3)] hover:shadow-[0_0_30px_rgba(0,87,184,0.5)] hover:-translate-y-1 transition-all bg-gradient-to-br from-[#0057B8] to-cyan-500 text-white flex items-center justify-center group cursor-move"
         >
-          <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform duration-300" />
+          <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform duration-300 pointer-events-none" />
         </Button>
       )}
     </div>
