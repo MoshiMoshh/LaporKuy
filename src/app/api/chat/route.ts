@@ -1,9 +1,7 @@
-import { streamText } from 'ai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Menggunakan API Key dari .env.local
-// Jika belum ada, Anda harus menambahkannya: GEMINI_API_KEY=your_key_here
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'MOCK_KEY_FOR_TESTING');
+// Menggunakan API Key dari .env.local atau fallback API Key aktif
+const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyBKjW37QoGztY0Cs0ZDvR9oZ9XQqPyuTng';
 
 const systemPrompt = `Anda adalah LaporKuy AI, asisten customer service ramah untuk aplikasi "LaporKuy". 
 LaporKuy adalah platform bagi masyarakat untuk melaporkan masalah infrastruktur kota (seperti jalan rusak, lampu mati, penumpukan sampah, banjir).
@@ -19,9 +17,10 @@ Jika pengguna bertanya di luar topik infrastruktur/laporankuy, tolak dengan halu
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
+    const effectiveKey = process.env.GEMINI_API_KEY || apiKey;
 
     // Jika API Key tidak ada (atau masih default mock), kembalikan pesan mock
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    if (!effectiveKey || effectiveKey === 'your_gemini_api_key_here' || effectiveKey === 'MOCK_KEY_FOR_TESTING') {
       await new Promise(resolve => setTimeout(resolve, 1000));
       return new Response(
         JSON.stringify({
@@ -35,6 +34,7 @@ export async function POST(req: Request) {
     // Ekstraksi pesan terakhir dari pengguna
     const userMessage = messages[messages.length - 1]?.content || '';
 
+    const genAI = new GoogleGenerativeAI(effectiveKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Menyuntikkan instruksi sistem ke awal percakapan
@@ -51,9 +51,6 @@ export async function POST(req: Request) {
       ],
     });
 
-    // Karena Vercel AI SDK membutuhkan konversi stream khusus untuk library barunya,
-    // kita akan menggunakan pendekatan sederhana namun andal untuk Vercel AI SDK dengan Gemini.
-    
     const result = await chat.sendMessageStream(userMessage);
 
     // Manual stream response generator
@@ -75,10 +72,10 @@ export async function POST(req: Request) {
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Chat API Error:', error);
     return new Response(
-      JSON.stringify({ error: 'Terjadi kesalahan saat memproses pesan.' }), 
+      JSON.stringify({ error: error?.message || 'Terjadi kesalahan saat memproses pesan.' }), 
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
