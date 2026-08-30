@@ -52,9 +52,12 @@ const UserIcon = ({ className = "w-5 h-5" }) => (
 
 const mainNavLinks = [
   { href: '/', label: 'Beranda' },
-  { href: '/buat-laporan', label: 'Buat Pengaduan' },
-  { href: '/dashboard', label: 'Lacak Laporan' },
-  { href: '/bantuan', label: 'Informasi' },
+  { href: '/buat-laporan', label: 'Buat Laporan' },
+  { href: '/dashboard', label: 'Peta & Lacak' },
+  { href: '/transparansi', label: 'Transparansi SLA' },
+  { href: '/papan-peringkat', label: 'Peringkat' },
+  { href: '/misi', label: 'Misi & Poin' },
+  { href: '/bantuan', label: 'Bantuan' },
 ];
 
 export function Navbar() {
