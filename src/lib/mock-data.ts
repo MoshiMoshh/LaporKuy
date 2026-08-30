@@ -243,10 +243,8 @@ export const mockRewards: Reward[] = [
 ];
 
 export const mockNotifications: NotificationItem[] = [
-  { id: 'n-1', title: 'Laporan #REP-1001 Diproses!', message: 'Dinas Bina Marga telah menugaskan tim URC ke lokasi laporanmu.', timestamp: '10 menit lalu', type: 'status', isRead: false, link: '/laporan/REP-1001' },
-  { id: 'n-2', title: '+15 Poin Didapatkan!', message: 'Selamat! Laporanmu di Sukolilo telah terverifikasi oleh AI & komunitas.', timestamp: '2 jam lalu', type: 'reward', isRead: false, link: '/profil' },
-  { id: 'n-3', title: '4 Warga Mendukung Laporanmu', message: 'Laporan lubang jalanmu di Darmo mendapat 4 upvote baru.', timestamp: '5 jam lalu', type: 'community', isRead: true, link: '/laporan/REP-1001' },
-  { id: 'n-4', title: '🔥 Streak 7 Hari Berturut-turut!', message: 'Keren! Kamu mempertahankan streak pelaporan selama seminggu.', timestamp: '1 hari lalu', type: 'system', isRead: true }
+  { id: 'n-1', title: 'Selamat Datang di LaporKuy!', message: 'Ayo mulai laporkan masalah infrastruktur di sekitarmu dan bantu wujudkan kota yang lebih baik.', timestamp: '2026-08-20T08:30:00Z', type: 'system', isRead: false, link: '/buat-laporan' },
+  { id: 'n-2', title: 'Lengkapi Profil Anda', message: 'Tambahkan foto profil dan lengkapi data diri Anda agar laporan lebih mudah divalidasi oleh dinas terkait.', timestamp: '2026-08-20T08:35:00Z', type: 'system', isRead: false, link: '/profil' }
 ];
 
 export const mockDinasScorecard: DinasScorecard[] = [

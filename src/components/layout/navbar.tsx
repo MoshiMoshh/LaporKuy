@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useLaporKuyStore } from '@/lib/store';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 
 // ==========================================
 // CUSTOM VISUAL SVG ICON COMPONENTS (PREMIUM ACCENT)
@@ -65,6 +66,28 @@ export function Navbar() {
   const pathname = usePathname();
   const { profile } = useLaporKuyStore();
   const isLoggedIn = true; // In real app, check auth status
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuRef.current) return;
+    if (mobileOpen) {
+      gsap.to(menuRef.current, { 
+        height: 'auto', 
+        opacity: 1, 
+        duration: 0.4, 
+        ease: 'power3.out',
+        display: 'block' 
+      });
+    } else {
+      gsap.to(menuRef.current, { 
+        height: 0, 
+        opacity: 0, 
+        duration: 0.3, 
+        ease: 'power2.inOut',
+        display: 'none' 
+      });
+    }
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b-[3px] border-[#0057B8] shadow-sm">
@@ -138,8 +161,12 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-[#D9DEE5] bg-white px-4 py-4 space-y-4 shadow-lg absolute w-full left-0 right-0 z-50">
+      <div 
+        ref={menuRef}
+        className="md:hidden border-t border-[#D9DEE5] bg-white shadow-lg absolute w-full left-0 right-0 z-50 overflow-hidden"
+        style={{ height: 0, opacity: 0, display: 'none' }}
+      >
+        <div className="px-4 py-4 space-y-4">
           <nav className="flex flex-col gap-2">
             {mainNavLinks.map((link) => (
               <Link
@@ -170,7 +197,7 @@ export function Navbar() {
             </Link>
           )}
         </div>
-      )}
+      </div>
     </header>
   );
 }

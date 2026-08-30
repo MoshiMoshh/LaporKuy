@@ -6,7 +6,41 @@ import { useLaporKuyStore } from '@/lib/store';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bell, CheckCheck, Gift, ThumbsUp, ShieldCheck, Flame, ChevronRight } from 'lucide-react';
+import { Bell, CheckCheck, Gift, ThumbsUp, ShieldCheck, Flame, ChevronRight, Clock } from 'lucide-react';
+
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return 'Baru saja';
+  
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes} menit lalu`;
+  
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} jam lalu`;
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) return `${diffInDays} hari lalu`;
+  
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function formatExact(dateString: string) {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString;
+  return date.toLocaleString('id-ID', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+}
 
 export default function NotifikasiPage() {
   const { notifications, markNotificationsRead } = useLaporKuyStore();
@@ -114,7 +148,13 @@ export default function NotifikasiPage() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{item.message}</p>
-                  <span className="text-[10px] text-muted-foreground block">{item.timestamp}</span>
+                  <span 
+                    className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1"
+                    title={formatExact(item.timestamp)}
+                  >
+                    <Clock className="w-3 h-3" />
+                    {formatTimeAgo(item.timestamp)}
+                  </span>
                 </div>
               </div>
 

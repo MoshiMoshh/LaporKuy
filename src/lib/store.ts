@@ -14,7 +14,12 @@ export function useLaporKuyStore() {
   const [profile, setProfile] = useState<UserProfile>(mockUserProfile);
   const [quests, setQuests] = useState<Quest[]>(mockQuests);
   const [rewards, setRewards] = useState<Reward[]>(mockRewards);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('laporkuy_notifs_read') === 'true') {
+      return mockNotifications.map(n => ({ ...n, isRead: true }));
+    }
+    return mockNotifications;
+  });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -298,6 +303,9 @@ export function useLaporKuyStore() {
 
   const markNotificationsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('laporkuy_notifs_read', 'true');
+    }
     await supabase.from('notifications').update({ is_read: true }).eq('user_id', profile.id);
   };
 

@@ -163,7 +163,7 @@ export default function ProfilPage() {
       <div className="bg-[#003B73] text-white pt-10 pb-32">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-20">
           <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
-            
+
             {/* Avatar */}
             <div className="relative shrink-0 flex justify-center w-full sm:w-auto">
               <div className="relative">
@@ -227,7 +227,7 @@ export default function ProfilPage() {
 
       {/* ── BODY ── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-20 relative z-10 pb-20 space-y-6">
-        
+
         {/* Floating Stat Card */}
         <Card className="rounded-2xl border border-[#D9DEE5] bg-white p-2 shadow-sm">
           <div className="grid grid-cols-3 divide-x divide-slate-100">
@@ -260,11 +260,10 @@ export default function ProfilPage() {
                   <button
                     key={key}
                     onClick={() => handleTabChange(key)}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm rounded-xl transition-all duration-200 ${
-                      activeTab === key
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm rounded-xl transition-all duration-200 ${activeTab === key
                         ? 'bg-[#0057B8]/10 text-[#0057B8] font-semibold'
                         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     <span className="flex items-center gap-3">
                       <Icon className={`w-4 h-4 ${activeTab === key ? 'text-[#0057B8]' : 'text-slate-400'}`} />
@@ -410,11 +409,10 @@ export default function ProfilPage() {
                       <button
                         key={f}
                         onClick={() => setStatusFilter(f)}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                          statusFilter === f
+                        className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${statusFilter === f
                             ? 'bg-[#0057B8] text-white'
                             : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-                        }`}
+                          }`}
                       >
                         {f}
                       </button>
@@ -517,7 +515,7 @@ export default function ProfilPage() {
                                   const MAX_HEIGHT = 256;
                                   let width = img.width;
                                   let height = img.height;
-                                  
+
                                   if (width > height) {
                                     if (width > MAX_WIDTH) {
                                       height *= MAX_WIDTH / width;
