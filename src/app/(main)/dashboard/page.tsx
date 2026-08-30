@@ -15,6 +15,7 @@ import {
   Clock,
   ShieldAlert,
 } from 'lucide-react';
+import gsap from 'gsap';
 
 export default function DashboardPage() {
   const { reports } = useLaporKuyStore();
@@ -28,6 +29,8 @@ export default function DashboardPage() {
   const dragStartY = useRef(0);
   const startHeight = useRef(40);
 
+  const sheetRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -35,11 +38,32 @@ export default function DashboardPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Initial set via GSAP
+  useEffect(() => {
+    if (isMobile && sheetRef.current) {
+      gsap.set(sheetRef.current, { height: `${sheetHeight}%` });
+    }
+  }, [isMobile]);
+
+  const animateToHeight = (target: number) => {
+    setSheetHeight(target);
+    if (sheetRef.current) {
+      gsap.to(sheetRef.current, { 
+        height: `${target}%`, 
+        duration: 0.6, 
+        ease: 'power3.out' 
+      });
+    }
+  };
+
   const handlePointerDown = (e: React.PointerEvent) => {
     isDragging.current = true;
     dragStartY.current = e.clientY;
     startHeight.current = sheetHeight;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    
+    // Kill any active animations when starting drag
+    if (sheetRef.current) gsap.killTweensOf(sheetRef.current);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -49,10 +73,15 @@ export default function DashboardPage() {
     const deltaVh = (deltaY / vh) * 100;
     
     let newHeight = startHeight.current + deltaVh;
-    if (newHeight < 15) newHeight = 15; // Min height: just the handle and categories
-    if (newHeight > 95) newHeight = 95; // Max height: below search bar
+    if (newHeight < 15) newHeight = 15; // Min height
+    if (newHeight > 95) newHeight = 95; // Max height
     
     setSheetHeight(newHeight);
+    
+    // Apply immediately during drag for zero-latency feel
+    if (sheetRef.current) {
+      gsap.set(sheetRef.current, { height: `${newHeight}%` });
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -60,10 +89,21 @@ export default function DashboardPage() {
     isDragging.current = false;
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     
-    // Snap physics
-    if (sheetHeight < 25) setSheetHeight(15); // Snapped minimized state
-    else if (sheetHeight > 70) setSheetHeight(95); // Snapped expanded state
-    else setSheetHeight(42); // Snapped default state
+    // Determine if it was a tap/click (moved less than 5px)
+    const dragDistance = Math.abs(dragStartY.current - e.clientY);
+    if (dragDistance < 5) {
+      if (startHeight.current > 50) {
+        animateToHeight(15); // Close it if it was open
+      } else {
+        animateToHeight(95); // Open it if it was closed
+      }
+      return;
+    }
+
+    // Snap physics for actual drag using GSAP
+    if (sheetHeight < 25) animateToHeight(15); // Snapped minimized state
+    else if (sheetHeight > 70) animateToHeight(95); // Snapped expanded state
+    else animateToHeight(42); // Snapped default state
   };
 
   // Filter reports based on search query and selected category
@@ -117,6 +157,7 @@ export default function DashboardPage() {
           SIDEBAR / BOTTOM SHEET (List)
       ═══════════════════════════════════════════════ */}
       <div 
+        ref={sheetRef}
         className="
           w-full md:w-[400px] lg:w-[450px] 
           absolute bottom-0 inset-x-0 md:relative md:bottom-auto md:inset-x-auto
@@ -126,19 +167,21 @@ export default function DashboardPage() {
           rounded-t-[28px] md:rounded-none
           flex flex-col z-20 shadow-[0_-8px_40px_rgba(0,0,0,0.12)] md:shadow-sm 
           min-h-0 order-last md:order-first
-          transition-[height] duration-200 ease-out md:transition-none
         "
-        style={{ height: isMobile ? `${sheetHeight}%` : 'auto', maxHeight: isMobile ? '95%' : 'auto' }}
+        style={{ maxHeight: isMobile ? '95%' : 'auto' }}
       >
         {/* Mobile Drag Handle Visual */}
         <div 
-          className="md:hidden w-full flex justify-center pt-3 pb-3 shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          className="md:hidden w-full flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none group"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          <div className="w-10 h-1 rounded-full bg-slate-300 pointer-events-none" />
+          {/* Outer shape wrapper for better button affordance */}
+          <div className="w-16 h-5 flex items-center justify-center rounded-full bg-slate-100/50 group-hover:bg-slate-200/70 group-active:bg-slate-300/60 transition-colors pointer-events-none">
+            <div className="w-8 h-1 rounded-full bg-slate-400/80" />
+          </div>
         </div>
 
         {/* Mobile Filters Horizontal Scroll (Inside Sheet) */}
