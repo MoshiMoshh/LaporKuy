@@ -42,8 +42,10 @@ export function MapView({
     }
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isAutoPanning, setIsAutoPanning] = useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
   const initialPan = useRef({ x: 0, y: 0 });
 
@@ -72,7 +74,7 @@ export function MapView({
   };
 
   return (
-    <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
+    <div ref={containerRef} className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
       
       {/* ════ DRAGGABLE MAP LAYER ════ */}
       <div 
@@ -83,7 +85,7 @@ export function MapView({
         onPointerCancel={handlePointerUp}
       >
         <div 
-          className="absolute inset-0 w-[200vw] h-[200vh] -left-[50vw] -top-[50vh] transition-transform duration-0"
+          className={`absolute inset-0 w-[200vw] h-[200vh] -left-[50vw] -top-[50vh] ${isAutoPanning ? 'transition-transform duration-500 ease-out' : 'transition-transform duration-0'}`}
           style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }}
         >
           {/* Map Graphic Overlay Background (Simulated High-Tech City Grid Map) */}
@@ -128,9 +130,29 @@ export function MapView({
                       // Prevent map drag when clicking a pin
                       e.stopPropagation();
                     }}
-                    onClick={() => {
+                    onClick={(e) => {
                       setSelectedPin(report);
                       onSelectReport?.(report);
+
+                      // Auto-pan to center
+                      if (containerRef.current) {
+                        const containerRect = containerRef.current.getBoundingClientRect();
+                        const pinRect = e.currentTarget.getBoundingClientRect();
+                        
+                        // Calculate difference from center of container to center of pin
+                        const dx = (containerRect.width / 2) - (pinRect.left - containerRect.left + pinRect.width / 2);
+                        
+                        // Offset Y slightly downwards on mobile so the popup doesn't block the pin
+                        const isMobile = window.innerWidth < 768;
+                        const yOffset = isMobile ? (containerRect.height / 4) : 0;
+                        const dy = (containerRect.height / 2) - (pinRect.top - containerRect.top + pinRect.height / 2) + yOffset;
+                        
+                        setIsAutoPanning(true);
+                        setPan(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+                        
+                        // Reset transition duration after animation completes
+                        setTimeout(() => setIsAutoPanning(false), 500);
+                      }
                     }}
                   >
                     {/* Marker Ping Pulse */}
