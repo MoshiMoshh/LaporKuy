@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const userMessage = messages[messages.length - 1]?.content || '';
 
     const genAI = new GoogleGenerativeAI(effectiveKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     // Menyuntikkan instruksi sistem ke awal percakapan
     const chat = model.startChat({

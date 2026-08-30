@@ -336,7 +336,7 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
             
             <div className="relative h-44 rounded-xl overflow-hidden border border-border shadow-inner bg-slate-900 group">
               <img
-                src={`https://api.maptiler.com/maps/dataviz-dark/static/${report.lng || 112.7521},${report.lat || -7.2575},15/600x300@2x.png?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 'qNmsb52QZkhFrzAr5QnL'}&markers=icon:pin-red|${report.lng || 112.7521},${report.lat || -7.2575}`}
+                src={`https://api.maptiler.com/maps/dataviz-dark/static/${report.lng || 112.7521},${report.lat || -7.2575},15/600x300.png?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 'qNmsb52QZkhFrzAr5QnL'}&markers=icon:pin-red|${report.lng || 112.7521},${report.lat || -7.2575}`}
                 alt="Map Location"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />

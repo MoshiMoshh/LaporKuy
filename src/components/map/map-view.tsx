@@ -77,7 +77,7 @@ export function MapView({
   };
 
   // MapTiler static tile map for Surabaya Center (-7.2575, 112.7521)
-  const mapTilerUrl = `https://api.maptiler.com/maps/${mapTheme}/static/112.7521,-7.2575,13/1920x1080@2x.png?key=${MAPTILER_KEY}`;
+  const mapTilerUrl = `https://api.maptiler.com/maps/${mapTheme}/static/112.7521,-7.2575,13/1280x720.png?key=${MAPTILER_KEY}`;
 
   return (
     <div ref={containerRef} className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
