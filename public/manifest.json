@@ -1,0 +1,21 @@
+{
+  "name": "LaporKuy — Platform Pelaporan Infrastruktur Kota",
+  "short_name": "LaporKuy",
+  "description": "Laporkan masalah infrastruktur kota dalam 30 detik. Foto, lokasi otomatis, AI klasifikasi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#003B73",
+  "theme_color": "#0057B8",
+  "icons": [
+    {
+      "src": "/globe.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/globe.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
