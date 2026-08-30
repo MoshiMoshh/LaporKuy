@@ -3,15 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useLaporKuyStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MapPin, User, Mail, Lock, Phone, ArrowRight, Sparkles } from 'lucide-react';
+import { MapPin, User, Mail, Lock, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useLaporKuyStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -36,15 +35,15 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      alert('Gagal mendaftar: ' + error.message);
+      toast.error('Gagal mendaftar', {
+        description: error.message,
+      });
       setIsLoading(false);
     } else {
-      // Supabase secara otomatis me-login-kan user setelah register jika konfirmasi email mati.
-      // Kita harus sign out paksa agar AuthGuard tidak otomatis melempar user ke '/'
-      await supabase.auth.signOut();
-      
-      alert('Akun Anda berhasil dibuat. Silakan masuk (login) menggunakan email dan password Anda.');
-      router.push('/login');
+      toast.success('Akun berhasil dibuat!', {
+        description: 'Anda akan diarahkan ke halaman utama.',
+      });
+      router.push('/');
     }
   };
 
@@ -58,43 +57,38 @@ export default function RegisterPage() {
     });
     
     if (error) {
-      alert('Error saat login dengan Google: ' + error.message);
+      toast.error('Daftar dengan Google gagal', {
+        description: error.message,
+      });
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-[100dvh] w-full bg-background flex-row-reverse">
-      {/* BRANDING SIDE - Hidden on mobile, visible on desktop */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden flex-col justify-between p-12">
-        {/* Subtle grid pattern background */}
-        <div className="absolute inset-0 bg-grid-pattern-subtle opacity-50 pointer-events-none" />
-        
-        {/* Decorative Effects */}
-        <div className="absolute top-1/4 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="flex min-h-[100dvh] w-full bg-background">
+      {/* BRANDING SIDE — same style as login for consistency */}
+      <div className="hidden lg:flex w-1/2 bg-primary relative overflow-hidden flex-col justify-between p-12">
+        <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
 
-        <div className="relative z-10 flex justify-end">
-          <div className="flex items-center gap-3 text-white">
-            <span className="text-xl font-semibold tracking-tight">LaporKuy</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/10">
-              <MapPin className="h-5 w-5" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 text-primary-foreground mb-12">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-lg border border-white/10">
+              <MapPin className="h-6 w-6" />
             </div>
+            <span className="text-2xl font-bold tracking-tight">LaporKuy</span>
           </div>
-        </div>
 
-        <div className="relative z-10 text-right mt-24">
-          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tighter leading-[1.1] ml-auto max-w-[15ch]">
-            Jadilah Bagian Dari Perubahan.
+          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tighter leading-[1.1] max-w-[18ch]">
+            Wujudkan kota yang lebih baik, mulai dari laporan Anda.
           </h1>
-          <p className="mt-6 text-slate-300 text-lg leading-relaxed ml-auto max-w-[35ch]">
-            Bergabunglah dengan lebih dari 12.000 warga aktif yang berpartisipasi mewujudkan kota yang lebih baik setiap harinya.
+          <p className="mt-6 text-primary-foreground/80 text-lg leading-relaxed max-w-[40ch]">
+            Daftar gratis. Laporkan masalah infrastruktur, pantau progres, dan kumpulkan poin dari setiap kontribusi.
           </p>
         </div>
 
-        <div className="relative z-10 flex items-center justify-end gap-4 text-slate-300 text-sm font-medium mt-auto">
-          <span>Komunitas yang peduli & proaktif</span>
-          <Sparkles className="h-5 w-5 text-emerald-400" />
+        <div className="relative z-10 flex items-center gap-4 text-primary-foreground/80 text-sm font-medium">
+          <ShieldCheck className="h-5 w-5 text-white" />
+          <span>Data Anda aman &amp; terenkripsi</span>
         </div>
       </div>
 
