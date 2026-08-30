@@ -5,7 +5,7 @@ import { Report } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { MapPin, Flame, AlertTriangle, Layers, ThumbsUp, ChevronRight, Eye } from 'lucide-react';
+import { MapPin, Flame, AlertTriangle, Layers, ThumbsUp, ChevronRight, Eye, Globe2, Compass } from 'lucide-react';
 import Link from 'next/link';
 
 interface MapViewProps {
@@ -16,6 +16,8 @@ interface MapViewProps {
   className?: string;
 }
 
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 'qNmsb52QZkhFrzAr5QnL';
+
 export function MapView({
   reports,
   mapMode = 'marker',
@@ -24,6 +26,7 @@ export function MapView({
   className = '',
 }: MapViewProps) {
   const [selectedPin, setSelectedPin] = useState<Report | null>(reports[0] || null);
+  const [mapTheme, setMapTheme] = useState<'dataviz-dark' | 'streets-v2' | 'satellite'>('dataviz-dark');
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -73,6 +76,9 @@ export function MapView({
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   };
 
+  // MapTiler static tile map for Surabaya Center (-7.2575, 112.7521)
+  const mapTilerUrl = `https://api.maptiler.com/maps/${mapTheme}/static/112.7521,-7.2575,13/1920x1080@2x.png?key=${MAPTILER_KEY}`;
+
   return (
     <div ref={containerRef} className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
       
@@ -88,12 +94,21 @@ export function MapView({
           className={`absolute inset-0 w-[200vw] h-[200vh] -left-[50vw] -top-[50vh] ${isAutoPanning ? 'transition-transform duration-500 ease-out' : 'transition-transform duration-0'}`}
           style={{ transform: `translate(${pan.x}px, ${pan.y}px)` }}
         >
+          {/* MapTiler Satellite / Streets / Dark Layer */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-60 dark:opacity-50"
+            style={{ 
+              backgroundImage: `url(${mapTilerUrl})`,
+              filter: mapTheme === 'dataviz-dark' ? 'contrast(1.1) brightness(0.9)' : 'none'
+            }}
+          />
+
           {/* Map Graphic Overlay Background (Simulated High-Tech City Grid Map) */}
-          <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
+          <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-30" />
 
           {/* Heatmap Gradient Overlay when Heatmap Mode active */}
           {mapMode === 'heatmap' && (
-            <div className="absolute inset-0 pointer-events-none opacity-60 bg-[radial-gradient(circle_at_50%_40%,rgba(239,68,68,0.5)_0%,rgba(245,158,11,0.3)_35%,rgba(16,185,129,0.15)_70%,transparent_100%)] animate-pulse" />
+            <div className="absolute inset-0 pointer-events-none opacity-70 bg-[radial-gradient(circle_at_50%_40%,rgba(239,68,68,0.6)_0%,rgba(245,158,11,0.4)_35%,rgba(16,185,129,0.2)_70%,transparent_100%)] animate-pulse" />
           )}
 
           {/* Predictive Zone Highlight Layer */}
@@ -178,20 +193,46 @@ export function MapView({
       {/* ════ STATIC UI LAYER ════ */}
       <div className="relative z-10 p-4 pointer-events-none flex flex-col justify-between h-full">
         
-        {/* Top Map Control Bar - Hidden on mobile to prevent overlap with floating search */}
+        {/* Top Map Control Bar */}
         <div className="pointer-events-auto hidden md:flex flex-wrap items-center justify-between gap-2 bg-slate-900/90 backdrop-blur-md p-3 rounded-xl border border-slate-800 shadow-lg">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-700">
-              📍 Surabaya & Sekitarnya
+            <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-700 flex items-center gap-1">
+              <Compass className="w-3.5 h-3.5 text-cyan-400" />
+              Surabaya & Sekitarnya
             </Badge>
             <span className="text-xs text-slate-400 font-medium">
               {reports.length} Laporan Terdaftar
             </span>
           </div>
+
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 hidden sm:inline">Mode Visual:</span>
+            {/* MapTiler Style Switcher */}
+            <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+              <button
+                type="button"
+                onClick={() => setMapTheme('dataviz-dark')}
+                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'dataviz-dark' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              >
+                🌙 Dark
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapTheme('streets-v2')}
+                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'streets-v2' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              >
+                🗺️ Jalan
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapTheme('satellite')}
+                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'satellite' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+              >
+                🛰️ Satelit
+              </button>
+            </div>
+
             <Badge
-              className={mapMode === 'marker' ? 'bg-primary text-primary-foreground' : 'bg-slate-800 text-slate-400'}
+              className={mapMode === 'marker' ? 'bg-primary text-primary-foreground text-xs' : 'bg-slate-800 text-slate-400 text-xs'}
             >
               {mapMode === 'marker' ? 'Pin Markers' : 'Heatmap Density'}
             </Badge>
@@ -242,6 +283,13 @@ export function MapView({
               </div>
             </Card>
           )}
+
+          {/* MapTiler Attribution Badge */}
+          <div className="mt-2 flex justify-end">
+            <span className="text-[9px] text-slate-500/80 bg-slate-950/60 px-2 py-0.5 rounded backdrop-blur-sm">
+              Maps by MapTiler &copy; OpenStreetMap
+            </span>
+          </div>
         </div>
       </div>
     </div>
