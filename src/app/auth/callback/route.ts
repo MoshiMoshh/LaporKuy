@@ -23,9 +23,11 @@ export async function GET(request: Request) {
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
+    } else {
+      console.error('Supabase Auth Callback Error:', error.message)
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  // return the user to login with error parameter instead of a non-existent 404 page
+  return NextResponse.redirect(`${origin}/login?error=auth_failed`)
 }
