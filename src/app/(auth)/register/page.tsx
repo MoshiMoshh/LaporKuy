@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Lock, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Phone, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
 
@@ -66,141 +67,123 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 font-sans">
-      {/* BRANDING SIDE - Clean Minimalist Navy */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 flex-col justify-between p-12 text-white">
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-12">
-            <Logo size={36} theme="dark" />
-          </div>
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#003B73] to-[#00143A] p-5 relative overflow-hidden font-sans">
+      
+      {/* Decorative Cityscape Silhouette */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
+        {/* Mobile View (Focus on Monas on the left) */}
+        <img 
+          src="/skyline-jakarta.png" 
+          alt="Jakarta Skyline Mobile" 
+          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+        />
+        {/* Desktop View (Centered Panorama) */}
+        <img 
+          src="/skyline-jakarta.png" 
+          alt="Jakarta Skyline Desktop" 
+          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+        />
+      </div>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-lg">
-            Wujudkan kota yang lebih baik, mulai dari laporan Anda.
-          </h1>
-          <p className="mt-6 text-slate-300 text-lg leading-relaxed max-w-md">
-            Daftar gratis. Laporkan masalah infrastruktur, pantau progres, dan kumpulkan poin dari setiap kontribusi secara transparan.
+      <div className="w-full max-w-md z-10 flex flex-col items-center py-8">
+        {/* Branding */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="mb-6 drop-shadow-2xl">
+             <Logo size={100} theme="dark" layout="vertical" />
+          </div>
+          <p className="text-slate-300 mt-2 text-center text-[15px] font-medium tracking-wide leading-relaxed">
+            Sampaikan Laporanmu.<br/>Kuy Action.
           </p>
         </div>
 
-        <div className="relative z-10 flex items-center gap-3 text-slate-300 text-sm font-semibold bg-slate-800/50 p-4 rounded-sm border border-slate-700 w-max">
-          <ShieldCheck className="h-5 w-5 text-green-400" />
-          <span>Data Anda aman dan terenkripsi standar publik</span>
-        </div>
-      </div>
-
-      {/* FORM SIDE */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative overflow-y-auto">
-        <div className="w-full max-w-md">
-          
-          <div className="mb-8 lg:hidden flex flex-col items-center text-center">
-             <Logo size={44} className="mb-4" />
-             <h1 className="text-2xl font-bold tracking-tight text-slate-900">Daftar LaporKuy</h1>
+        {/* Register Card */}
+        <div className="w-full bg-[#0A1629] rounded-[2rem] p-7 sm:p-9 shadow-2xl border border-white/5">
+          <div className="mb-8">
+            <h1 className="text-xl font-bold text-white mb-2 tracking-wide">Buat Akun Baru</h1>
+            <p className="text-slate-400 text-sm">Daftar sekarang buat mulai lapor.</p>
           </div>
 
-          <div className="hidden lg:block mb-8 border-b border-slate-200 pb-6">
-             <h2 className="text-2xl font-bold tracking-tight text-slate-900">Buat Akun Baru</h2>
-             <p className="text-slate-600 mt-2 text-sm">Daftarkan diri Anda untuk mulai melaporkan masalah infrastruktur.</p>
-          </div>
-
-          <form onSubmit={handleRegister} className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-900" htmlFor="name-laporkuy">
-                Nama Lengkap <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
-                <Input
-                  id="name-laporkuy"
-                  name="name-laporkuy"
-                  placeholder="Sesuai KTP/ID"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-10 h-12 bg-white border-slate-300 focus-visible:ring-blue-700 focus-visible:border-blue-700 rounded-sm"
-                  required
-                  disabled={isLoading}
-                  autoComplete="name"
-                />
+          <form onSubmit={handleRegister} className="space-y-4">
+            
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <User className="h-5 w-5 text-slate-400" />
               </div>
+              <Input
+                type="text"
+                placeholder="Nama Lengkap"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                required
+                disabled={isLoading}
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-900" htmlFor="email-laporkuy">
-                Email Aktif <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
-                <Input
-                  id="email-laporkuy"
-                  type="email"
-                  name="email-laporkuy"
-                  placeholder="anda@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 bg-white border-slate-300 focus-visible:ring-blue-700 focus-visible:border-blue-700 rounded-sm"
-                  required
-                  disabled={isLoading}
-                  autoComplete="email"
-                />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Mail className="h-5 w-5 text-slate-400" />
               </div>
+              <Input
+                type="email"
+                placeholder="Email Aktif"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                required
+                disabled={isLoading}
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-900 flex justify-between" htmlFor="phone-laporkuy">
-                <span>Nomor Telepon</span>
-                <span className="text-slate-500 font-normal">Opsional</span>
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
-                <Input
-                  id="phone-laporkuy"
-                  type="tel"
-                  name="phone-laporkuy"
-                  placeholder="0812..."
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="pl-10 h-12 bg-white border-slate-300 focus-visible:ring-blue-700 focus-visible:border-blue-700 rounded-sm"
-                  disabled={isLoading}
-                  autoComplete="tel"
-                />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Phone className="h-5 w-5 text-slate-400" />
               </div>
+              <Input
+                type="tel"
+                placeholder="Nomor Telepon (Opsional)"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                disabled={isLoading}
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-900" htmlFor="password-laporkuy">
-                Kata Sandi <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
-                <Input
-                  id="password-laporkuy"
-                  type="password"
-                  name="password-laporkuy"
-                  placeholder="Minimal 8 karakter"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 h-12 bg-white border-slate-300 focus-visible:ring-blue-700 focus-visible:border-blue-700 rounded-sm"
-                  required
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-slate-400" />
               </div>
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Kata Sandi (Min. 8 Karakter)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-11 pr-12 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-300 focus:outline-none"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
 
             <Button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full h-12 font-bold bg-blue-700 hover:bg-blue-800 text-white rounded-sm mt-4 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-700 transition-colors"
+              className="w-full h-14 font-bold text-[15px] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-xl shadow-sm transition-all mt-6"
             >
-              {isLoading ? 'Memproses...' : 'Daftar Sekarang'} 
-              {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+              {isLoading ? 'Memproses...' : 'Daftar'}
             </Button>
           </form>
 
           <div className="mt-8 flex items-center justify-center gap-4">
-            <div className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Atau</span>
-            <div className="h-px flex-1 bg-slate-200" />
+            <div className="h-[1px] flex-1 bg-slate-800" />
+            <span className="text-[13px] font-medium text-slate-500">atau</span>
+            <div className="h-[1px] flex-1 bg-slate-800" />
           </div>
 
           <Button 
@@ -208,9 +191,9 @@ export default function RegisterPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleRegister}
-            className="w-full h-12 font-semibold mt-8 flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border-slate-300 rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400 text-slate-700"
+            className="w-full h-14 font-semibold mt-6 flex items-center justify-center gap-3 bg-transparent hover:bg-slate-800/50 border-slate-700 rounded-xl text-white transition-all text-[14px]"
           >
-            <svg viewBox="0 0 24 24" className="w-5 h-5">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -219,9 +202,9 @@ export default function RegisterPage() {
             Daftar dengan Google
           </Button>
 
-          <p className="text-center mt-8 text-sm text-slate-600 font-medium">
+          <p className="text-center mt-8 text-[13px] text-slate-400 font-medium">
             Sudah punya akun?{' '}
-            <Link href="/login" className="font-bold text-blue-700 hover:underline hover:text-blue-800 transition-colors focus-visible:outline-none focus-visible:underline">
+            <Link href="/login" className="font-semibold text-[#0084FF] hover:text-blue-400 transition-colors">
               Masuk Sekarang
             </Link>
           </p>

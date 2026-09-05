@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
 
-const geistSans = Geist({
+const jakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
 });
@@ -41,10 +41,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${geistSans.variable} h-full antialiased`} data-scroll-behavior="smooth">
-      <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-slate-950 dark:text-slate-50">
+    <html lang="id" className={`${jakartaSans.variable} h-full antialiased`} data-scroll-behavior="smooth">
+      <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-slate-950 dark:text-slate-50 font-sans">
         <Providers>{children}</Providers>
           <Toaster position="top-center" richColors closeButton />
       </body>

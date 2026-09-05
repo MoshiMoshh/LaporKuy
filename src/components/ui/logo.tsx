@@ -73,38 +73,38 @@ interface LogoProps {
   size?: number;
   /** 'light' for light backgrounds, 'dark' for dark backgrounds */
   theme?: 'light' | 'dark';
+  /** 'horizontal' (default) or 'vertical' for stacked layouts */
+  layout?: 'horizontal' | 'vertical';
   /** Additional class for the wrapper */
   className?: string;
 }
 
 /**
  * LaporKuy full logo — icon + brand text.
- *
- * Usage:
- * ```tsx
- * <Logo />                           // full logo, default size
- * <Logo variant="icon" />            // icon only (favicon, nav)
- * <Logo size={48} />                 // custom icon size
- * <Logo theme="dark" />              // white text for dark backgrounds
- * ```
  */
-export function Logo({ variant = 'full', size = 40, theme = 'light', className }: LogoProps) {
+export function Logo({ variant = 'full', size = 40, theme = 'light', layout = 'horizontal', className }: LogoProps) {
   if (variant === 'icon') {
     return <LogoIcon size={size} className={className} />;
   }
 
-  // Scale text proportionally to icon size
-  const textScale = size / 40;
-  const fontSize = 24 * textScale;
+  // Scale text proportionally to icon size. For vertical layout, we want the icon to remain dominant,
+  // so we use a smaller scaling factor for the text.
+  const textScale = layout === 'vertical' ? size / 70 : size / 40;
+  const fontSize = 28 * textScale;
 
   const laporColor = theme === 'dark' ? 'text-white' : 'text-blue-700';
   const kuyColor = theme === 'dark' ? 'text-orange-400' : 'text-orange-500';
+  
+  const layoutClasses = layout === 'vertical' ? 'flex-col justify-center items-center' : 'flex-row items-center gap-2';
+  
+  // The SVG has some internal whitespace at the bottom, so we pull the text up slightly in vertical mode
+  const textMarginTop = layout === 'vertical' ? `-${size * 0.1}px` : '0';
 
   return (
-    <div className={`flex items-center gap-1 ${className ?? ''}`} aria-label="LaporKuy">
+    <div className={`flex ${layoutClasses} ${className ?? ''}`} aria-label="LaporKuy">
       <LogoIcon size={size} />
       <span
-        style={{ fontSize: `${fontSize}px`, lineHeight: 1 }}
+        style={{ fontSize: `${fontSize}px`, lineHeight: 1, marginTop: textMarginTop }}
         className="font-extrabold tracking-tight select-none"
       >
         <span className={`${laporColor} italic`}>lapor</span>

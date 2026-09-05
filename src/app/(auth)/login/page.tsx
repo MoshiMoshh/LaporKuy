@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
 
@@ -55,109 +55,100 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 font-sans">
-      {/* BRANDING SIDE */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 flex-col justify-between p-12 text-white">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#003B73] to-[#00143A] p-5 relative overflow-hidden font-sans">
+      
+      {/* Decorative Cityscape Silhouette */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
+        {/* Mobile View (Focus on Monas on the left) */}
+        <img 
+          src="/skyline-jakarta.png" 
+          alt="Jakarta Skyline Mobile" 
+          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+        />
+        {/* Desktop View (Centered Panorama) */}
+        <img 
+          src="/skyline-jakarta.png" 
+          alt="Jakarta Skyline Desktop" 
+          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+        />
+      </div>
 
-        <div className="relative z-10">
-          <div className="mb-12">
-            <Logo size={36} theme="dark" />
+      <div className="w-full max-w-md z-10 flex flex-col items-center">
+        {/* Branding */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="mb-6 drop-shadow-2xl">
+             <Logo size={100} theme="dark" layout="vertical" />
           </div>
-
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-lg">
-            Jalan berlubang? Lampu mati? Laporkan.
-          </h1>
-          <p className="mt-6 text-slate-300 text-lg leading-relaxed max-w-md">
-            Foto, tandai lokasi, kirim. Laporan Anda langsung masuk ke sistem dan bisa dipantau kapan saja.
+          <p className="text-slate-300 mt-2 text-center text-[15px] font-medium tracking-wide leading-relaxed">
+            Sampaikan Laporanmu.<br/>Kuy Action.
           </p>
         </div>
 
-        <div className="relative z-10 flex items-center gap-3 text-slate-300 text-sm font-semibold bg-slate-800/50 p-4 rounded-sm border border-slate-700 w-max">
-          <ShieldCheck className="h-5 w-5 text-green-400" aria-hidden="true" />
-          <span>Sistem aman &amp; terverifikasi</span>
-        </div>
-      </div>
-
-      {/* FORM SIDE */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
-        <div className="w-full max-w-md">
-          
-          <div className="mb-8 lg:hidden flex flex-col items-center text-center">
-             <Logo size={44} className="mb-4" />
-             <h1 className="text-2xl font-bold tracking-tight text-slate-900">Masuk ke Akun</h1>
+        {/* Login Card */}
+        <div className="w-full bg-[#0A1629] rounded-[2rem] p-7 sm:p-9 shadow-2xl border border-white/5">
+          <div className="mb-8">
+            <h1 className="text-xl font-bold text-white mb-2 tracking-wide">Selamat Datang!</h1>
+            <p className="text-slate-400 text-sm">Silakan masuk untuk melanjutkan</p>
           </div>
 
-          <div className="hidden lg:block mb-8 border-b border-slate-200 pb-6">
-             <h2 className="text-2xl font-bold tracking-tight text-slate-900">Selamat Datang Kembali</h2>
-             <p className="text-slate-600 mt-2 text-sm">Silakan masuk ke akun Anda untuk melanjutkan.</p>
-          </div>
-
-          <form onSubmit={handleEmailLogin} className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-900" htmlFor="login-email">
-                Alamat Email <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
-                <Input
-                  id="login-email"
-                  type="email"
-                  name="email-laporkuy"
-                  placeholder="anda@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 bg-white border-slate-300 focus-visible:ring-blue-700 focus-visible:border-blue-700 rounded-sm"
-                  required
-                  disabled={isLoading}
-                  autoComplete="email"
-                  autoFocus
-                />
-              </div>
-            </div>
+          <form onSubmit={handleEmailLogin} className="space-y-4">
             
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-900" htmlFor="login-password">
-                Kata Sandi <span className="text-red-600">*</span>
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" aria-hidden="true" />
-                <Input
-                  id="login-password"
-                  type={showPassword ? 'text' : 'password'}
-                  name="password-laporkuy"
-                  placeholder="Masukkan kata sandi"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-11 h-12 bg-white border-slate-300 focus-visible:ring-blue-700 focus-visible:border-blue-700 rounded-sm"
-                  required
-                  disabled={isLoading}
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-none focus-visible:text-blue-700"
-                  aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <User className="h-5 w-5 text-slate-400" />
               </div>
+              <Input
+                type="text"
+                placeholder="Email atau Username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Lock className="h-5 w-5 text-slate-400" />
+              </div>
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Kata Sandi"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-11 pr-12 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-300 focus:outline-none"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-1 pb-2">
+              <Link href="#" className="text-[13px] font-semibold text-[#0084FF] hover:text-blue-400 transition-colors">
+                Lupa Kata Sandi?
+              </Link>
             </div>
 
             <Button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full h-12 font-bold bg-blue-700 hover:bg-blue-800 text-white rounded-sm mt-4 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-700 transition-colors"
+              className="w-full h-14 font-bold text-[15px] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-xl shadow-sm transition-all"
             >
-              {isLoading ? 'Memproses...' : 'Masuk Sekarang'} 
-              {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+              {isLoading ? 'Memproses...' : 'Masuk'}
             </Button>
           </form>
 
           <div className="mt-8 flex items-center justify-center gap-4">
-            <div className="h-px flex-1 bg-slate-200" />
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Atau</span>
-            <div className="h-px flex-1 bg-slate-200" />
+            <div className="h-[1px] flex-1 bg-slate-800" />
+            <span className="text-[13px] font-medium text-slate-500">atau</span>
+            <div className="h-[1px] flex-1 bg-slate-800" />
           </div>
 
           <Button 
@@ -165,7 +156,7 @@ export default function LoginPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleLogin}
-            className="w-full h-12 font-semibold mt-8 flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border-slate-300 rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-400 text-slate-700"
+            className="w-full h-14 font-semibold mt-6 flex items-center justify-center gap-3 bg-transparent hover:bg-slate-800/50 border-slate-700 rounded-xl text-white transition-all text-[14px]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -176,10 +167,10 @@ export default function LoginPage() {
             Masuk dengan Google
           </Button>
 
-          <p className="text-center mt-8 text-sm text-slate-600 font-medium">
+          <p className="text-center mt-8 text-[13px] text-slate-400 font-medium">
             Belum punya akun?{' '}
-            <Link href="/register" className="font-bold text-blue-700 hover:underline hover:text-blue-800 transition-colors focus-visible:outline-none focus-visible:underline">
-              Daftar Sekarang
+            <Link href="/register" className="font-semibold text-[#0084FF] hover:text-blue-400 transition-colors">
+              Daftar sekarang
             </Link>
           </p>
         </div>
