@@ -48,7 +48,7 @@ export default function AdminPage() {
       selectedReport.id,
       newStatus,
       statusNotes,
-      afterPhotoInput || 'https://images.unsplash.com/photo-1517649763962-0c623266010b?w=800&auto=format&fit=crop&q=80'
+      afterPhotoInput || '/images/reports/repair.jpg'
     );
 
     setSelectedReport(null);
@@ -147,12 +147,12 @@ export default function AdminPage() {
               <tbody className="divide-y border-border/50 font-medium">
                 {filteredReports.map((report) => {
                   const fallbackPhotoUrl = report.category.includes('Lampu') 
-                    ? 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&q=80'
+                    ? '/images/reports/streetlight.jpg'
                     : report.category.includes('Banjir')
-                    ? 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&q=80'
+                    ? '/images/reports/flood.jpg'
                     : report.category.includes('Sampah')
-                    ? 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&q=80'
-                    : 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&q=80';
+                    ? '/images/reports/trash.jpg'
+                    : '/images/reports/pothole.jpg';
 
                   return (
                   <tr key={report.id} className="hover:bg-muted/20">
@@ -215,12 +215,12 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredReports.filter(r => r.assignedDinas?.includes('Bina Marga')).map((report) => {
             const fallbackPhotoUrl = report.category.includes('Lampu') 
-              ? 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&q=80'
+              ? '/images/reports/streetlight.jpg'
               : report.category.includes('Banjir')
-              ? 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&q=80'
+              ? '/images/reports/flood.jpg'
               : report.category.includes('Sampah')
-              ? 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&q=80'
-              : 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&q=80';
+              ? '/images/reports/trash.jpg'
+              : '/images/reports/pothole.jpg';
 
             return (
               <Card key={report.id} className="p-4 flex flex-col gap-4 border-l-4 border-l-primary hover:border-l-primary/80 transition-all shadow-sm">

@@ -110,12 +110,12 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
       {/* PHOTO DISPLAY / BEFORE AFTER SLIDER */}
       {(() => {
         const fallbackPhotoUrl = report.category.includes('Lampu') 
-          ? 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&q=80'
+          ? '/images/reports/streetlight.jpg'
           : report.category.includes('Banjir')
-          ? 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&q=80'
+          ? '/images/reports/flood.jpg'
           : report.category.includes('Sampah')
-          ? 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&q=80'
-          : 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&q=80';
+          ? '/images/reports/trash.jpg'
+          : '/images/reports/pothole.jpg';
 
         return report.status === 'Selesai' && report.afterPhotoUrl ? (
           <div className="space-y-2">

@@ -18,6 +18,10 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+        "liquid-primary":
+          "bg-gradient-to-b from-orange-400 to-orange-500 text-white border-x border-t border-b-2 border-orange-300/50 border-b-orange-700/60 shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.4),0px_2px_4px_0px_rgba(249,115,22,0.4),0px_8px_24px_-4px_rgba(249,115,22,0.6)] hover:brightness-110 hover:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.5),0px_4px_8px_0px_rgba(249,115,22,0.5),0px_12px_32px_-4px_rgba(249,115,22,0.8)] active:shadow-none active:translate-y-0 hover:-translate-y-0.5 transition-all duration-300",
+        "liquid-glass":
+          "bg-white/5 backdrop-blur-xl border border-white/20 text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.15),0px_8px_24px_-4px_rgba(0,0,0,0.3)] hover:bg-white/10 hover:border-white/30 hover:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25),0px_12px_32px_-4px_rgba(0,0,0,0.4)] active:shadow-none active:translate-y-0 hover:-translate-y-0.5 transition-all duration-300",
       },
       size: {
         default:
@@ -25,6 +29,7 @@ const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xl: "h-14 gap-2.5 rounded-2xl px-8 text-base",
         icon: "size-8",
         "icon-xs":
           "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",

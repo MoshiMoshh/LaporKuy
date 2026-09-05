@@ -128,7 +128,7 @@ export default function TukarPoinPage() {
                   src={item.imageUrl}
                   alt={item.title}
                   onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&auto=format&fit=crop&q=80';
+                    e.currentTarget.src = '/images/reports/pothole.jpg';
                   }}
                   className="w-full h-full object-cover"
                 />
@@ -202,7 +202,7 @@ export default function TukarPoinPage() {
                 src={selectedReward.imageUrl}
                 alt={selectedReward.title}
                 onError={(e) => {
-                  e.currentTarget.src = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&auto=format&fit=crop&q=80';
+                  e.currentTarget.src = '/images/reports/pothole.jpg';
                 }}
                 className="h-14 w-14 rounded-lg object-cover border border-slate-200 shrink-0"
               />

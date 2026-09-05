@@ -39,35 +39,54 @@ export default function HomePage() {
   const { reports } = useLaporKuyStore();
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans pb-20 md:pb-0">
-      {/* HERO */}
-      <section className="relative px-5 pt-12 pb-12 md:px-8 md:pt-24 md:pb-20 max-w-6xl mx-auto overflow-hidden">
-        {/* Decorative background blob */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-500/5 blur-3xl" />
-        
-        <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20 md:pb-0">
+      {/* HERO SECTION */}
+      <section className="relative w-full bg-gradient-to-b from-[#003B73] to-[#00143A] pt-24 pb-32 overflow-hidden">
+        {/* Decorative Cityscape Silhouette */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
+          {/* Mobile View */}
+          <img 
+            src="/skyline-jakarta.png" 
+            alt="Jakarta Skyline" 
+            className="block md:hidden w-full h-[60vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+          />
+          {/* Desktop View */}
+          <img 
+            src="/skyline-jakarta.png" 
+            alt="Jakarta Skyline" 
+            className="hidden md:block w-full h-[55vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+          />
+        </div>
 
-          <h1 className="text-[2.5rem] leading-[1.05] font-extrabold tracking-tighter sm:text-6xl md:text-7xl text-slate-900">
+        <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto px-5">
+          <h1 className="text-[2.5rem] leading-[1.05] font-extrabold tracking-tighter sm:text-6xl md:text-7xl text-white drop-shadow-md">
             Fasilitas rusak<br/>di sekitar lo?
           </h1>
-          <p className="text-[1.05rem] sm:text-lg text-slate-500 leading-relaxed mt-5 max-w-sm font-medium">
+          <p className="text-[1.05rem] sm:text-lg text-blue-100/90 leading-relaxed mt-5 max-w-sm font-medium">
             Kirim foto, biar yang urus bagian yang nindaklanjuti. Laporan diverifikasi instan.
           </p>
 
-          <div className="flex flex-col sm:flex-row w-full justify-center gap-3 mt-8">
+          <div className="flex flex-col sm:flex-row w-full justify-center gap-4 mt-10">
             <Link href="/buat-laporan" className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white h-14 px-8 rounded-2xl font-bold gap-2.5 shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5">
-                <Camera className="w-5 h-5" />
-                Lapor Sekarang
+              <Button variant="liquid-primary" size="xl" className="w-full sm:w-auto">
+                <Camera className="w-5 h-5 drop-shadow-md" />
+                <span className="drop-shadow-md">Lapor Sekarang</span>
               </Button>
             </Link>
             <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full sm:w-auto text-slate-700 h-14 px-8 rounded-2xl font-bold gap-2.5 border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                Buka Peta
+              <Button variant="liquid-glass" size="xl" className="w-full sm:w-auto">
+                <MapPin className="w-5 h-5 text-orange-400 drop-shadow-md" />
+                <span className="drop-shadow-md">Buka Peta</span>
               </Button>
             </Link>
           </div>
+        </div>
+
+        {/* Curved Wave Divider to transition to the light content */}
+        <div className="absolute bottom-[-1px] w-full overflow-hidden leading-none z-20">
+          <svg className="relative block w-[calc(100%+1.3px)] h-[40px] md:h-[80px]" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,115.34,188.75,99.43,234.84,86.7,278.47,72.26,321.39,56.44Z" className="fill-slate-50"></path>
+          </svg>
         </div>
       </section>
 
@@ -82,8 +101,8 @@ export default function HomePage() {
         <div className="w-full overflow-x-auto pb-6 pt-2 hide-scrollbar">
           <div className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 px-5 max-w-6xl mx-auto w-max md:w-auto">
             {/* Step 1 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white rounded-[1.5rem] border border-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mb-5">
+            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100/80 text-slate-800 flex items-center justify-center mb-5 shadow-sm">
                 <Camera className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg mb-1.5">1. Foto kerusakan</h3>
@@ -91,8 +110,8 @@ export default function HomePage() {
             </div>
             
             {/* Step 2 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white rounded-[1.5rem] border border-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5">
+            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-blue-600 flex items-center justify-center mb-5 shadow-sm">
                 <MapPin className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg mb-1.5">2. Lokasi ke-detect</h3>
@@ -100,8 +119,8 @@ export default function HomePage() {
             </div>
 
             {/* Step 3 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white rounded-[1.5rem] border border-slate-100 p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-5">
+            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-green-50/80 text-green-600 flex items-center justify-center mb-5 shadow-sm">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-lg mb-1.5">3. Diteruskan ke dinas</h3>
@@ -128,21 +147,21 @@ export default function HomePage() {
             const cat = getCategoryMeta(report.category);
 
             const fallbackPhotoUrl = report.category.includes('Lampu')
-              ? 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&q=80'
+              ? '/images/reports/streetlight.jpg'
               : report.category.includes('Banjir')
-              ? 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&q=80'
+              ? '/images/reports/flood.jpg'
               : report.category.includes('Sampah')
-              ? 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&q=80'
-              : 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&q=80';
+              ? '/images/reports/trash.jpg'
+              : '/images/reports/pothole.jpg';
 
             return (
               <Link
                 href={`/laporan/${report.id}`}
                 key={report.id}
-                className="group flex flex-col"
+                className="group flex flex-col bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all"
               >
                 {/* Borderless Canvas Card Pattern */}
-                <div className="w-full relative bg-slate-100 rounded-3xl overflow-hidden aspect-[4/3] mb-4">
+                <div className="w-full relative bg-slate-100 rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4">
                   <img
                     src={report.photoUrl || fallbackPhotoUrl}
                     alt={report.title}
@@ -161,7 +180,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="px-1 flex flex-col flex-1">
+                <div className="px-2 pb-2 flex flex-col flex-1">
                   <h3 className="font-bold text-[1.1rem] leading-[1.3] text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
                     {report.title}
                   </h3>
