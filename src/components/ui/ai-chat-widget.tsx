@@ -157,7 +157,7 @@ export function AIChatWidget() {
 
   return (
     <div 
-      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-50 touch-none"
+      className="fixed bottom-24 right-4 sm:bottom-8 sm:right-6 z-50 touch-none"
       style={!isOpen ? { transform: `translate(${position.x}px, ${position.y}px)` } : {}}
     >
       {isOpen ? (

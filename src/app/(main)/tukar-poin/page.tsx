@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import { useLaporKuyStore } from '@/lib/store';
 import { Reward } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Gift, Star, ShoppingBag, CheckCircle2, AlertCircle, History } from 'lucide-react';
+import { History, CheckCircle2, X, Coins, Zap } from 'lucide-react';
 import { ConfettiOverlay } from '@/components/ui/confetti-overlay';
 
 export default function TukarPoinPage() {
@@ -16,6 +15,7 @@ export default function TukarPoinPage() {
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [redeemSuccess, setRedeemSuccess] = useState<string | null>(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const filteredRewards = rewards.filter((r) => {
     if (selectedCategory !== 'all' && r.category !== selectedCategory) return false;
@@ -28,158 +28,252 @@ export default function TukarPoinPage() {
 
     if (success) {
       setShowConfetti(true);
-      setRedeemSuccess(`Selamat! Kamu berhasil menukar ${selectedReward.pointsCost} poin untuk ${selectedReward.title}. Kode voucher telah dikirim ke notifikasimu!`);
+      setRedeemSuccess(`Berhasil menukar ${selectedReward.pointsCost} poin untuk ${selectedReward.title}. Kode voucher dikirim ke notifikasi!`);
       setSelectedReward(null);
     } else {
-      alert('Poin kamu tidak mencukupi atau stok reward habis.');
+      alert('Poin Anda tidak mencukupi atau stok reward telah habis.');
     }
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-8">
+    <div className="mx-auto max-w-4xl space-y-4 pb-28 font-sans">
       <ConfettiOverlay show={showConfetti} />
 
-      {/* Header & Balance Card */}
-      <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white shadow-2xl overflow-hidden border border-white/10">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10 mix-blend-overlay" />
-        <div className="absolute top-0 right-0 h-full w-1/2 bg-gradient-to-l from-amber-500/20 to-transparent blur-3xl" />
-        
-        <div className="space-y-3 text-center md:text-left relative z-10">
-          <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 backdrop-blur-sm font-bold text-xs mb-2 px-3 py-1 animate-[fade-in_0.5s_ease-out]">
-            🎁 Rewards Store Official
-          </Badge>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
-            Tukarkan Poin LaporKuy
-          </h1>
-          <p className="text-sm text-slate-300 max-w-md leading-relaxed">
-            Apresiasi nyata atas kontribusimu menjaga kota. Poin bisa ditukar dengan pulsa, voucher belanja, atau merchandise eksklusif.
-          </p>
+      {/* 1. Compact Balance Header Widget */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 mx-4 my-3 flex items-center justify-between shadow-sm">
+        {/* Sisi Kiri: Info Saldo */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center text-amber-600 shrink-0">
+            <Coins className="w-5 h-5 fill-amber-500/20 text-amber-600" />
+          </div>
+          <div>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block">
+              Total Poin Kamu
+            </span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+                {profile.points} Pts
+              </span>
+              <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-900/50">
+                {profile.level}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl p-5 rounded-2xl border border-white/10 text-center min-w-[220px] shadow-[0_8px_32px_rgba(0,0,0,0.3)] relative z-10 hover:bg-white/10 transition-colors">
-          <span className="text-xs text-slate-300 block font-medium uppercase tracking-wider">Saldo Poin Kamu</span>
-          <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500 block mt-2 drop-shadow-sm">
-            {profile.points}
-          </span>
-          <span className="text-xs text-emerald-400 font-bold block mt-2 bg-emerald-400/10 py-1 rounded-full border border-emerald-400/20">
-            ⭐ Level: {profile.level}
-          </span>
-        </div>
+        {/* Sisi Kanan: Tombol Riwayat */}
+        <button
+          onClick={() => setShowHistoryModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium border border-slate-200 dark:border-slate-700 transition-colors shrink-0"
+        >
+          <History className="w-3.5 h-3.5" />
+          <span>Riwayat</span>
+        </button>
       </div>
 
       {redeemSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3 animate-in fade-in">
-          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
+        <div className="mx-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 flex items-center justify-between gap-3 text-xs animate-in fade-in">
+          <div className="flex items-center gap-2 font-semibold text-emerald-800 dark:text-emerald-300">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>{redeemSuccess}</span>
           </div>
-          <Button size="sm" variant="ghost" onClick={() => setRedeemSuccess(null)}>
-            Tutup
-          </Button>
+          <button
+            onClick={() => setRedeemSuccess(null)}
+            className="text-slate-400 hover:text-slate-600 p-1"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
-      {/* Category Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b">
-        {['all', 'Voucher', 'Pulsa/E-wallet', 'Merchandise', 'Layanan Prioritas'].map((cat) => (
-          <Button
-            key={cat}
-            size="sm"
-            variant={selectedCategory === cat ? 'default' : 'outline'}
-            onClick={() => setSelectedCategory(cat)}
-            className="text-xs shrink-0"
-          >
-            {cat === 'all' ? 'Semua Reward' : cat}
-          </Button>
-        ))}
+      {/* 3. Horizontal Tab Filter */}
+      <div className="px-4 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-2 pb-1 shrink-0 min-w-max">
+          {[
+            { id: 'all', label: 'Semua Reward' },
+            { id: 'Voucher', label: 'Voucher Belanja' },
+            { id: 'Pulsa/E-wallet', label: 'E-Wallet / Pulsa' },
+            { id: 'Merchandise', label: 'Merchandise' },
+            { id: 'Layanan Prioritas', label: 'Layanan Prioritas' },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 ${
+                selectedCategory === cat.id
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 border border-slate-200/60 dark:border-slate-700'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Reward Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* 1 & 2. Single Column Horizontal List Card (Sama Persis Card Misi) */}
+      <div className="flex flex-col gap-3 px-4 pb-28">
         {filteredRewards.map((item) => {
           const canAfford = profile.points >= item.pointsCost;
+          const pointsNeeded = item.pointsCost - profile.points;
 
           return (
-            <Card key={item.id} className="overflow-hidden glass-card flex flex-col justify-between hover-lift group border-border/40">
-              <div>
-                <div className="relative overflow-hidden">
-                  <img src={item.imageUrl} alt={item.title} className="h-44 w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
-                  <Badge className="absolute top-3 left-3 bg-white/20 text-white border-white/30 backdrop-blur-md text-[10px] font-semibold">
-                    {item.partnerName}
-                  </Badge>
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="font-bold text-base text-white line-clamp-1 drop-shadow-md">{item.title}</h3>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
+            <div
+              key={item.id}
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-3.5 flex items-center gap-3 transition-shadow hover:shadow-md"
+            >
+              {/* 2 & 3. Sisi Kiri: Thumbnail Container (w-14 h-14 rounded-xl + Floating Chip Stock) */}
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-100 dark:border-slate-700/60">
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&auto=format&fit=crop&q=80';
+                  }}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-900/70 text-white backdrop-blur-xs">
+                  {item.stock > 0 ? `Sisa ${item.stock}` : 'Habis'}
+                </span>
+              </div>
+
+              {/* 1 & 2. Sisi Tengah: Text Info (line-clamp-2 flex-1 min-w-0 pr-2) */}
+              <div className="flex-1 min-w-0 pr-2 space-y-0.5">
+                <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">
+                  {item.category === 'Pulsa/E-wallet' ? 'E-WALLET' : item.category.toUpperCase()}
+                </span>
+                <h3 className="line-clamp-2 leading-tight text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {item.title}
+                </h3>
+                <div className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 font-mono pt-0.5">
+                  <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-600 shrink-0" />
+                  <span>{item.pointsCost} Pts</span>
                 </div>
               </div>
 
-              <div className="p-4 pt-0 space-y-4">
-                <div className="flex items-center justify-between text-xs pt-3 border-t border-border/50">
-                  <span className="font-black text-base text-amber-600 dark:text-amber-400">
-                    {item.pointsCost} Pts
-                  </span>
-                  <Badge variant="outline" className={`text-[10px] ${item.stock <= 5 ? 'text-destructive border-destructive/30 bg-destructive/5' : 'text-muted-foreground'}`}>
-                    Sisa: {item.stock}
-                  </Badge>
-                </div>
-
-                <Button
-                  size="sm"
-                  disabled={!canAfford || item.stock <= 0}
-                  onClick={() => setSelectedReward(item)}
-                  className={`w-full text-xs font-bold transition-all duration-300 ${
-                    item.stock <= 0
-                      ? 'bg-muted text-muted-foreground'
-                      : canAfford
-                      ? 'bg-gradient-to-r from-primary to-teal-500 text-white hover:shadow-[0_0_15px_rgba(13,148,136,0.5)] hover:-translate-y-0.5'
-                      : 'bg-muted/50 text-muted-foreground border border-border/50'
-                  }`}
-                >
-                  {item.stock <= 0
-                    ? 'Stok Habis'
-                    : canAfford
-                    ? 'Tukarkan Poin'
-                    : `Kurang ${item.pointsCost - profile.points} Poin`}
-                </Button>
+              {/* 2. Sisi Kanan: Action CTA (shrink-0 min-w-[76px]) */}
+              <div className="shrink-0">
+                {item.stock <= 0 ? (
+                  <button
+                    disabled
+                    className="px-2.5 py-1.5 min-w-[76px] text-center text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed"
+                  >
+                    Stok Habis
+                  </button>
+                ) : !canAfford ? (
+                  <button
+                    disabled
+                    className="px-2.5 py-1.5 min-w-[76px] text-center text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed"
+                  >
+                    Kurang {pointsNeeded}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setSelectedReward(item)}
+                    className="px-3.5 py-1.5 min-w-[76px] text-center text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm transition-all"
+                  >
+                    Tukar
+                  </button>
+                )}
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
 
       {/* Confirmation Modal */}
       {selectedReward && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full p-6 space-y-5 glass-panel border-border/40 animate-in zoom-in-95 duration-300 shadow-2xl">
-            <div className="space-y-1">
-              <h3 className="text-xl font-black text-foreground">Konfirmasi Penukaran</h3>
-              <p className="text-sm text-muted-foreground">
-                Apakah kamu yakin ingin menukarkan <strong className="text-amber-600 dark:text-amber-400">{selectedReward.pointsCost} poin</strong> untuk:
-              </p>
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200 font-sans">
+          <Card className="max-w-sm w-full p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                Konfirmasi Penukaran
+              </h3>
+              <button
+                onClick={() => setSelectedReward(null)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            
-            <div className="p-3 bg-background/50 rounded-xl flex items-center gap-4 border border-border/50">
-              <img src={selectedReward.imageUrl} className="h-16 w-16 rounded-lg object-cover shadow-sm" />
-              <div>
-                <h4 className="text-sm font-bold text-foreground line-clamp-1">{selectedReward.title}</h4>
-                <Badge variant="outline" className="mt-1 text-[10px] bg-muted/50">
+
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center gap-3 border border-slate-100 dark:border-slate-800">
+              <img
+                src={selectedReward.imageUrl}
+                alt={selectedReward.title}
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&auto=format&fit=crop&q=80';
+                }}
+                className="h-14 w-14 rounded-lg object-cover border border-slate-200 shrink-0"
+              />
+              <div className="min-w-0">
+                <span className="text-[10px] font-semibold text-slate-500 uppercase block">
                   {selectedReward.partnerName}
-                </Badge>
+                </span>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 line-clamp-1">
+                  {selectedReward.title}
+                </h4>
+                <span className="text-xs font-bold text-amber-600 font-mono mt-0.5 flex items-center gap-1">
+                  <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-600" /> {selectedReward.pointsCost} Pts
+                </span>
               </div>
             </div>
-            
-            <div className="flex justify-end gap-3 pt-3">
-              <Button variant="outline" size="sm" onClick={() => setSelectedReward(null)} className="font-bold">
+
+            <div className="flex items-center gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedReward(null)}
+                className="flex-1 h-9 text-xs font-semibold border-slate-200 dark:border-slate-800 rounded-xl"
+              >
                 Batal
               </Button>
-              <Button size="sm" onClick={handleConfirmRedeem} className="font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_15px_rgba(13,148,136,0.3)] hover:shadow-[0_0_20px_rgba(13,148,136,0.5)] transition-all">
+              <Button
+                size="sm"
+                onClick={handleConfirmRedeem}
+                className="flex-1 h-9 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-xl"
+              >
                 Tukar Sekarang
               </Button>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200 font-sans">
+          <Card className="max-w-md w-full p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <History className="h-4 w-4 text-blue-600" /> Riwayat Penukaran Poin
+              </h3>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <div>
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100">Voucher Belanja Tokopedia Rp 25.000</h4>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">25 Agustus 2026 • Kode: LPR-TKP-8821</span>
+                </div>
+                <span className="font-bold text-amber-600 font-mono shrink-0">-200 Pts</span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowHistoryModal(false)}
+              className="w-full h-9 text-xs font-semibold rounded-xl"
+            >
+              Tutup
+            </Button>
           </Card>
         </div>
       )}

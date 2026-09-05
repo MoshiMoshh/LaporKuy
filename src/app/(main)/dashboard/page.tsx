@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
 import dynamic from 'next/dynamic';
 const MapView = dynamic(() => import('@/components/map/map-view').then(mod => mod.MapView), { ssr: false });
@@ -15,11 +16,18 @@ import {
   MapPin,
   Clock,
   ShieldAlert,
+  Target,
+  ThumbsUp,
+  Loader2
 } from 'lucide-react';
 import gsap from 'gsap';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { reports } = useLaporKuyStore();
+  const searchParams = useSearchParams();
+  const questParam = searchParams.get('quest');
+  const questTitle = searchParams.get('title');
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('Semua');
 
@@ -62,24 +70,19 @@ export default function DashboardPage() {
     dragStartY.current = e.clientY;
     startHeight.current = sheetHeight;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    
-    // Kill any active animations when starting drag
-    if (sheetRef.current) gsap.killTweensOf(sheetRef.current);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current) return;
-    const deltaY = dragStartY.current - e.clientY; // Negative if dragging down
-    const vh = window.innerHeight;
-    const deltaVh = (deltaY / vh) * 100;
+    const deltaY = dragStartY.current - e.clientY;
+    const windowHeight = window.innerHeight;
+    const deltaPercent = (deltaY / windowHeight) * 100;
     
-    let newHeight = startHeight.current + deltaVh;
-    if (newHeight < 15) newHeight = 15; // Min height
-    if (newHeight > 95) newHeight = 95; // Max height
-    
+    let newHeight = startHeight.current + deltaPercent;
+    if (newHeight < 15) newHeight = 15;
+    if (newHeight > 95) newHeight = 95;
+
     setSheetHeight(newHeight);
-    
-    // Apply immediately during drag for zero-latency feel
     if (sheetRef.current) {
       gsap.set(sheetRef.current, { height: `${newHeight}%` });
     }
@@ -88,26 +91,25 @@ export default function DashboardPage() {
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    
-    // Determine if it was a tap/click (moved less than 5px)
-    const dragDistance = Math.abs(dragStartY.current - e.clientY);
-    if (dragDistance < 5) {
-      if (startHeight.current > 50) {
-        animateToHeight(15); // Close it if it was open
-      } else {
-        animateToHeight(95); // Open it if it was closed
-      }
+    try {
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch (err) {
+      // ignore
+    }
+
+    const moveY = Math.abs(e.clientY - dragStartY.current);
+    if (moveY < 5) {
+      if (sheetHeight < 30) animateToHeight(42);
+      else if (sheetHeight < 70) animateToHeight(95);
+      else animateToHeight(42);
       return;
     }
 
-    // Snap physics for actual drag using GSAP
-    if (sheetHeight < 25) animateToHeight(15); // Snapped minimized state
-    else if (sheetHeight > 70) animateToHeight(95); // Snapped expanded state
-    else animateToHeight(42); // Snapped default state
+    if (sheetHeight < 25) animateToHeight(15);
+    else if (sheetHeight > 70) animateToHeight(95);
+    else animateToHeight(42);
   };
 
-  // Filter reports based on search query and selected category
   const filteredReports = reports.filter((report) => {
     const matchesSearch = 
       report.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -120,11 +122,9 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="relative flex flex-col md:flex-row h-[calc(100dvh-128px)] md:h-[calc(100vh-64px)] bg-[#F5F7FA] overflow-hidden">
+    <div className="relative flex flex-col md:flex-row h-[calc(100dvh-128px)] md:h-[calc(100vh-64px)] bg-[#F5F7FA] overflow-hidden font-sans">
       
-      {/* ═══════════════════════════════════════════════
-          MAP VIEW (Mobile: Absolute Full, Desktop: Relative Flex)
-      ═══════════════════════════════════════════════ */}
+      {/* MAP VIEW */}
       <div className="absolute inset-0 md:relative md:inset-auto md:flex-1 md:h-auto z-0 pointer-events-auto">
         <MapView
           reports={filteredReports}
@@ -134,9 +134,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* ═══════════════════════════════════════════════
-          MOBILE FLOATING HEADER (Search & Filter)
-      ═══════════════════════════════════════════════ */}
+      {/* MOBILE FLOATING HEADER */}
       <div className="md:hidden absolute top-4 inset-x-4 z-10 space-y-3 pointer-events-none">
         <div className="flex gap-2 pointer-events-auto drop-shadow-xl">
           <div className="relative flex-1">
@@ -154,9 +152,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════
-          SIDEBAR / BOTTOM SHEET (List)
-      ═══════════════════════════════════════════════ */}
+      {/* SIDEBAR / BOTTOM SHEET */}
       <div 
         ref={sheetRef}
         className="
@@ -171,7 +167,6 @@ export default function DashboardPage() {
         "
         style={{ maxHeight: isMobile ? '95%' : 'auto' }}
       >
-        {/* Mobile Drag Handle Visual */}
         <div 
           className="md:hidden w-full flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none group"
           onPointerDown={handlePointerDown}
@@ -179,14 +174,47 @@ export default function DashboardPage() {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          {/* Outer shape wrapper for better button affordance */}
-          <div className="w-16 h-5 flex items-center justify-center rounded-full bg-slate-100/50 group-hover:bg-slate-200/70 group-active:bg-slate-300/60 transition-colors pointer-events-none">
-            <div className="w-8 h-1 rounded-full bg-slate-400/80" />
-          </div>
+          <div className="w-12 h-1.5 bg-slate-300 rounded-full group-hover:bg-[#0057B8] transition-colors" />
         </div>
 
-        {/* Mobile Filters Horizontal Scroll (Inside Sheet) */}
-        <div className="md:hidden flex gap-2 overflow-x-auto hide-scrollbar px-5 pb-3 pt-1 shrink-0 touch-pan-x">
+        {/* ACTIVE QUEST BANNER */}
+        {questParam && (
+          <div className="mx-4 mt-3 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm space-y-3 shrink-0 animate-in fade-in duration-300">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0057B8] dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 shrink-0">
+                  <Target className="h-4.5 w-4.5" />
+                </div>
+                <div className="min-w-0">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-100 dark:border-blue-900 text-[10px] font-medium px-2 py-0.5 rounded-md mb-1">
+                    Misi Aktif
+                  </Badge>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
+                    {questTitle || 'Verifikator Komunitas'}
+                  </h3>
+                </div>
+              </div>
+              <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900 text-xs font-semibold shrink-0 px-2.5 py-1 rounded-md">
+                +10 Pts Reward
+              </Badge>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Panduan Pengerjaan</span>
+              <div className="flex items-start gap-2.5">
+                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold shrink-0 border border-slate-200 dark:border-slate-700 mt-0.5">
+                  1
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                  Berikan Dukungan (Upvote) pada 3 laporan warga di bawah ini.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Filter Horizontal Scroll */}
+        <div className="flex gap-2 px-4 py-3 border-b border-slate-100 overflow-x-auto scrollbar-none shrink-0">
           {['Semua', 'Jalan Rusak', 'Fasilitas Umum', 'Lampu Mati', 'Sampah'].map((cat) => (
             <Badge 
               key={cat}
@@ -220,66 +248,64 @@ export default function DashboardPage() {
               <Filter className="h-4 w-4" />
             </Button>
           </div>
-
-          <div className="flex flex-wrap gap-2 mt-4">
-            {['Semua', 'Jalan Rusak', 'Fasilitas Umum', 'Lampu Mati', 'Sampah'].map((cat) => (
-              <Badge 
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`cursor-pointer rounded px-2.5 py-1 font-medium transition-colors ${
-                  activeCategory === cat 
-                    ? 'bg-[#0057B8] text-white hover:bg-[#003B73]' 
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-transparent'
-                }`}
-              >
-                {cat}
-              </Badge>
-            ))}
-          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 pb-8 touch-pan-y overscroll-contain">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest px-1 md:px-0">
-            {filteredReports.length} Aduan Sekitar Anda
-          </p>
-          
-          {filteredReports.length > 0 ? (
-            filteredReports.map((report) => (
-              <Card key={report.id} className="rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden bg-white/80 md:bg-white hover:border-[#0057B8]/40 transition-colors p-4 backdrop-blur-sm">
-                <Link href={`/laporan/${report.id}`} className="block">
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border-transparent ${
-                      report.status === 'Selesai' ? 'bg-green-100 text-green-700' : 
-                      report.status === 'Diproses' ? 'bg-amber-100 text-amber-700' : 
-                      'bg-slate-100 text-slate-600'
-                    }`}>
-                      {report.status}
-                    </Badge>
-                    <span className="text-[10px] text-slate-400 flex items-center gap-1 font-mono">
-                      <Clock className="w-3 h-3" /> 1 Hari lalu
-                    </span>
+        {/* Reports List */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {filteredReports.map((report) => (
+            <Link key={report.id} href={`/laporan/${report.id}`} className="block">
+              <Card className="p-3.5 hover:shadow-md transition-all border-slate-200/80 rounded-xl group bg-white">
+                <div className="flex items-start gap-3">
+                  <img
+                    src={report.photoUrl}
+                    alt={report.title}
+                    className="h-16 w-16 rounded-lg object-cover border border-slate-100 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <Badge variant="outline" className="text-[10px] font-semibold text-[#0057B8] border-blue-200 bg-blue-50/50">
+                        {report.category}
+                      </Badge>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        {report.createdAt.split('T')[0]}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-[#0057B8] transition-colors">
+                      {report.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 line-clamp-1 mt-0.5 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                      <span>{report.address}</span>
+                    </p>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
+                      <span className="text-slate-500 flex items-center gap-1 font-medium">
+                        <ThumbsUp className="h-3.5 w-3.5 text-blue-500" /> {report.upvotes} Dukungan
+                      </span>
+                      <span className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
+                        report.status === 'Selesai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {report.status}
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-sm text-slate-800 line-clamp-2 mb-2 leading-snug">
-                    {report.title}
-                  </h3>
-                  <div className="flex items-start gap-1.5 text-xs text-slate-500">
-                    <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#0057B8]" />
-                    <span className="line-clamp-1">{report.address}</span>
-                  </div>
-                </Link>
+                </div>
               </Card>
-            ))
-          ) : (
-            <Card className="rounded-2xl border border-slate-200/60 shadow-sm bg-white/50 p-8 text-center flex flex-col items-center justify-center">
-              <ShieldAlert className="w-8 h-8 text-slate-300 mb-3" />
-              <h3 className="font-bold text-sm text-slate-700">Tidak Ada Laporan</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Ganti kata kunci atau area pencarian.
-              </p>
-            </Card>
-          )}
+            </Link>
+          ))}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#0057B8] animate-spin" />
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }

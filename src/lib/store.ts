@@ -92,15 +92,50 @@ export function useLaporKuyStore() {
           ]);
 
           if (profileData) {
+            let savedPoints = profileData.points || 0;
+            let savedXp = profileData.xp || 0;
+
+            if (typeof window !== 'undefined') {
+              const localSaved = localStorage.getItem(`laporkuy_points_v3_${profileData.id}`);
+              if (localSaved) {
+                try {
+                  const parsed = JSON.parse(localSaved);
+                  if (parsed.points > savedPoints) savedPoints = parsed.points;
+                  if (parsed.xp > savedXp) savedXp = parsed.xp;
+                } catch (e) {}
+              }
+            }
+
+            // Sum points from any claimed quests
+            const currentQuests = questsData && questsData.length > 0 
+              ? questsData.map((q: any) => ({ ...q, rewardPoints: q.reward_points, isClaimed: q.is_claimed })) 
+              : quests;
+
+            const claimedPointsSum = currentQuests
+              .filter((q: any) => q.isClaimed)
+              .reduce((sum: number, q: any) => sum + (q.rewardPoints || 15), 0);
+
+            if (claimedPointsSum > savedPoints) {
+              savedPoints = claimedPointsSum;
+            }
+
+            let currentLevel = profileData.level || 'Pemula';
+            if (savedXp >= 2000) currentLevel = 'Legenda Kota';
+            else if (savedXp >= 1000) currentLevel = 'Pahlawan Kota';
+            else if (savedXp >= 300) currentLevel = 'Warga Aktif';
+
             setProfile({
               ...profileData,
-              nextLevelXp: profileData.next_level_xp,
-              streakDays: profileData.streak_days,
-              trustScore: profileData.trust_score,
-              impactCount: profileData.impact_count,
-              totalReports: profileData.total_reports,
-              completedReports: profileData.completed_reports,
-              totalUpvotesReceived: profileData.total_upvotes_received
+              points: savedPoints,
+              xp: savedXp,
+              level: currentLevel,
+              nextLevelXp: profileData.next_level_xp || 2000,
+              streakDays: profileData.streak_days || 0,
+              trustScore: profileData.trust_score || 100,
+              impactCount: profileData.impact_count || 0,
+              totalReports: profileData.total_reports || 0,
+              completedReports: profileData.completed_reports || 0,
+              totalUpvotesReceived: profileData.total_upvotes_received || 0
             } as UserProfile);
           }
 
@@ -185,14 +220,43 @@ export function useLaporKuyStore() {
       updated_at: now
     });
 
-    const newPoints = profile.points + 15;
-    const newXp = profile.xp + 25;
-    setProfile(prev => ({ ...prev, points: newPoints, xp: newXp, totalReports: prev.totalReports + 1 }));
-    await supabase.from('profiles').update({
+    const newPoints = (profile.points || 0) + 15;
+    const newXp = (profile.xp || 0) + 25;
+    const newTotal = (profile.totalReports || 0) + 1;
+    const newCompleted = (profile.completedReports || 0) + 1;
+
+    setProfile(prev => ({
+      ...prev,
+      points: newPoints,
+      xp: newXp,
+      totalReports: newTotal,
+      completedReports: newCompleted
+    }));
+
+    // Update quest progress dynamically
+    setQuests(prev => prev.map(q => {
+      if (q.id === 'q-1') {
+        return { ...q, progress: 1 };
+      }
+      if (q.id === 'q-3') {
+        return { ...q, progress: Math.min(q.target, q.progress + 1) };
+      }
+      if (q.id === 'q-4' && newReportData.category === 'Sampah') {
+        return { ...q, progress: Math.min(q.target, q.progress + 1) };
+      }
+      return q;
+    }));
+
+    try {
+      await supabase.from('profiles').update({
         points: newPoints,
         xp: newXp,
-        total_reports: profile.totalReports + 1
-    }).eq('id', profile.id);
+        total_reports: newTotal,
+        completed_reports: newCompleted
+      }).eq('id', profile.id);
+    } catch (e) {
+      console.error("Error updating profile in supabase", e);
+    }
     
     return newReport;
   };
@@ -205,6 +269,15 @@ export function useLaporKuyStore() {
     const newUpvotes = isUpvoted ? report.upvotes + 1 : Math.max(0, report.upvotes - 1);
 
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, upvotes: newUpvotes, hasUpvoted: isUpvoted } : r));
+
+    if (isUpvoted) {
+      setQuests(prev => prev.map(q => {
+        if (q.id === 'q-2') {
+          return { ...q, progress: Math.min(q.target, q.progress + 1) };
+        }
+        return q;
+      }));
+    }
 
     await supabase.from('reports').update({ upvotes: newUpvotes }).eq('id', reportId);
   };
@@ -279,12 +352,40 @@ export function useLaporKuyStore() {
     const quest = quests.find(q => q.id === questId);
     if (!quest || quest.isClaimed) return;
 
-    setQuests(prev => prev.map(q => q.id === questId ? { ...q, isClaimed: true } : q));
-    const newPoints = profile.points + quest.rewardPoints;
-    setProfile(prev => ({ ...prev, points: newPoints }));
+    const reward = quest.rewardPoints || 15;
+    const bonusXp = reward * 2;
 
-    await supabase.from('quests').update({ is_claimed: true }).eq('id', questId);
-    await supabase.from('profiles').update({ points: newPoints }).eq('id', profile.id);
+    setQuests(prev => prev.map(q => q.id === questId ? { ...q, isClaimed: true, progress: q.target } : q));
+    
+    const newPoints = (profile.points || 0) + reward;
+    const newXp = (profile.xp || 0) + bonusXp;
+
+    let currentLevel = profile.level;
+    if (newXp >= 2000) currentLevel = 'Legenda Kota';
+    else if (newXp >= 1000) currentLevel = 'Pahlawan Kota';
+    else if (newXp >= 300) currentLevel = 'Warga Aktif';
+
+    setProfile(prev => ({
+      ...prev,
+      points: newPoints,
+      xp: newXp,
+      level: currentLevel
+    }));
+
+    if (typeof window !== 'undefined' && profile.id) {
+      localStorage.setItem(`laporkuy_points_v3_${profile.id}`, JSON.stringify({
+        points: newPoints,
+        xp: newXp,
+        level: currentLevel
+      }));
+    }
+
+    try {
+      await supabase.from('quests').update({ is_claimed: true, progress: quest.target }).eq('id', questId);
+      await supabase.from('profiles').update({ points: newPoints, xp: newXp }).eq('id', profile.id);
+    } catch (e) {
+      console.error("Error updating claimQuest in supabase", e);
+    }
   };
 
   const redeemReward = async (rewardId: string) => {
