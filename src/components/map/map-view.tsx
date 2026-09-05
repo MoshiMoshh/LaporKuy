@@ -93,6 +93,7 @@ export function MapView({
           scrollWheelZoom={true}
           style={{ width: '100%', height: '100%', background: '#020617' }}
           zoomControl={false}
+          attributionControl={false}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -226,10 +227,15 @@ export function MapView({
       <style dangerouslySetInnerHTML={{__html: `
         .leaflet-container {
           background: transparent !important;
+          isolation: isolate;
+          z-index: 0 !important;
         }
         .custom-leaflet-marker {
           background: transparent;
           border: none;
+        }
+        .leaflet-control-attribution {
+          display: none !important;
         }
       `}} />
     </div>

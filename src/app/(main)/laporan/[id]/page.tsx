@@ -2,6 +2,7 @@
 
 import { use, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useLaporKuyStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +22,11 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { BeforeAfterSlider } from '@/components/ui/before-after-slider';
+
+const SingleLocationMap = dynamic(
+  () => import('@/components/map/single-location-map'),
+  { ssr: false }
+);
 
 export default function DetailLaporanPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -323,7 +329,7 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
             </div>
           </Card>
 
-          {/* MAPTILER LOCATION PREVIEW CARD */}
+          {/* LOCATION PREVIEW CARD */}
           <Card className="p-4 space-y-3 overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
@@ -334,18 +340,14 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
               </Badge>
             </div>
             
-            <div className="relative h-44 rounded-xl overflow-hidden border border-border shadow-inner bg-slate-900 group">
-              <img
-                src={`https://api.maptiler.com/maps/dataviz-dark/static/${report.lng || 112.7521},${report.lat || -7.2575},15/600x300.png?key=${process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 'qNmsb52QZkhFrzAr5QnL'}&markers=icon:pin-red|${report.lng || 112.7521},${report.lat || -7.2575}`}
-                alt="Map Location"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] text-white">
-                <span className="font-semibold truncate max-w-[80%]">📍 {report.address}</span>
-                <span className="text-[8px] opacity-70">MapTiler</span>
-              </div>
-            </div>
+            <SingleLocationMap
+              lat={report.lat || -7.2575}
+              lng={report.lng || 112.7521}
+              address={report.address}
+              title={report.title}
+              category={report.category}
+              className="h-44 w-full"
+            />
 
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${report.lat || -7.2575},${report.lng || 112.7521}`}
