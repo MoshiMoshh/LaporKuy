@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 const footerLinks = [
   {
@@ -36,13 +36,8 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <MapPin className="h-4 w-4" />
-              </div>
-              <span className="text-lg font-bold tracking-tight">
-                Lapor<span className="text-primary">Kuy</span>
-              </span>
+            <Link href="/" className="mb-4 inline-block">
+              <Logo size={32} />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Platform pelaporan masalah infrastruktur kota.

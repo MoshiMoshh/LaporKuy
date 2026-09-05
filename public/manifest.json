@@ -4,18 +4,14 @@
   "description": "Laporkan masalah infrastruktur kota dalam 30 detik. Foto, lokasi otomatis, AI klasifikasi.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#003B73",
+  "background_color": "#1e3a5f",
   "theme_color": "#0057B8",
   "icons": [
     {
-      "src": "/globe.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml"
-    },
-    {
-      "src": "/globe.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }

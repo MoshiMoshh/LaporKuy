@@ -3,34 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/ui/logo';
 import { useLaporKuyStore } from '@/lib/store';
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 
-// ==========================================
-// CUSTOM VISUAL SVG ICON COMPONENTS (PREMIUM ACCENT)
-// ==========================================
 
-const LaporKuyLogo = ({ className = "h-10 w-10" }) => (
-  <svg 
-    className={className} 
-    viewBox="0 0 100 100" 
-    fill="none" 
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path 
-      d="M50 8C50 8 85 21 85 49.5c0 23.1-23 37.8-35 42.5C38 87.3 15 72.6 15 49.5 15 21 50 8 50 8z" 
-      fill="#0057B8" 
-    />
-    <path 
-      d="M36 49.5l10.5 10.5 19.5-19.5" 
-      stroke="white" 
-      strokeWidth="11" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-    />
-  </svg>
-);
 
 
 const MenuIcon = ({ className = "w-6 h-6" }) => (
@@ -93,17 +71,12 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full bg-white border-b-[3px] border-[#0057B8] shadow-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
-        {/* Logo Pemerintahan */}
-        <Link href="/" className="flex items-center gap-3">
-          <LaporKuyLogo className="h-10 w-10 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-lg font-bold text-[#003B73] leading-tight">
-              Portal LaporKuy
-            </span>
-            <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
-              Layanan Pengaduan Publik
-            </span>
-          </div>
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5">
+          <Logo size={34} />
+          <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider hidden sm:block">
+            Layanan Pengaduan Publik
+          </span>
         </Link>
 
         {/* Desktop Nav */}

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MapPin, User, Mail, Lock, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
 
 export default function RegisterPage() {
@@ -70,11 +71,8 @@ export default function RegisterPage() {
       <div className="hidden lg:flex w-1/2 bg-slate-900 flex-col justify-between p-12 text-white">
         
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-12 text-blue-100">
-            <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-blue-800">
-              <MapPin className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">LaporKuy</span>
+          <div className="flex items-center gap-3 mb-12">
+            <Logo size={36} theme="dark" />
           </div>
 
           <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-lg">
@@ -96,9 +94,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           
           <div className="mb-8 lg:hidden flex flex-col items-center text-center">
-             <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-blue-700 text-white mb-4">
-               <MapPin className="h-6 w-6" />
-             </div>
+             <Logo size={44} className="mb-4" />
              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Daftar LaporKuy</h1>
           </div>
 
