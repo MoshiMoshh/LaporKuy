@@ -1,39 +1,45 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useLaporKuyStore } from '@/lib/store';
+import { useAuthStore } from '@/lib/auth-store';
 import { ShieldCheck } from 'lucide-react';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isInitialized, isLoggedIn } = useLaporKuyStore();
-  const [isReady, setIsReady] = useState(false);
-
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
   useEffect(() => {
+    // CRITICAL: never redirect until the session check is complete.
+    // Premature redirect (before isInitialized) causes the mobile loop.
     if (!isInitialized) return;
 
     if (!isLoggedIn) {
-      // If they are not logged in and not on login/register, kick them out
+      // Not logged in — redirect away from protected pages
       if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
         router.replace('/login');
-      } else {
-        setIsReady(true);
       }
     } else {
-      // If they are logged in but trying to access login/register, redirect to home
+      // Logged in — redirect away from auth pages
       if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
         router.replace('/');
-      } else {
-        setIsReady(true);
       }
     }
   }, [isInitialized, isLoggedIn, pathname, router]);
 
-  if (!isReady || !isInitialized) {
-    // Show a sleek loading screen while checking auth
+  // Show loading screen until:
+  // 1. isInitialized is true (Supabase check is complete), AND
+  // 2. the user is either allowed on this page (no redirect needed)
+  //    OR a redirect has already been issued.
+  //
+  // This avoids flashing protected content before redirecting.
+  const isOnAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
+  const shouldShowContent =
+    isInitialized && (isLoggedIn ? !isOnAuthPage : isOnAuthPage);
+
+  if (!shouldShowContent) {
     return (
       <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center">
         <div className="w-16 h-16 bg-[#0057B8] rounded-2xl flex items-center justify-center animate-pulse mb-4 shadow-lg">
