@@ -107,8 +107,8 @@ export function Logo({ variant = 'full', size = 40, theme = 'light', layout = 'h
         style={{ fontSize: `${fontSize}px`, lineHeight: 1, marginTop: textMarginTop }}
         className="font-extrabold tracking-tight select-none"
       >
-        <span className={`${laporColor} italic`}>lapor</span>
-        <span className={`${kuyColor} italic`}>kuy</span>
+        <span className={`${laporColor} italic`}>Lapor</span>
+        <span className={`${kuyColor} italic`}>Kuy</span>
       </span>
     </div>
   );

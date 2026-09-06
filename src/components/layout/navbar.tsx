@@ -59,14 +59,11 @@ export function Navbar() {
             <div className="group-hover:scale-105 transition-transform duration-200">
               <Logo size={32} />
             </div>
-            <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-xs font-black text-foreground tracking-tight flex items-center gap-1">
-                LaporKuy
-                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-primary/10 text-primary uppercase">
-                  Publik
-                </span>
+            <div className="hidden sm:flex flex-col leading-none border-l border-border/60 pl-2.5 ml-0.5">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary uppercase tracking-wider w-fit">
+                Publik
               </span>
-              <span className="text-[9px] text-muted-foreground tracking-wider font-semibold mt-0.5">
+              <span className="text-[9px] text-muted-foreground tracking-wider font-semibold mt-1">
                 Pengaduan Infrastruktur
               </span>
             </div>

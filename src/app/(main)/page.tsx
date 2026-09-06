@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { useLaporKuyStore } from '@/lib/store';
 import { motion } from 'framer-motion';
 import { MapPin, Clock, ChevronRight, Camera, CheckCircle2, Zap } from 'lucide-react';
@@ -73,18 +72,38 @@ export default function HomePage() {
             Foto + lokasi otomatis. AI klasifikasi instan. Diteruskan ke dinas. Tinggal pantau.
           </p>
 
-          <div className="flex flex-col sm:flex-row w-full justify-center gap-3 mt-9">
-            <Link href="/buat-laporan" className="w-full sm:w-auto">
-              <Button variant="liquid-primary" size="xl" className="w-full sm:w-auto gap-2.5">
-                <Camera className="w-5 h-5" />
+          {/* Square Action Tiles — Side-by-Side */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-[300px] xs:max-w-[330px] sm:max-w-[360px] mx-auto mt-8 select-none">
+            {/* Tile 1: Lapor Sekarang (Square Vibrant Orange) */}
+            <Link
+              href="/buat-laporan"
+              className="group aspect-square flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 text-white shadow-[0_10px_28px_-6px_rgba(249,115,22,0.5)] border-t border-white/35 border-b border-black/10 active:scale-95 transition-all touch-manipulation text-center"
+            >
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/20 flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
+                <Camera className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2] text-white" />
+              </div>
+              <span className="font-black text-xs sm:text-sm tracking-tight leading-snug text-white px-1">
                 Lapor Sekarang
-              </Button>
+              </span>
+              <span className="text-[10px] text-white/85 font-medium mt-0.5">
+                Kamera & AI
+              </span>
             </Link>
-            <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button variant="liquid-glass" size="xl" className="w-full sm:w-auto gap-2.5">
-                <MapPin className="w-5 h-5 text-blue-200" />
+
+            {/* Tile 2: Lihat Peta Laporan (Square Frosted Glass) */}
+            <Link
+              href="/dashboard"
+              className="group aspect-square flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 text-white shadow-[0_10px_28px_-6px_rgba(0,0,0,0.25)] active:scale-95 transition-all touch-manipulation text-center"
+            >
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/15 flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2] text-blue-200" />
+              </div>
+              <span className="font-black text-xs sm:text-sm tracking-tight leading-snug text-white px-1">
                 Lihat Peta Laporan
-              </Button>
+              </span>
+              <span className="text-[10px] text-blue-200/85 font-medium mt-0.5">
+                Pantau Lacak
+              </span>
             </Link>
           </div>
         </motion.div>
