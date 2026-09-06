@@ -30,13 +30,13 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Main Tabs & Period Selector */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b pb-4">
-        <div className="flex items-center gap-2 bg-muted p-1 rounded-xl">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-border pb-4">
+        <div className="flex items-center gap-1.5 bg-muted/60 p-1.5 rounded-full w-full sm:w-auto">
           <Button
             size="sm"
             variant={activeTab === 'users' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('users')}
-            className="text-xs font-bold"
+            className={`text-xs font-bold rounded-full flex-1 sm:flex-none h-9 px-4 touch-manipulation ${activeTab === 'users' ? 'shadow-sm' : ''}`}
           >
             Pelapor Perorangan
           </Button>
@@ -44,29 +44,29 @@ export default function LeaderboardPage() {
             size="sm"
             variant={activeTab === 'districts' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('districts')}
-            className="text-xs font-bold"
+            className={`text-xs font-bold rounded-full flex-1 sm:flex-none h-9 px-4 touch-manipulation ${activeTab === 'districts' ? 'shadow-sm' : ''}`}
           >
             Kompetisi Kecamatan
           </Button>
         </div>
 
         {activeTab === 'users' && (
-          <div className="flex items-center gap-1 text-xs bg-muted/60 p-1 rounded-lg">
+          <div className="flex items-center gap-1 text-xs bg-muted/60 p-1 rounded-full overflow-x-auto">
             <button
               onClick={() => setPeriod('weekly')}
-              className={`px-3 py-1 rounded-md font-medium transition-colors ${period === 'weekly' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`px-3.5 py-1.5 rounded-full font-bold transition-all min-h-[34px] touch-manipulation text-xs ${period === 'weekly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Mingguan
             </button>
             <button
               onClick={() => setPeriod('monthly')}
-              className={`px-3 py-1 rounded-md font-medium transition-colors ${period === 'monthly' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`px-3.5 py-1.5 rounded-full font-bold transition-all min-h-[34px] touch-manipulation text-xs ${period === 'monthly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Bulanan
             </button>
             <button
               onClick={() => setPeriod('alltime')}
-              className={`px-3 py-1 rounded-md font-medium transition-colors ${period === 'alltime' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              className={`px-3.5 py-1.5 rounded-full font-bold transition-all min-h-[34px] touch-manipulation text-xs ${period === 'alltime' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Sepanjang Waktu
             </button>

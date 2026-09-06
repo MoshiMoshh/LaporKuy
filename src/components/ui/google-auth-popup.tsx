@@ -15,7 +15,7 @@ export function GoogleAuthPopup({ isOpen, onClose, onSelectAccount }: GoogleAuth
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div 
-        className="bg-[#202124] text-white w-full max-w-[400px] rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+        className="bg-[#202124] text-white w-full max-w-[400px] rounded-3xl shadow-float overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-white/10"
         style={{ fontFamily: '"Google Sans", Roboto, Arial, sans-serif' }}
       >
         {/* Header */}

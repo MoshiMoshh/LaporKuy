@@ -6,7 +6,6 @@ import { useLaporKuyStore } from '@/lib/store';
 import { ReportCategory } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Camera,
@@ -15,13 +14,13 @@ import {
   AlertTriangle,
   Loader2,
   ShieldCheck,
-  ThumbsUp,
   X,
   CheckCircle2,
   Target,
-  Award
+  Sparkles,
 } from 'lucide-react';
 import { VoiceInputButton } from '@/components/ui/voice-input-button';
+import { motion } from 'framer-motion';
 
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string }> = {
   pothole: { category: 'Jalan Rusak', severity: 9, confidence: 97, authenticity: 99, recommendation: 'Rekomendasi URC: Penambalan aspal dingin / hotmix darurat.' },
@@ -68,7 +67,6 @@ function BuatLaporanForm() {
       }));
     }
 
-    // Dynamic Geolocation Detection with location variations
     if (navigator.geolocation && !addressParam) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
@@ -166,278 +164,275 @@ function BuatLaporanForm() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 font-sans">
-      
+    <motion.div 
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0, 0, 0.2, 1] }}
+      className="mx-auto max-w-3xl px-4 py-8 sm:px-6 font-sans pb-28 md:pb-12"
+    >
       {/* Active Mission Context Card */}
       {questParam && (
-        <Card className="mb-6 p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm space-y-4">
-          {/* Header Row */}
+        <div className="mb-6 p-5 bg-card/90 backdrop-blur-xl border border-border rounded-3xl shadow-card space-y-4">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 min-w-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0057B8] dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 shrink-0 mt-0.5">
-                <Target className="h-5 w-5" />
+            <div className="flex items-start gap-3.5 min-w-0">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shrink-0 mt-0.5">
+                <Target className="h-6 w-6" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-100 dark:border-blue-900 text-[11px] font-medium px-2 py-0.5 rounded-md">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
                     Misi Aktif
                   </Badge>
                 </div>
-                <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 tracking-tight leading-snug">
+                <h3 className="text-base font-bold text-foreground tracking-tight leading-snug">
                   {questTitleParam || 'Misi Pengaduan Warga'}
                 </h3>
               </div>
             </div>
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900 text-xs font-semibold shrink-0 px-2.5 py-1 rounded-md">
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900 text-xs font-bold shrink-0 px-3 py-1 rounded-full">
               +15 Pts Reward
             </Badge>
           </div>
 
-          {/* Stepper Section */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+          <div className="pt-3 border-t border-border/60 space-y-2.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
               Panduan Pengerjaan
             </span>
 
-            <div className="space-y-2.5 pl-0.5">
-              {/* Step 1 */}
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold shrink-0 border border-slate-200 dark:border-slate-700">
-                  1
+            <div className="space-y-2 pl-0.5">
+              {[
+                { num: '1', text: 'Ambil atau unggah foto kerusakan di lokasi.' },
+                { num: '2', text: 'Pastikan GPS aktif untuk verifikasi lokasi otomatis.' },
+                { num: '3', text: 'Kirim laporan dan klaim reward poin.' },
+              ].map((step) => (
+                <div key={step.num} className="flex items-center gap-3">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-foreground text-[11px] font-bold shrink-0 border border-border">
+                    {step.num}
+                  </div>
+                  <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+                    {step.text}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed pt-0.5">
-                  Ambil atau unggah foto kerusakan di lokasi.
-                </p>
-              </div>
-
-              {/* Step 2 */}
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold shrink-0 border border-slate-200 dark:border-slate-700">
-                  2
-                </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed pt-0.5">
-                  Pastikan GPS aktif untuk verifikasi lokasi otomatis.
-                </p>
-              </div>
-
-              {/* Step 3 */}
-              <div className="flex items-start gap-3">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold shrink-0 border border-slate-200 dark:border-slate-700">
-                  3
-                </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed pt-0.5">
-                  Kirim laporan dan klaim reward poin.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
-        </Card>
+        </div>
       )}
 
-      <div className="mb-8 text-center relative z-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight mb-2">
+      {/* Header section */}
+      <div className="mb-7 text-center relative z-10">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wide mb-3">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
+          AI Vision Multi-Sensor
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight mb-2">
           Formulir Pengaduan Publik
         </h1>
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
-          Unggah foto bukti lapangan, dan sistem akan mengidentifikasi jenis kerusakan serta lokasi secara otomatis.
+        <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto font-medium">
+          Unggah foto bukti lapangan, AI akan mengklasifikasikan kategori kerusakan dan meneruskannya ke dinas terkait secara instan.
         </p>
       </div>
 
-      <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl">
-        <CardContent className="p-6 sm:p-8 space-y-8 text-left">
-          
-          {/* LOCATION SECTION */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 shrink-0">
-                <MapPin className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">
-                  Lokasi Terdeteksi (GPS)
-                </span>
-                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate block">
-                  {isLocating ? 'Mendeteksi koordinat lokasi...' : location.address}
-                </span>
-              </div>
+      {/* Main Form Box */}
+      <div className="bg-card rounded-3xl border border-border shadow-card p-6 sm:p-8 space-y-7">
+        
+        {/* LOCATION SECTION */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border border-border">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary shrink-0">
+              <MapPin className="h-5 w-5" />
             </div>
-            <div className="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md shrink-0 flex items-center gap-1.5 self-start sm:self-center font-sans">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Terverifikasi Presisi</span>
+            <div className="min-w-0">
+              <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider block mb-0.5">
+                Lokasi Terdeteksi (GPS Presisi)
+              </span>
+              <span className="text-sm font-semibold text-foreground truncate block">
+                {isLocating ? 'Mendeteksi koordinat lokasi...' : location.address}
+              </span>
             </div>
           </div>
+          <div className="text-xs font-semibold px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900 rounded-full shrink-0 flex items-center gap-1.5 self-start sm:self-center">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>Terverifikasi Presisi</span>
+          </div>
+        </div>
 
-          {/* PHOTO UPLOAD SECTION */}
-          <div className="space-y-3">
-            <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Bukti Foto Kerusakan <span className="text-red-600">*</span>
-            </label>
+        {/* PHOTO UPLOAD SECTION */}
+        <div className="space-y-3">
+          <label className="block text-sm font-bold text-foreground">
+            Bukti Foto Kerusakan <span className="text-urgent">*</span>
+          </label>
 
-            {!photoUrl ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-[0.98] active:bg-slate-100 dark:active:bg-slate-800 transition-all touch-manipulation select-none cursor-pointer bg-white dark:bg-slate-900 group">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    capture="environment" 
-                    className="sr-only" 
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          handlePhotoSelected(event.target?.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                  <Camera className="h-8 w-8 text-slate-400 group-hover:text-[#0057B8] mb-3 transition-colors" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#0057B8]">Gunakan Kamera</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">
-                    Ambil gambar langsung dari perangkat
-                  </span>
-                </label>
-
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-[0.98] active:bg-slate-100 dark:active:bg-slate-800 transition-all touch-manipulation select-none cursor-pointer bg-white dark:bg-slate-900 group">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="sr-only" 
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          handlePhotoSelected(event.target?.result as string);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                  />
-                  <Upload className="h-8 w-8 text-slate-400 group-hover:text-[#0057B8] mb-3 transition-colors" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#0057B8]">Unggah File</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">
-                    Pilih gambar dari galeri Anda
-                  </span>
-                </label>
-              </div>
-            ) : (
-              <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
-                <img src={photoUrl} alt="Preview Bukti Foto" className="h-64 w-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPhotoUrl(null);
-                    setAiResult(null);
-                    setDuplicateMatch(null);
+          {!photoUrl ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label className="flex flex-col items-center justify-center p-7 border-2 border-dashed border-border rounded-2xl hover:border-primary hover:bg-primary/5 active:scale-[0.97] transition-all touch-manipulation select-none cursor-pointer bg-card group min-h-[140px]">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  capture="environment" 
+                  className="sr-only" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        handlePhotoSelected(event.target?.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
                   }}
-                  className="absolute top-4 right-4 p-2 rounded-lg bg-slate-900/80 text-white hover:bg-slate-900 backdrop-blur-md"
-                  aria-label="Hapus Foto"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* DUPLICATE CHECK & AI ANALYSIS */}
-          {isCheckingDuplicates && (
-            <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/60 dark:bg-blue-950/60 dark:border-blue-900 flex items-center gap-3">
-              <Loader2 className="h-5 w-5 text-[#0057B8] dark:text-blue-400 animate-spin shrink-0" />
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Memverifikasi data laporan di lokasi ini...
-              </span>
-            </div>
-          )}
-
-          {isClassifying && (
-            <div className="p-4 rounded-xl border border-cyan-200 bg-cyan-50/60 dark:bg-cyan-950/60 dark:border-cyan-900 flex items-center gap-3">
-              <Loader2 className="h-5 w-5 text-cyan-700 dark:text-cyan-400 animate-spin shrink-0" />
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                AI Vision sedang menganalisis foto dan mengklasifikasi kategori...
-              </span>
-            </div>
-          )}
-
-          {/* AI RESULT PREVIEW (ONLY DISPLAYED AFTER USER HAS UPLOADED A PHOTO) */}
-          {photoUrl && aiResult && !isClassifying && (
-            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Hasil Analisis AI Vision
+                />
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Camera className="h-6 w-6" />
+                </div>
+                <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">Gunakan Kamera</span>
+                <span className="text-xs text-muted-foreground mt-1 text-center font-medium">
+                  Ambil gambar langsung dari perangkat
                 </span>
-                <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-xs font-medium">
-                  Autentisitas {aiResult.authenticity}%
-                </Badge>
-              </div>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Kategori Terdeteksi:</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">{aiResult.category}</span>
+              </label>
+
+              <label className="flex flex-col items-center justify-center p-7 border-2 border-dashed border-border rounded-2xl hover:border-primary hover:bg-primary/5 active:scale-[0.97] transition-all touch-manipulation select-none cursor-pointer bg-card group min-h-[140px]">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="sr-only" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        handlePhotoSelected(event.target?.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <div className="w-12 h-12 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center mb-3 group-hover:text-primary group-hover:scale-110 transition-transform">
+                  <Upload className="h-6 w-6" />
                 </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Tingkat Keparahan:</span>
-                  <span className="font-bold text-rose-600 dark:text-rose-400 text-sm">{aiResult.severity} / 10</span>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-700/80 pt-2 font-medium">
-                💡 {aiResult.recommendation}
-              </p>
+                <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">Unggah File</span>
+                <span className="text-xs text-muted-foreground mt-1 text-center font-medium">
+                  Pilih gambar dari galeri Anda
+                </span>
+              </label>
+            </div>
+          ) : (
+            <div className="relative rounded-2xl overflow-hidden border border-border shadow-sm">
+              <img src={photoUrl} alt="Preview Bukti Foto" className="h-64 sm:h-72 w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => {
+                  setPhotoUrl(null);
+                  setAiResult(null);
+                  setDuplicateMatch(null);
+                }}
+                className="absolute top-4 right-4 p-2.5 rounded-xl bg-slate-900/80 text-white hover:bg-slate-900 active:scale-95 transition-all backdrop-blur-md touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label="Hapus Foto"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
           )}
+        </div>
 
-          {/* DESCRIPTION FIELD */}
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Deskripsi Detail Masalah
-            </label>
-            <div className="relative">
-              <Textarea
-                rows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Jelaskan detail patokan lokasi atau kondisi kerusakan di lapangan..."
-                className="w-full rounded-xl border-slate-300 dark:border-slate-700 focus:ring-[#0057B8] pr-12 text-sm"
-              />
-              <div className="absolute bottom-3 right-3">
-                <VoiceInputButton onTranscript={(text: string) => setDescription((prev) => (prev ? `${prev} ${text}` : text))} />
+        {/* DUPLICATE CHECK & AI ANALYSIS */}
+        {isCheckingDuplicates && (
+          <div className="p-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center gap-3">
+            <Loader2 className="h-5 w-5 text-primary animate-spin shrink-0" />
+            <span className="text-sm font-semibold text-foreground">
+              Memverifikasi duplikasi laporan di lokasi sekitar...
+            </span>
+          </div>
+        )}
+
+        {isClassifying && (
+          <div className="p-4 rounded-2xl border border-blue-200 bg-blue-50/60 dark:bg-blue-950/60 dark:border-blue-900 flex items-center gap-3">
+            <Loader2 className="h-5 w-5 text-primary animate-spin shrink-0" />
+            <span className="text-sm font-semibold text-foreground">
+              AI Vision sedang membedah foto dan mengklasifikasi tingkat keparahan...
+            </span>
+          </div>
+        )}
+
+        {/* AI RESULT PREVIEW */}
+        {photoUrl && aiResult && !isClassifying && (
+          <div className="p-5 rounded-2xl border border-border bg-muted/40 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Hasil Analisis AI Vision
+              </span>
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 text-xs font-bold rounded-full">
+                Autentisitas {aiResult.authenticity}%
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-xs pt-1">
+              <div className="bg-card p-3 rounded-xl border border-border">
+                <span className="text-muted-foreground block text-[11px] font-medium">Kategori Terdeteksi:</span>
+                <span className="font-extrabold text-foreground text-sm mt-0.5 block">{aiResult.category}</span>
+              </div>
+              <div className="bg-card p-3 rounded-xl border border-border">
+                <span className="text-muted-foreground block text-[11px] font-medium">Tingkat Keparahan:</span>
+                <span className="font-extrabold text-urgent text-sm mt-0.5 block">{aiResult.severity} / 10 (Tinggi)</span>
               </div>
             </div>
+            <p className="text-xs text-foreground/80 border-t border-border/80 pt-2.5 font-medium leading-relaxed">
+              💡 {aiResult.recommendation}
+            </p>
           </div>
+        )}
 
-          {/* URGENT FLAG */}
-          <div className="flex items-center gap-3 p-3.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900">
-            <input
-              type="checkbox"
-              id="urgent"
-              checked={isUrgent}
-              onChange={(e) => setIsUrgent(e.target.checked)}
-              className="h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
+        {/* DESCRIPTION FIELD */}
+        <div className="space-y-2">
+          <label className="block text-sm font-bold text-foreground">
+            Deskripsi Detail Masalah
+          </label>
+          <div className="relative">
+            <Textarea
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Jelaskan detail patokan lokasi atau kondisi kerusakan di lapangan..."
+              className="w-full rounded-2xl border-border focus:ring-primary pr-12 text-sm p-4"
             />
-            <label htmlFor="urgent" className="text-xs font-semibold text-rose-900 dark:text-rose-200 cursor-pointer flex items-center gap-1.5 select-none touch-manipulation active:opacity-75">
-              <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
-              Tandai sebagai Laporan Darurat / Butuh Penanganan URC Segera
-            </label>
+            <div className="absolute bottom-3 right-3">
+              <VoiceInputButton onTranscript={(text: string) => setDescription((prev) => (prev ? `${prev} ${text}` : text))} />
+            </div>
           </div>
+        </div>
 
-          {/* SUBMIT BUTTON */}
-          <Button
-            onClick={handleSubmit}
-            disabled={!photoUrl || isSubmitting || isCheckingDuplicates || isClassifying}
-            className="w-full h-12 text-base font-bold bg-[#0057B8] hover:bg-[#004494] text-white shadow-md rounded-xl"
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" /> Mengirimkan Laporan...
-              </span>
-            ) : (
-              'Kirim Laporan Pengaduan'
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+        {/* URGENT FLAG */}
+        <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60">
+          <input
+            type="checkbox"
+            id="urgent"
+            checked={isUrgent}
+            onChange={(e) => setIsUrgent(e.target.checked)}
+            className="h-5 w-5 rounded-md border-rose-300 text-urgent focus:ring-urgent touch-manipulation cursor-pointer"
+          />
+          <label htmlFor="urgent" className="text-xs font-bold text-rose-900 dark:text-rose-200 cursor-pointer flex items-center gap-2 select-none touch-manipulation active:opacity-75">
+            <AlertTriangle className="h-4 w-4 text-urgent shrink-0" />
+            Tandai sebagai Laporan Darurat / Butuh Penanganan Tim Tanggap Kilat Segera
+          </label>
+        </div>
+
+        {/* SUBMIT BUTTON */}
+        <Button
+          onClick={handleSubmit}
+          disabled={!photoUrl || isSubmitting || isCheckingDuplicates || isClassifying}
+          variant="liquid-primary"
+          size="xl"
+          className="w-full h-14 font-extrabold text-base rounded-2xl shadow-lg transition-all touch-manipulation"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2.5">
+              <Loader2 className="h-5 w-5 animate-spin" /> Mengirimkan Laporan ke Dinas...
+            </span>
+          ) : (
+            'Kirim Laporan Pengaduan'
+          )}
+        </Button>
+      </div>
+    </motion.div>
   );
 }
 
@@ -445,7 +440,7 @@ export default function BuatLaporanPage() {
   return (
     <Suspense fallback={
       <div className="min-h-[400px] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#0057B8] animate-spin" />
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
       </div>
     }>
       <BuatLaporanForm />

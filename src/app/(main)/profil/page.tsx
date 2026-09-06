@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useLaporKuyStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Settings,
@@ -26,8 +25,10 @@ import {
   Award,
   Medal,
   Trophy,
-  Shield
+  Shield,
+  Sparkles
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function ProfilPage() {
   const router = useRouter();
@@ -86,22 +87,20 @@ export default function ProfilPage() {
   };
 
   const getAvatarFallback = (n: string) =>
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(n || 'U')}&background=0057B8&color=fff&size=200&bold=true&format=png`;
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(n || 'U')}&background=1A56DB&color=fff&size=200&bold=true&format=png`;
 
   const getReportImgFallback = (title: string) =>
     `https://picsum.photos/seed/${encodeURIComponent(title.slice(0, 12))}/800/400`;
 
-  // avatarSrc: prioritize local form state (supports blob: URLs from file picker),
-  // then profile.avatar from store, then ui-avatars fallback.
   const avatarSrc = avatar || profile.avatar || getAvatarFallback(name || profile.name);
 
   const xpPercent = Math.min(100, Math.round(((profile.xp || 0) / (profile.nextLevelXp || 2000)) * 100));
 
   const statusClass = (status: string) => {
-    if (status === 'Selesai') return 'bg-green-100 text-green-700 border-green-200';
-    if (status === 'Diproses') return 'bg-amber-100 text-amber-700 border-amber-200';
-    if (status === 'Terverifikasi') return 'bg-blue-100 text-blue-700 border-blue-200';
-    return 'bg-slate-100 text-slate-600 border-slate-200';
+    if (status === 'Selesai') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'Diproses') return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (status === 'Terverifikasi') return 'bg-blue-50 text-blue-700 border-blue-200';
+    return 'bg-muted text-muted-foreground border-border';
   };
 
   const rarityClass = (rarity: string) => {
@@ -126,29 +125,28 @@ export default function ProfilPage() {
     { key: 'pengaturan' as const, label: 'Ubah Data Pribadi', icon: Settings },
   ];
 
-  // Show skeleton while localStorage data is loading to prevent mock data flash
   if (!isInitialized) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] pb-20 animate-pulse">
-        <div className="bg-[#003B73] pt-10 pb-32">
+      <div className="min-h-screen bg-background pb-20 animate-pulse">
+        <div className="bg-[#001F5B] pt-10 pb-32">
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <div className="flex gap-6 items-center">
-              <div className="w-24 h-24 rounded-2xl bg-white/10 shrink-0" />
+              <div className="w-24 h-24 rounded-3xl bg-white/10 shrink-0" />
               <div className="flex-1 space-y-3">
-                <div className="h-8 w-48 bg-white/10 rounded-lg" />
-                <div className="h-4 w-40 bg-white/10 rounded" />
+                <div className="h-8 w-48 bg-white/10 rounded-2xl" />
+                <div className="h-4 w-40 bg-white/10 rounded-xl" />
                 <div className="h-2 w-64 bg-white/10 rounded-full mt-4" />
               </div>
             </div>
           </div>
         </div>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-20 space-y-6">
-          <div className="h-28 bg-white rounded-2xl border border-[#D9DEE5]" />
+          <div className="h-28 bg-card rounded-3xl border border-border" />
           <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
-            <div className="h-64 bg-white rounded-2xl border border-[#D9DEE5]" />
+            <div className="h-64 bg-card rounded-3xl border border-border" />
             <div className="space-y-4">
-              <div className="h-32 bg-white rounded-2xl border border-[#D9DEE5]" />
-              <div className="h-64 bg-white rounded-2xl border border-[#D9DEE5]" />
+              <div className="h-32 bg-card rounded-3xl border border-border" />
+              <div className="h-64 bg-card rounded-3xl border border-border" />
             </div>
           </div>
         </div>
@@ -157,10 +155,13 @@ export default function ProfilPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] pb-20">
+    <div className="min-h-screen bg-background pb-24">
 
       {/* ── HEADER ── */}
-      <div className="bg-[#003B73] text-white pt-10 pb-32">
+      <div className="relative bg-gradient-to-b from-[#001F5B] via-[#003082] to-[#00143A] text-white pt-10 pb-36 overflow-hidden">
+        {/* Subtle radial glow */}
+        <div className="absolute top-0 right-1/4 w-[500px] h-[300px] bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
+
         <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-20">
           <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-start">
 
@@ -170,28 +171,28 @@ export default function ProfilPage() {
                 <img
                   src={avatarSrc}
                   alt={name || profile.name}
-                  className="w-24 h-24 rounded-2xl object-cover border-[3px] border-white/20 shadow-xl block bg-[#0057B8]"
+                  className="w-24 h-24 rounded-3xl object-cover border-[3px] border-white/25 shadow-float block bg-primary"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
                   }}
                 />
-                <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#0057B8] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-md border border-white/20 whitespace-nowrap">
-                  Level {profile.level || "Warga"}
+                <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full shadow-md border border-white/20 whitespace-nowrap">
+                  {profile.level || "Warga"}
                 </span>
               </div>
             </div>
 
             {/* Info */}
             <div className="flex-1 w-full text-center sm:text-left mt-2 sm:mt-0 flex flex-col items-center sm:items-start">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
                 {name || profile.name}
               </h1>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-blue-200 text-sm mb-4">
-                <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-md text-xs font-medium border border-white/10">
-                  <User className="w-3.5 h-3.5" />
+                <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold border border-white/15">
+                  <User className="w-3.5 h-3.5 text-blue-300" />
                   Warga Terverifikasi
                 </span>
-                <span className="font-mono text-xs opacity-70 flex items-center gap-1.5">
+                <span className="font-mono text-xs opacity-75 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
                   ID: {profile.id}
                 </span>
@@ -199,13 +200,13 @@ export default function ProfilPage() {
 
               {/* XP Bar */}
               <div className="flex items-center gap-3 w-full max-w-[240px] sm:max-w-sm">
-                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                <div className="flex-1 h-2 bg-white/15 rounded-full overflow-hidden border border-white/5">
                   <div
                     className="h-full bg-blue-400 rounded-full transition-all duration-1000 ease-out"
                     style={{ width: `${xpPercent}%` }}
                   />
                 </div>
-                <span className="text-[11px] font-mono text-blue-200 shrink-0 font-medium whitespace-nowrap">
+                <span className="text-[11px] font-mono text-blue-200 shrink-0 font-bold whitespace-nowrap">
                   {profile.xp} / {profile.nextLevelXp} XP
                 </span>
               </div>
@@ -215,7 +216,7 @@ export default function ProfilPage() {
             <div className="w-full sm:w-auto flex justify-center sm:justify-end mt-4 sm:mt-0 shrink-0">
               <button
                 onClick={() => handleTabChange('pengaturan')}
-                className="flex items-center gap-2 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-xl px-4 py-2 hover:bg-white/20 transition-all shadow-sm"
+                className="flex items-center gap-2 text-sm font-bold text-white bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 rounded-2xl px-5 py-2.5 transition-all shadow-sm touch-manipulation"
               >
                 <Settings className="w-4 h-4" />
                 Edit Profil
@@ -229,30 +230,30 @@ export default function ProfilPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-20 relative z-10 pb-20 space-y-6">
 
         {/* Floating Stat Card */}
-        <Card className="rounded-2xl border border-[#D9DEE5] bg-white p-2 shadow-sm">
-          <div className="grid grid-cols-3 divide-x divide-slate-100">
+        <div className="rounded-3xl border border-border bg-card p-3 shadow-float">
+          <div className="grid grid-cols-3 divide-x divide-border">
             {[
-              { value: profile.totalReports, label: 'Total Laporan', icon: FileText, color: 'text-[#0057B8]' },
+              { value: profile.totalReports, label: 'Total Laporan', icon: FileText, color: 'text-primary' },
               { value: profile.points, label: 'Poin Aktif', icon: Star, color: 'text-amber-500' },
               { value: `${profile.streakDays} Hari`, label: 'Streak', icon: Flame, color: 'text-orange-500' },
             ].map(({ value, label, icon: Icon, color }) => (
-              <div key={label} className="flex flex-col items-center py-4 gap-1.5 hover:bg-slate-50 transition-colors rounded-xl mx-1">
-                <Icon className={`w-6 h-6 ${color} mb-1`} />
-                <span className="text-2xl font-bold text-slate-800 leading-none">{value}</span>
-                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+              <div key={label} className="flex flex-col items-center py-3.5 gap-1.5 hover:bg-muted/40 transition-colors rounded-2xl mx-1 select-none">
+                <Icon className={`w-6 h-6 ${color} mb-0.5`} />
+                <span className="text-2xl sm:text-3xl font-extrabold text-foreground leading-none">{value}</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
                   {label}
                 </span>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
 
           {/* SIDEBAR */}
           <div className="space-y-4">
-            <Card className="rounded-2xl border border-[#D9DEE5] bg-white overflow-hidden shadow-none p-2">
-              <div className="px-4 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+            <div className="rounded-3xl border border-border bg-card overflow-hidden shadow-card p-2.5">
+              <div className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
                 Menu Utama
               </div>
               <div className="space-y-1">
@@ -260,27 +261,28 @@ export default function ProfilPage() {
                   <button
                     key={key}
                     onClick={() => handleTabChange(key)}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-sm rounded-xl transition-all duration-200 ${activeTab === key
-                        ? 'bg-[#0057B8]/10 text-[#0057B8] font-semibold'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm rounded-2xl transition-all duration-150 touch-manipulation select-none active:scale-[0.98] ${
+                      activeTab === key
+                        ? 'bg-primary/10 text-primary font-bold'
+                        : 'text-foreground/75 hover:bg-muted/50 hover:text-foreground font-medium'
+                    }`}
                   >
                     <span className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${activeTab === key ? 'text-[#0057B8]' : 'text-slate-400'}`} />
+                      <Icon className={`w-4 h-4 ${activeTab === key ? 'text-primary' : 'text-muted-foreground'}`} />
                       {label}
                     </span>
-                    <ChevronRight className={`w-4 h-4 ${activeTab === key ? 'text-[#0057B8]' : 'text-slate-300'}`} />
+                    <ChevronRight className={`w-4 h-4 ${activeTab === key ? 'text-primary' : 'text-muted-foreground/60'}`} />
                   </button>
                 ))}
               </div>
-            </Card>
+            </div>
 
             <Button
               variant="outline"
               onClick={async () => {
                 await supabase.auth.signOut();
               }}
-              className="w-full justify-start text-red-600 border-[#D9DEE5] hover:bg-red-50 hover:text-red-700 hover:border-red-200 rounded-2xl shadow-none text-sm gap-2 h-11"
+              className="w-full justify-start text-urgent border-border hover:bg-rose-50 hover:text-urgent rounded-2xl shadow-none text-sm gap-2 h-12 font-bold touch-manipulation active:scale-[0.98]"
             >
               <LogOut className="w-4 h-4" />
               Keluar Sistem
@@ -296,17 +298,17 @@ export default function ProfilPage() {
 
                 {/* Stat cards */}
                 <section>
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Status Pengaduan</h2>
+                  <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Status Pengaduan</h2>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { value: myReports.length, label: 'Total', color: 'text-[#003B73]' },
-                      { value: myReports.filter(r => r.status === 'Selesai').length, label: 'Selesai', color: 'text-green-600' },
+                      { value: myReports.length, label: 'Total', color: 'text-primary' },
+                      { value: myReports.filter(r => r.status === 'Selesai').length, label: 'Selesai', color: 'text-emerald-600' },
                       { value: myReports.filter(r => r.status === 'Diproses').length, label: 'Diproses', color: 'text-amber-600' },
                     ].map(({ value, label, color }) => (
-                      <Card key={label} className="p-5 rounded-2xl border border-[#D9DEE5] bg-white shadow-none text-center hover:border-slate-300 transition-colors">
-                        <div className={`text-3xl font-bold ${color} mb-2 leading-none`}>{value}</div>
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</div>
-                      </Card>
+                      <div key={label} className="p-5 rounded-3xl border border-border bg-card shadow-card text-center hover:border-primary/30 transition-colors">
+                        <div className={`text-3xl font-extrabold ${color} mb-2 leading-none`}>{value}</div>
+                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</div>
+                      </div>
                     ))}
                   </div>
                 </section>
@@ -314,84 +316,84 @@ export default function ProfilPage() {
                 {/* Aktivitas terbaru */}
                 <section>
                   <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Aktivitas Terbaru</h2>
+                    <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Aktivitas Terbaru</h2>
                     <button
                       onClick={() => handleTabChange('laporan')}
-                      className="text-xs font-semibold text-[#0057B8] hover:underline"
+                      className="text-xs font-bold text-primary hover:underline touch-manipulation py-1"
                     >
                       Lihat semua
                     </button>
                   </div>
 
                   {myReports.length > 0 ? (
-                    <Card className="rounded-2xl border border-[#D9DEE5] bg-white shadow-none divide-y divide-slate-100 overflow-hidden p-0">
+                    <div className="rounded-3xl border border-border bg-card shadow-card divide-y divide-border overflow-hidden p-0">
                       {myReports.slice(0, 3).map((report) => (
-                        <div key={report.id} className="flex gap-4 p-4 items-center hover:bg-slate-50/80 transition-colors">
+                        <div key={report.id} className="flex gap-4 p-4 items-center hover:bg-muted/30 transition-colors">
                           <img
                             src={report.photoUrl}
                             alt={report.title}
-                            className="w-16 h-14 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-100"
+                            className="w-16 h-14 rounded-2xl object-cover border border-border shrink-0 bg-muted"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = getReportImgFallback(report.title);
                             }}
                           />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                              <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusClass(report.status)}`}>
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className={`inline-block text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${statusClass(report.status)}`}>
                                 {report.status}
                               </span>
-                              <span className="text-[10px] text-slate-400 font-mono">{formatDate(report.createdAt)}</span>
+                              <span className="text-[10px] text-muted-foreground font-mono">{formatDate(report.createdAt)}</span>
                             </div>
-                            <p className="text-sm font-semibold text-slate-800 truncate leading-tight">{report.title}</p>
-                            <p className="text-[11px] text-slate-500 truncate flex items-center gap-1.5 mt-1">
-                              <MapPin className="w-3.5 h-3.5 text-[#0057B8] shrink-0" />
+                            <p className="text-sm font-bold text-foreground truncate leading-tight">{report.title}</p>
+                            <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1.5 mt-1">
+                              <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
                               {report.address}
                             </p>
                           </div>
                           <Link href={`/laporan/${report.id}`} className="shrink-0 hidden sm:block">
-                            <Button variant="outline" size="sm" className="h-8 text-xs font-semibold rounded-lg border-slate-200 shadow-none hover:bg-[#0057B8] hover:text-white hover:border-[#0057B8] transition-all">
+                            <Button variant="outline" size="sm" className="h-9 text-xs font-bold rounded-xl border-border shadow-none hover:bg-primary hover:text-white hover:border-primary transition-all">
                               Detail
                             </Button>
                           </Link>
                         </div>
                       ))}
-                    </Card>
+                    </div>
                   ) : (
-                    <Card className="rounded-2xl border border-[#D9DEE5] bg-white shadow-none p-12 flex flex-col items-center text-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
-                        <FileText className="w-6 h-6 text-slate-400" />
+                    <div className="rounded-3xl border border-border bg-card shadow-card p-12 flex flex-col items-center text-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
+                        <FileText className="w-6 h-6 text-muted-foreground" />
                       </div>
                       <div>
-                        <p className="font-bold text-sm text-slate-800">Belum Ada Pengaduan</p>
-                        <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Anda belum pernah mengirim laporan infrastruktur.</p>
+                        <p className="font-bold text-sm text-foreground">Belum Ada Pengaduan</p>
+                        <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">Anda belum pernah mengirim laporan infrastruktur.</p>
                       </div>
                       <Link href="/buat-laporan" className="mt-2">
-                        <Button size="sm" className="bg-[#0057B8] hover:bg-[#003B73] text-white rounded-xl font-semibold text-xs shadow-none px-5">
+                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold text-xs shadow-sm px-6 h-10">
                           Buat Laporan Sekarang
                         </Button>
                       </Link>
-                    </Card>
+                    </div>
                   )}
                 </section>
 
                 {/* Badges */}
                 {profile.badges && profile.badges.length > 0 && (
                   <section>
-                    <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Pencapaian & Lencana</h2>
+                    <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Pencapaian & Lencana</h2>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {profile.badges.map((badge) => (
-                        <Card key={badge.id} className="rounded-2xl border border-[#D9DEE5] bg-white shadow-none p-4 flex flex-col items-center text-center gap-3 hover:border-[#0057B8]/30 transition-colors">
+                        <div key={badge.id} className="rounded-3xl border border-border bg-card shadow-card p-4 flex flex-col items-center text-center gap-3 hover:border-primary/30 transition-colors">
                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${rarityClass(badge.rarity)} bg-opacity-50`}>
                             {getBadgeIcon(badge.rarity)}
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-slate-800 leading-tight">{badge.name}</p>
-                            <span className={`mt-1.5 inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${rarityClass(badge.rarity)}`}>
+                            <p className="text-xs font-bold text-foreground leading-tight">{badge.name}</p>
+                            <span className={`mt-1.5 inline-block text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${rarityClass(badge.rarity)}`}>
                               {badge.rarity}
                             </span>
                           </div>
-                          <p className="text-[10px] text-slate-500 leading-relaxed line-clamp-2">{badge.description}</p>
-                        </Card>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed line-clamp-2">{badge.description}</p>
+                        </div>
                       ))}
                     </div>
                   </section>
@@ -402,17 +404,18 @@ export default function ProfilPage() {
             {/* ── TAB 2: LAPORAN ── */}
             {activeTab === 'laporan' && (
               <div className="space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-2 rounded-2xl border border-[#D9DEE5]">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 hidden sm:block">Riwayat</h2>
-                  <div className="flex gap-1 overflow-x-auto pb-1 sm:pb-0 hide-scrollbar w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-card p-2 rounded-3xl border border-border shadow-sm">
+                  <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 hidden sm:block">Riwayat</h2>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide w-full sm:w-auto">
                     {(['Semua', 'Selesai', 'Diproses', 'Pending'] as const).map((f) => (
                       <button
                         key={f}
                         onClick={() => setStatusFilter(f)}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${statusFilter === f
-                            ? 'bg-[#0057B8] text-white'
-                            : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-                          }`}
+                        className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap min-h-[38px] touch-manipulation active:scale-95 ${
+                          statusFilter === f
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
+                        }`}
                       >
                         {f}
                       </button>
@@ -423,8 +426,8 @@ export default function ProfilPage() {
                 {filteredReports.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {filteredReports.map((report) => (
-                      <Card key={report.id} className="rounded-2xl border border-[#D9DEE5] bg-white shadow-none overflow-hidden flex flex-col hover:border-[#0057B8]/30 hover:shadow-md transition-all duration-300 p-0">
-                        <div className="h-36 bg-slate-100 relative shrink-0">
+                      <div key={report.id} className="rounded-3xl border border-border bg-card shadow-card overflow-hidden flex flex-col hover:border-primary/30 hover:shadow-float transition-all duration-300 p-0">
+                        <div className="h-40 bg-muted relative shrink-0">
                           <img
                             src={report.photoUrl}
                             alt={report.title}
@@ -434,7 +437,7 @@ export default function ProfilPage() {
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <span className={`absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border shadow-sm ${statusClass(report.status)}`}>
+                          <span className={`absolute top-3 right-3 text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border shadow-sm ${statusClass(report.status)}`}>
                             {report.status}
                           </span>
                           <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-xs text-white/90 font-mono">
@@ -442,44 +445,44 @@ export default function ProfilPage() {
                           </div>
                         </div>
                         <div className="p-4 flex flex-col flex-1 gap-2">
-                          <h3 className="font-bold text-sm text-slate-800 leading-snug line-clamp-2">{report.title}</h3>
-                          <p className="text-[11px] text-slate-500 flex items-start gap-1.5 line-clamp-1 mb-2">
-                            <MapPin className="w-3.5 h-3.5 text-[#0057B8] shrink-0" />
+                          <h3 className="font-bold text-sm text-foreground leading-snug line-clamp-2">{report.title}</h3>
+                          <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 line-clamp-1 mb-2">
+                            <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
                             {report.address}
                           </p>
                           <Link href={`/laporan/${report.id}`} className="mt-auto pt-2">
-                            <Button variant="outline" size="sm" className="w-full h-9 text-xs font-semibold rounded-xl border-slate-200 shadow-none hover:bg-[#0057B8] hover:text-white hover:border-[#0057B8] transition-all">
+                            <Button variant="outline" size="sm" className="w-full h-10 text-xs font-bold rounded-2xl border-border shadow-none hover:bg-primary hover:text-white hover:border-primary transition-all touch-manipulation active:scale-[0.98]">
                               Lihat Detail
                             </Button>
                           </Link>
                         </div>
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <Card className="rounded-2xl border border-[#D9DEE5] bg-white shadow-none p-12 flex flex-col items-center text-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
-                      <ShieldAlert className="w-6 h-6 text-slate-300" />
+                  <div className="rounded-3xl border border-border bg-card shadow-card p-12 flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
+                      <ShieldAlert className="w-6 h-6 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm text-slate-800">Tidak Ada Laporan</p>
-                      <p className="text-xs text-slate-500 mt-1">Tidak ada laporan dengan filter &quot;{statusFilter}&quot;.</p>
+                      <p className="font-bold text-sm text-foreground">Tidak Ada Laporan</p>
+                      <p className="text-xs text-muted-foreground mt-1">Tidak ada laporan dengan filter &quot;{statusFilter}&quot;.</p>
                     </div>
-                  </Card>
+                  </div>
                 )}
               </div>
             )}
 
             {/* ── TAB 3: PENGATURAN ── */}
             {activeTab === 'pengaturan' && (
-              <Card className="rounded-2xl border border-[#D9DEE5] bg-white shadow-none p-6 sm:p-8">
-                <h2 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-[#0057B8]" />
+              <div className="rounded-3xl border border-border bg-card shadow-card p-6 sm:p-8">
+                <h2 className="text-base font-extrabold text-foreground mb-6 flex items-center gap-2.5">
+                  <Settings className="w-5 h-5 text-primary" />
                   Ubah Data Pribadi
                 </h2>
 
                 {saveSuccess && (
-                  <div className="mb-6 bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="mb-6 bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
                     <CheckCircle2 className="w-5 h-5 shrink-0" />
                     Perubahan profil berhasil disimpan!
                   </div>
@@ -487,17 +490,17 @@ export default function ProfilPage() {
 
                 <form onSubmit={handleSave} className="space-y-5">
                   {/* Avatar */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-5 pb-6 border-b border-slate-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-5 pb-6 border-b border-border">
                     <div className="relative group shrink-0 self-start sm:self-auto">
                       <img
                         src={avatarSrc}
                         alt="Preview avatar"
-                        className="w-20 h-20 rounded-2xl object-cover border-2 border-slate-200 block shadow-sm"
+                        className="w-20 h-20 rounded-3xl object-cover border-2 border-border block shadow-sm"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
                         }}
                       />
-                      <label className="absolute inset-0 flex items-center justify-center bg-black/40 sm:bg-black/60 text-white rounded-2xl opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-all active:scale-95 cursor-pointer touch-manipulation select-none" aria-label="Ganti foto profil">
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/40 sm:bg-black/60 text-white rounded-3xl opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-all active:scale-95 cursor-pointer touch-manipulation select-none" aria-label="Ganti foto profil">
                         <Camera className="w-6 h-6" />
                         <input
                           type="file"
@@ -543,14 +546,14 @@ export default function ProfilPage() {
                       </label>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-800">Foto Profil</p>
-                      <p className="text-xs text-slate-500 mt-1 max-w-sm leading-relaxed">Pilih foto persegi dengan resolusi yang baik. Format JPG atau PNG, maksimal ukuran file 5MB.</p>
+                      <p className="text-sm font-bold text-foreground">Foto Profil</p>
+                      <p className="text-xs text-muted-foreground mt-1 max-w-sm leading-relaxed font-medium">Pilih foto persegi dengan pencahayaan yang jelas. Format JPG atau PNG, maksimal ukuran file 5MB.</p>
                     </div>
                   </div>
 
                   {/* Name */}
                   <div className="space-y-2">
-                    <label htmlFor="fullName" className="text-xs font-bold text-slate-700 block">
+                    <label htmlFor="fullName" className="text-xs font-bold text-foreground block">
                       Nama Lengkap
                     </label>
                     <input
@@ -559,64 +562,66 @@ export default function ProfilPage() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full h-11 px-4 border border-[#D9DEE5] rounded-xl bg-white text-sm text-slate-800 focus:outline-none focus:border-[#0057B8] focus:ring-2 focus:ring-[#0057B8]/10 transition-all shadow-sm"
+                      className="w-full h-12 px-4 border border-border rounded-2xl bg-card text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                     />
                   </div>
 
                   {/* Email */}
                   <div className="space-y-2">
-                    <label htmlFor="emailAddress" className="text-xs font-bold text-slate-700 block">
+                    <label htmlFor="emailAddress" className="text-xs font-bold text-foreground block">
                       Email
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         id="emailAddress"
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full h-11 pl-10 pr-4 border border-[#D9DEE5] rounded-xl bg-slate-50 text-sm text-slate-800 focus:outline-none focus:border-[#0057B8] focus:ring-2 focus:ring-[#0057B8]/10 transition-all shadow-sm cursor-not-allowed opacity-80"
+                        className="w-full h-12 pl-11 pr-4 border border-border rounded-2xl bg-muted/50 text-sm text-foreground focus:outline-none transition-all shadow-sm cursor-not-allowed opacity-80"
                         readOnly
                       />
                     </div>
-                    <p className="text-[10px] text-slate-400">Email tidak dapat diubah (terhubung dengan akun).</p>
+                    <p className="text-[10px] text-muted-foreground">Email terikat dengan otentikasi akun.</p>
                   </div>
 
                   {/* Phone */}
                   <div className="space-y-2">
-                    <label htmlFor="phoneNumber" className="text-xs font-bold text-slate-700 block">
+                    <label htmlFor="phoneNumber" className="text-xs font-bold text-foreground block">
                       Nomor Telepon
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input
                         id="phoneNumber"
                         type="tel"
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full h-11 pl-10 pr-4 border border-[#D9DEE5] rounded-xl bg-white text-sm text-slate-800 focus:outline-none focus:border-[#0057B8] focus:ring-2 focus:ring-[#0057B8]/10 transition-all shadow-sm"
+                        className="w-full h-12 pl-11 pr-4 border border-border rounded-2xl bg-card text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl mt-4">
-                    <p className="text-[11px] text-blue-700 leading-relaxed font-medium">
-                      * Pastikan nama lengkap sesuai dengan KTP untuk memudahkan validasi laporan ke instansi terkait dan pencairan reward.
+                  <div className="bg-primary/5 border border-primary/20 p-4 rounded-2xl mt-4">
+                    <p className="text-xs text-primary leading-relaxed font-semibold">
+                      * Pastikan nomor aktif untuk konfirmasi tindak lanjut dari Dinas Terkait dan notifikasi SLA.
                     </p>
                   </div>
 
-                  <div className="pt-6 flex justify-end">
+                  <div className="pt-4 flex justify-end">
                     <Button
                       type="submit"
-                      className="bg-[#0057B8] hover:bg-[#003B73] text-white rounded-xl text-sm font-semibold px-8 h-11 shadow-none transition-all w-full sm:w-auto"
+                      variant="liquid-primary"
+                      size="lg"
+                      className="rounded-2xl text-sm font-extrabold px-8 h-12 shadow-sm transition-all w-full sm:w-auto"
                     >
                       Simpan Perubahan
                     </Button>
                   </div>
                 </form>
-              </Card>
+              </div>
             )}
 
           </div>
