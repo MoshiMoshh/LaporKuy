@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const effectiveKey = process.env.GEMINI_API_KEY || apiKey;
 
     // Jika API Key tidak ada (atau masih default mock), kembalikan pesan mock
-    if (!effectiveKey || effectiveKey === 'your_gemini_api_key_here' || effectiveKey === 'MOCK_KEY_FOR_TESTING') {
+    if (!effectiveKey || effectiveKey === 'AIzaSyBKjW37QoGztY0Cs0ZDvR9oZ9XQqPyuTng' || effectiveKey === 'MOCK_KEY_FOR_TESTING') {
       await new Promise(resolve => setTimeout(resolve, 1000));
       return new Response(
         JSON.stringify({

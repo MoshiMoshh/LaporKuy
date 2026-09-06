@@ -24,13 +24,20 @@ interface MapViewProps {
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || 'qNmsb52QZkhFrzAr5QnL';
 
 // Component to handle map interactions
-function MapController({ selectedPin }: { selectedPin: Report | null }) {
+function MapController({ selectedPin, userLocation }: { selectedPin: Report | null, userLocation: [number, number] | null }) {
   const map = useMap();
+  
   useEffect(() => {
+    // If a specific pin is selected, fly to it
     if (selectedPin && selectedPin.lat && selectedPin.lng) {
       map.flyTo([selectedPin.lat, selectedPin.lng], 15, { duration: 1.5 });
+    } 
+    // Otherwise, if we just got the user's location, fly to it
+    else if (userLocation) {
+      map.flyTo(userLocation, 14, { duration: 1.5 });
     }
-  }, [selectedPin, map]);
+  }, [selectedPin, userLocation, map]);
+  
   return null;
 }
 
@@ -43,6 +50,19 @@ export function MapView({
 }: MapViewProps) {
   const [selectedPin, setSelectedPin] = useState<Report | null>(reports[0] || null);
   const [mapTheme, setMapTheme] = useState<'dataviz-dark' | 'streets-v2' | 'satellite'>('dataviz-dark');
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserLocation([pos.coords.latitude, pos.coords.longitude]);
+        },
+        (err) => console.error('Geoloc error:', err),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, []);
 
   const getTileUrl = () => {
     return `https://api.maptiler.com/maps/${mapTheme}/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`;
@@ -80,8 +100,8 @@ export function MapView({
     });
   };
 
-  // Center of Surabaya
-  const centerPosition: [number, number] = [-7.2575, 112.7521];
+  // Center on user if available, else fallback to Surabaya
+  const centerPosition: [number, number] = userLocation || [-7.2575, 112.7521];
 
   return (
     <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
@@ -96,22 +116,30 @@ export function MapView({
           attributionControl={false}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            attribution='&copy; <a href="https://www.maptiler.com/">MapTiler</a>'
             url={getTileUrl()}
           />
           
-          <MapController selectedPin={selectedPin} />
+          <MapController selectedPin={selectedPin} userLocation={userLocation} />
+
+          {/* User Location Marker */}
+          {userLocation && (
+            <Marker 
+              position={userLocation}
+              icon={L.divIcon({
+                html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-[0_0_12px_rgba(59,130,246,0.8)] animate-pulse"></div>`,
+                className: 'user-location-marker',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+              })}
+            />
+          )}
 
           {reports.map((report, idx) => {
-            // Generate some random coordinates near Surabaya center if missing
-            const lat = report.lat || -7.2575 + (Math.random() - 0.5) * 0.05;
-            const lng = report.lng || 112.7521 + (Math.random() - 0.5) * 0.05;
+            const lat = report.lat;
+            const lng = report.lng;
             
-            // Just update the object so it stays consistent on click
-            if (!report.lat || !report.lng) {
-              report.lat = lat;
-              report.lng = lng;
-            }
+            if (!lat || !lng) return null;
 
             const isSelected = selectedPin?.id === report.id;
 
@@ -141,7 +169,7 @@ export function MapView({
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-700 flex items-center gap-1">
               <Compass className="w-3.5 h-3.5 text-cyan-400" />
-              Peta Interaktif Surabaya
+              Peta Laporan Sekitar
             </Badge>
             <span className="text-xs text-slate-400 font-medium">
               {reports.length} Laporan Terdaftar
@@ -154,23 +182,26 @@ export function MapView({
               <button
                 type="button"
                 onClick={() => setMapTheme('dataviz-dark')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'dataviz-dark' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'dataviz-dark' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
               >
-                🌙 Dark
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                Dark
               </button>
               <button
                 type="button"
                 onClick={() => setMapTheme('streets-v2')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'streets-v2' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'streets-v2' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
               >
-                🗺️ Jalan
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                Jalan
               </button>
               <button
                 type="button"
                 onClick={() => setMapTheme('satellite')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'satellite' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'satellite' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
               >
-                🛰️ Satelit
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 7 2.6 17.4"/><path d="M18 12 6.6 23.4"/><path d="m22 2-2 2"/><path d="m4 20-2 2"/><path d="M19.4 6.6a2.82 2.82 0 0 0-4-4l-4 4a2.82 2.82 0 0 0 0 4l1.4 1.4"/><path d="m14 10 4 4"/><path d="M17.4 19.4a2.82 2.82 0 0 0 4-4l-4-4a2.82 2.82 0 0 0 0-4l-1.4-1.4"/></svg>
+                Satelit
               </button>
             </div>
           </div>
