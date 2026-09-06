@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, Plus, Bell, User } from 'lucide-react';
+import { Home, Map, Plus, Bell, User } from 'lucide-react';
 import { useLaporKuyStore } from '@/lib/store';
 import { motion } from 'framer-motion';
 
 const links = [
   { href: '/', label: 'Beranda', icon: Home },
-  { href: '/dashboard', label: 'Peta', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Peta', icon: Map },
   { href: '/buat-laporan', label: 'Lapor', icon: Plus, isPrimary: true },
   { href: '/notifikasi', label: 'Notifikasi', icon: Bell, hasBadge: true },
   { href: '/profil', label: 'Profil', icon: User },
@@ -34,27 +34,23 @@ export function BottomNav() {
           const isActive = pathname === link.href;
           const badgeCount = link.hasBadge ? unreadCount : 0;
 
-          // Center Orange Report Squircle Button (Persegi Modern)
+          // Model 2: The Protruding Center FAB (#0057B8)
           if (link.isPrimary) {
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex flex-col items-center justify-center -mt-7 relative z-10 touch-manipulation group"
+                className="flex flex-col items-center justify-center -mt-8 relative z-10 touch-manipulation group"
                 aria-label="Buat Laporan Baru"
               >
                 <motion.div
                   whileTap={{ scale: 0.90 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 26 }}
-                  className="flex h-14 w-14 items-center justify-center rounded-2xl shadow-md border-t border-white/40 touch-manipulation"
-                  style={{
-                    background: 'linear-gradient(135deg, #FB923C 0%, #F97316 50%, #EA580C 100%)',
-                    boxShadow: '0 8px 24px rgba(249,115,22,0.45), inset 0 1px 0 rgba(255,255,255,0.40)',
-                  }}
+                  className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-[#0057B8] hover:bg-[#004694] active:bg-[#003B73] border-4 border-white dark:border-slate-900 shadow-lg shadow-blue-600/25 touch-manipulation"
                 >
-                  <Plus className="h-7 w-7 text-white stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+                  <Plus className="h-7 w-7 text-white stroke-[2.5] group-hover:rotate-90 transition-transform duration-200" />
                 </motion.div>
-                <span className="text-[10px] font-black mt-1 text-orange-600 tracking-tight">
+                <span className="text-[10px] font-bold mt-1 text-[#0057B8] dark:text-blue-400 tracking-tight">
                   {link.label}
                 </span>
               </Link>
@@ -74,21 +70,26 @@ export function BottomNav() {
                 transition={{ type: 'spring', stiffness: 500, damping: 28 }}
                 className={`relative flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-150 ${
                   isActive
-                    ? 'bg-primary/10 text-primary shadow-xs'
+                    ? 'bg-[#0057B8]/10 text-[#0057B8] dark:text-blue-400 shadow-xs'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <link.icon
                   className={`h-5 w-5 transition-all duration-150 ${
-                    isActive ? 'text-primary scale-105' : 'text-muted-foreground'
+                    isActive ? 'text-[#0057B8] dark:text-blue-400 scale-105' : 'text-muted-foreground'
                   }`}
                   strokeWidth={isActive ? 2.5 : 2}
                 />
                 <span className={`text-[9px] font-bold mt-0.5 tracking-tight transition-colors ${
-                  isActive ? 'text-primary' : 'text-muted-foreground'
+                  isActive ? 'text-[#0057B8] dark:text-blue-400' : 'text-muted-foreground'
                 }`}>
                   {link.label}
                 </span>
+
+                {/* Active dot indicator */}
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#0057B8] dark:bg-blue-400 -mb-1 mt-0.5" />
+                )}
 
                 {/* Badge if any */}
                 {badgeCount > 0 && (

@@ -73,34 +73,24 @@ export default function HomePage() {
             Foto + lokasi otomatis. AI klasifikasi instan. Diteruskan ke dinas. Tinggal pantau.
           </p>
 
-          {/* Side-by-Side Action Buttons — Stretched Full Width with Combined Height */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-lg mx-auto mt-8 select-none">
-            {/* Button 1: Lapor Sekarang (Vibrant Orange Squircle) */}
+          {/* Side-by-Side Action Buttons — High-Affordance Civic-Tech */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md sm:max-w-lg mx-auto mt-8 select-none">
+            {/* Primary Action: Lapor Sekarang */}
             <Link
               href="/buat-laporan"
-              className="group w-full h-[120px] sm:h-32 flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 text-white shadow-[0_12px_28px_-6px_rgba(249,115,22,0.5)] border-t border-white/40 border-b border-black/15 active:scale-[0.97] transition-all touch-manipulation text-center"
+              className="w-full h-14 rounded-2xl bg-[#0057B8] hover:bg-[#004694] active:bg-[#003B73] active:scale-95 text-white font-bold text-sm sm:text-base shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
             >
-              <Camera className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2] text-white mb-1.5 drop-shadow-sm group-hover:scale-110 transition-transform" />
-              <span className="font-black text-sm sm:text-base tracking-tight leading-tight text-white">
-                Lapor Sekarang
-              </span>
-              <span className="text-[11px] sm:text-xs text-white/90 font-medium mt-1">
-                Kamera & AI
-              </span>
+              <Camera className="w-5 h-5 shrink-0 text-white" />
+              <span className="truncate">Lapor Sekarang</span>
             </Link>
 
-            {/* Button 2: Lihat Peta Laporan (Frosted Glass Squircle) */}
+            {/* Secondary Action: Buka Peta / Lihat Peta Laporan */}
             <Link
               href="/dashboard"
-              className="group w-full h-[120px] sm:h-32 flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/12 hover:bg-white/18 backdrop-blur-xl border border-white/25 text-white shadow-[0_12px_28px_-6px_rgba(0,0,0,0.25)] active:scale-[0.97] transition-all touch-manipulation text-center"
+              className="w-full h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 text-slate-800 dark:text-slate-100 font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
             >
-              <MapPin className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2] text-blue-200 mb-1.5 drop-shadow-sm group-hover:scale-110 transition-transform" />
-              <span className="font-black text-sm sm:text-base tracking-tight leading-tight text-white">
-                Lihat Peta Laporan
-              </span>
-              <span className="text-[11px] sm:text-xs text-blue-200/90 font-medium mt-1">
-                Pantau Lacak
-              </span>
+              <MapPin className="w-5 h-5 shrink-0 text-[#0057B8] dark:text-blue-400" />
+              <span className="truncate">Lihat Peta Laporan</span>
             </Link>
           </div>
         </motion.div>
