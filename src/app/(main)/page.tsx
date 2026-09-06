@@ -98,37 +98,56 @@ export default function HomePage() {
       </section>
 
       {/* ── CARA KERJA ── */}
-      <section className="py-14 md:py-20">
-        <div className="px-5 max-w-6xl mx-auto mb-8">
+      <section className="py-10 md:py-16">
+        <div className="px-5 max-w-6xl mx-auto mb-5 md:mb-8">
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">Cara pakai</h2>
-          <p className="text-muted-foreground text-sm mt-1 font-medium">Tiga langkah. Semua dari HP.</p>
+          <p className="text-muted-foreground text-xs md:text-sm mt-1 font-medium">Tiga langkah cepat. Langsung dari HP lo.</p>
         </div>
 
-        <div className="w-full overflow-x-auto pb-6 pt-1 scrollbar-hide">
+        <div className="px-5 max-w-6xl mx-auto w-full">
           <motion.div
-            className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 px-5 max-w-6xl mx-auto w-max md:w-auto"
+            className="flex flex-col md:grid md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-6"
             {...stagger.container}
           >
             {[
-              { icon: Camera, color: 'bg-blue-50 text-blue-600', step: '01', title: 'Foto kerusakan', desc: 'Jalan, lampu, drainase — apa aja yang ganggu fasilitas umum.' },
-              { icon: MapPin, color: 'bg-primary/10 text-primary', step: '02', title: 'Lokasi ke-detect', desc: 'Nggak perlu ketik alamat. GPS HP lo yang kerja otomatis.' },
-              { icon: CheckCircle2, color: 'bg-emerald-50 text-emerald-600', step: '03', title: 'Diteruskan ke dinas', desc: 'Laporan diverifikasi AI dan diteruskan langsung. Tinggal pantau.' },
+              { icon: Camera, color: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/40', step: '01', title: 'Foto kerusakan', desc: 'Jalan, lampu, drainase — apa aja fasilitas umum yang rusak.' },
+              { icon: MapPin, color: 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border border-orange-200/50 dark:border-orange-800/40', step: '02', title: 'Lokasi ke-detect', desc: 'Tanpa perlu ketik alamat manual. GPS HP lo yang kerja otomatis.' },
+              { icon: CheckCircle2, color: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40', step: '03', title: 'Diteruskan ke dinas', desc: 'Laporan diverifikasi AI dan diteruskan langsung. Tinggal pantau.' },
             ].map((item) => (
               <motion.div
                 key={item.step}
                 {...stagger.item}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="w-[260px] md:w-auto shrink-0 bg-card rounded-2xl border border-border p-6 shadow-card touch-manipulation select-none"
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="bg-card rounded-2xl border border-border/80 p-3.5 sm:p-4 md:p-6 shadow-xs select-none touch-manipulation transition-all"
                 style={{ boxShadow: 'var(--shadow-card)' }}
               >
-                <div className="flex items-start justify-between mb-5">
-                  <div className={`w-11 h-11 rounded-xl ${item.color} flex items-center justify-center`}>
-                    <item.icon className="w-5 h-5" strokeWidth={2} />
+                {/* Mobile View: Compact Row Layout (No Swipe Needed, Low Height) */}
+                <div className="flex md:hidden items-center gap-3.5">
+                  <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center shrink-0`}>
+                    <item.icon className="w-5 h-5" strokeWidth={2.2} />
                   </div>
-                  <span className="text-4xl font-black text-border/60 leading-none">{item.step}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-bold text-sm text-foreground truncate">{item.title}</h3>
+                      <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground/80 font-mono shrink-0">
+                        {item.step}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-snug mt-0.5 line-clamp-2">{item.desc}</p>
+                  </div>
                 </div>
-                <h3 className="font-bold text-base text-foreground mb-1.5">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+
+                {/* Desktop View: Traditional Spacious Card Layout */}
+                <div className="hidden md:block">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`w-11 h-11 rounded-xl ${item.color} flex items-center justify-center`}>
+                      <item.icon className="w-5 h-5" strokeWidth={2.2} />
+                    </div>
+                    <span className="text-3xl font-black text-border/60 leading-none">{item.step}</span>
+                  </div>
+                  <h3 className="font-bold text-base text-foreground mb-1.5">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
               </motion.div>
             ))}
           </motion.div>

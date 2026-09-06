@@ -7,7 +7,7 @@ import { Logo } from '@/components/ui/logo';
 import { useLaporKuyStore } from '@/lib/store';
 import { useState } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
-import { PlusSquare, Plus, User, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const mainNavLinks = [
   { href: '/', label: 'Beranda' },
@@ -73,7 +73,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Nav Items — Squircle Touch Tiles */}
-          <nav className="hidden lg:flex items-center gap-1.5 mx-4">
+          <nav className="hidden lg:flex items-center gap-1.5 ml-auto">
             {mainNavLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
@@ -99,65 +99,8 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Desktop Right Actions — Signature Orange Report Button & Profile */}
-          <div className="hidden sm:flex items-center gap-3">
-            {/* Orange Report Action Button */}
-            <Link href="/buat-laporan">
-              <Button
-                variant="liquid-primary"
-                size="default"
-                className="h-11 px-5 rounded-2xl font-extrabold text-xs sm:text-sm tracking-wide shadow-md flex items-center gap-2 touch-manipulation group"
-              >
-                <Plus className="w-4 h-4 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
-                <span>Buat Laporan</span>
-              </Button>
-            </Link>
-
-            {/* Profile Squircle Tile */}
-            {isLoggedIn ? (
-              <Link
-                href="/profil"
-                className="h-11 w-11 rounded-2xl flex items-center justify-center p-0.5 border border-border/80 hover:border-primary/50 bg-card hover:bg-muted/40 shadow-xs active:scale-95 transition-all touch-manipulation"
-                title="Profil Pengguna"
-              >
-                <img
-                  src={profile.avatar}
-                  alt={profile.name}
-                  className="w-full h-full rounded-[14px] object-cover"
-                />
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button size="default" variant="outline" className="rounded-2xl font-bold text-xs h-11 px-4 border-border">
-                  Masuk
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Right Bar: Orange Square + Quick Action & Menu Button */}
-          <div className="flex sm:hidden items-center gap-2">
-            {/* Square Orange Action Button for Mobile */}
-            <Link href="/buat-laporan" aria-label="Buat Laporan Baru">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 text-white flex items-center justify-center shadow-md active:scale-95 transition-all touch-manipulation border-t border-white/30">
-                <Plus className="w-5 h-5 stroke-[3]" />
-              </div>
-            </Link>
-
-            {/* Square Profile Tile for Mobile */}
-            {isLoggedIn && (
-              <Link href="/profil" className="touch-manipulation">
-                <div className="w-10 h-10 rounded-xl overflow-hidden border border-border p-0.5 bg-card active:scale-95 transition-transform">
-                  <img
-                    src={profile.avatar}
-                    alt={profile.name}
-                    className="w-full h-full rounded-[10px] object-cover"
-                  />
-                </div>
-              </Link>
-            )}
-
-            {/* Square Menu Toggle Button */}
+          {/* Mobile Right Bar: Only Menu Toggle Button */}
+          <div className="flex lg:hidden items-center">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="w-10 h-10 rounded-xl bg-muted/70 hover:bg-muted text-foreground flex items-center justify-center active:scale-95 transition-all touch-manipulation border border-border/50"
@@ -188,17 +131,6 @@ export function Navbar() {
             }}
           >
             <div className="p-3.5 space-y-2">
-              {/* Primary Mobile Orange CTA Button in Drawer */}
-              <Link
-                href="/buat-laporan"
-                onClick={() => setMobileOpen(false)}
-                className="block mb-2"
-              >
-                <div className="w-full h-12 rounded-2xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 text-white flex items-center justify-center gap-2 font-extrabold text-sm shadow-md active:scale-98 transition-all touch-manipulation border-t border-white/40">
-                  <Plus className="w-4 h-4 stroke-[3]" />
-                  <span>Buat Laporan Kerusakan</span>
-                </div>
-              </Link>
 
               {/* Navigation Links — Squircle Tiles */}
               <nav className="space-y-1">
