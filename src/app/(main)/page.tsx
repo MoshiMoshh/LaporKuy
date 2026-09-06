@@ -20,6 +20,7 @@ const getCategoryMeta = (category: string) => {
   if (category.includes('Lampu')) return { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', emoji: '💡' };
   if (category.includes('Banjir')) return { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', emoji: '🌊' };
   if (category.includes('Sampah')) return { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', emoji: '🗑️' };
+  if (category.includes('Trotoar')) return { bg: 'bg-rose-50 border-rose-200', text: 'text-rose-700', emoji: '🚶' };
   return { bg: 'bg-slate-50 border-slate-200', text: 'text-slate-700', emoji: '🛣️' };
 };
 
@@ -72,36 +73,32 @@ export default function HomePage() {
             Foto + lokasi otomatis. AI klasifikasi instan. Diteruskan ke dinas. Tinggal pantau.
           </p>
 
-          {/* Square Action Tiles — Side-by-Side */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-[300px] xs:max-w-[330px] sm:max-w-[360px] mx-auto mt-8 select-none">
-            {/* Tile 1: Lapor Sekarang (Square Vibrant Orange) */}
+          {/* Side-by-Side Action Buttons — Stretched Full Width with Combined Height */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-lg mx-auto mt-8 select-none">
+            {/* Button 1: Lapor Sekarang (Vibrant Orange Squircle) */}
             <Link
               href="/buat-laporan"
-              className="group aspect-square flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 text-white shadow-[0_10px_28px_-6px_rgba(249,115,22,0.5)] border-t border-white/35 border-b border-black/10 active:scale-95 transition-all touch-manipulation text-center"
+              className="group w-full h-[120px] sm:h-32 flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-400 via-orange-500 to-orange-600 text-white shadow-[0_12px_28px_-6px_rgba(249,115,22,0.5)] border-t border-white/40 border-b border-black/15 active:scale-[0.97] transition-all touch-manipulation text-center"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/20 flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
-                <Camera className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2] text-white" />
-              </div>
-              <span className="font-black text-xs sm:text-sm tracking-tight leading-snug text-white px-1">
+              <Camera className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2] text-white mb-1.5 drop-shadow-sm group-hover:scale-110 transition-transform" />
+              <span className="font-black text-sm sm:text-base tracking-tight leading-tight text-white">
                 Lapor Sekarang
               </span>
-              <span className="text-[10px] text-white/85 font-medium mt-0.5">
+              <span className="text-[11px] sm:text-xs text-white/90 font-medium mt-1">
                 Kamera & AI
               </span>
             </Link>
 
-            {/* Tile 2: Lihat Peta Laporan (Square Frosted Glass) */}
+            {/* Button 2: Lihat Peta Laporan (Frosted Glass Squircle) */}
             <Link
               href="/dashboard"
-              className="group aspect-square flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/10 hover:bg-white/15 backdrop-blur-xl border border-white/20 text-white shadow-[0_10px_28px_-6px_rgba(0,0,0,0.25)] active:scale-95 transition-all touch-manipulation text-center"
+              className="group w-full h-[120px] sm:h-32 flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/12 hover:bg-white/18 backdrop-blur-xl border border-white/25 text-white shadow-[0_12px_28px_-6px_rgba(0,0,0,0.25)] active:scale-[0.97] transition-all touch-manipulation text-center"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/15 flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
-                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2] text-blue-200" />
-              </div>
-              <span className="font-black text-xs sm:text-sm tracking-tight leading-snug text-white px-1">
+              <MapPin className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2] text-blue-200 mb-1.5 drop-shadow-sm group-hover:scale-110 transition-transform" />
+              <span className="font-black text-sm sm:text-base tracking-tight leading-tight text-white">
                 Lihat Peta Laporan
               </span>
-              <span className="text-[10px] text-blue-200/85 font-medium mt-0.5">
+              <span className="text-[11px] sm:text-xs text-blue-200/90 font-medium mt-1">
                 Pantau Lacak
               </span>
             </Link>
