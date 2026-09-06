@@ -497,7 +497,7 @@ export default function ProfilPage() {
                           (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
                         }}
                       />
-                      <label className="absolute inset-0 flex items-center justify-center bg-black/60 text-white rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/40 sm:bg-black/60 text-white rounded-2xl opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-all active:scale-95 cursor-pointer touch-manipulation select-none" aria-label="Ganti foto profil">
                         <Camera className="w-6 h-6" />
                         <input
                           type="file"

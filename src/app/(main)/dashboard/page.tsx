@@ -168,13 +168,14 @@ function DashboardContent() {
         style={{ maxHeight: isMobile ? '95%' : 'auto' }}
       >
         <div 
-          className="md:hidden w-full flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none group"
+          className="md:hidden w-full flex flex-col items-center pt-3 pb-2.5 shrink-0 select-none touch-none"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          aria-label="Tarik panel aduan"
         >
-          <div className="w-12 h-1.5 bg-slate-300 rounded-full group-hover:bg-[#0057B8] transition-colors" />
+          <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full transition-all active:w-16 active:bg-[#0057B8]" />
         </div>
 
         {/* ACTIVE QUEST BANNER */}
@@ -214,15 +215,15 @@ function DashboardContent() {
         )}
 
         {/* Category Filter Horizontal Scroll */}
-        <div className="flex gap-2 px-4 py-3 border-b border-slate-100 overflow-x-auto scrollbar-none shrink-0">
+        <div className="flex gap-2 px-4 py-3 border-b border-slate-100 overflow-x-auto scrollbar-none shrink-0 touch-pan-x select-none">
           {['Semua', 'Jalan Rusak', 'Fasilitas Umum', 'Lampu Mati', 'Sampah'].map((cat) => (
             <Badge 
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`cursor-pointer rounded-xl px-4 py-1.5 text-[11px] font-bold transition-colors whitespace-nowrap ${
+              className={`touch-manipulation select-none rounded-xl px-4 py-2 text-[11px] font-bold transition-all active:scale-95 whitespace-nowrap ${
                 activeCategory === cat 
-                  ? 'bg-[#0057B8] text-white border-transparent' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-transparent'
+                  ? 'bg-[#0057B8] text-white border-transparent shadow-sm' 
+                  : 'bg-slate-100 text-slate-600 active:bg-slate-200 border-transparent'
               }`}
             >
               {cat}

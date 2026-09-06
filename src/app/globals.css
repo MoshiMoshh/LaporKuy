@@ -139,6 +139,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply bg-background text-foreground;
@@ -146,6 +147,10 @@
   }
   html {
     @apply font-sans scroll-smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  button, a, input, textarea, select {
+    touch-action: manipulation;
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -159,6 +164,24 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tap-press {
+    touch-action: manipulation;
+    user-select: none;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  .tap-press:active {
+    transform: scale(0.97);
+    opacity: 0.9;
   }
 }
 

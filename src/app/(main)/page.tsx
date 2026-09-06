@@ -101,7 +101,7 @@ export default function HomePage() {
         <div className="w-full overflow-x-auto pb-6 pt-2 hide-scrollbar">
           <div className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 px-5 max-w-6xl mx-auto w-max md:w-auto">
             {/* Step 1 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
+            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] sm:hover:-translate-y-1 active:scale-[0.98] transition-all touch-manipulation select-none">
               <div className="w-12 h-12 rounded-2xl bg-slate-100/80 text-slate-800 flex items-center justify-center mb-5 shadow-sm">
                 <Camera className="w-6 h-6" />
               </div>
@@ -110,7 +110,7 @@ export default function HomePage() {
             </div>
             
             {/* Step 2 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
+            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] sm:hover:-translate-y-1 active:scale-[0.98] transition-all touch-manipulation select-none">
               <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-blue-600 flex items-center justify-center mb-5 shadow-sm">
                 <MapPin className="w-6 h-6" />
               </div>
@@ -119,7 +119,7 @@ export default function HomePage() {
             </div>
 
             {/* Step 3 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
+            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] sm:hover:-translate-y-1 active:scale-[0.98] transition-all touch-manipulation select-none">
               <div className="w-12 h-12 rounded-2xl bg-green-50/80 text-green-600 flex items-center justify-center mb-5 shadow-sm">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
@@ -136,7 +136,7 @@ export default function HomePage() {
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
             Laporan terbaru
           </h2>
-          <Link href="/dashboard" className="text-sm font-bold text-blue-600 flex items-center gap-1 group shrink-0 hover:text-blue-700">
+          <Link href="/dashboard" className="text-sm font-bold text-blue-600 flex items-center gap-1 group shrink-0 hover:text-blue-700 touch-manipulation active:opacity-75">
             Lihat semua
             <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
@@ -158,7 +158,7 @@ export default function HomePage() {
               <Link
                 href={`/laporan/${report.id}`}
                 key={report.id}
-                className="group flex flex-col bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all"
+                className="group flex flex-col bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] sm:hover:-translate-y-1 active:scale-[0.98] transition-all touch-manipulation select-none"
               >
                 {/* Borderless Canvas Card Pattern */}
                 <div className="w-full relative bg-slate-100 rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4">

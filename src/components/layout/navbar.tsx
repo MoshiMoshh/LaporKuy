@@ -125,7 +125,7 @@ export function Navbar() {
         <div className="flex md:hidden items-center gap-3">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 text-[#172033]"
+            className="p-2 text-[#172033] touch-manipulation active:scale-95 transition-transform select-none"
             aria-label="Toggle navigation menu"
           >
             {mobileOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
@@ -140,13 +140,13 @@ export function Navbar() {
         style={{ height: 0, opacity: 0, display: 'none' }}
       >
         <div className="px-4 py-4 space-y-4">
-          <nav className="flex flex-col gap-2">
+          <nav className="flex flex-col gap-1">
             {mainNavLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2 text-sm font-semibold text-[#172033] rounded hover:bg-slate-50"
+                className="block px-3 py-2.5 text-sm font-semibold text-[#172033] rounded-lg active:bg-slate-100 touch-manipulation select-none transition-colors"
               >
                 {link.label}
               </Link>
@@ -157,7 +157,7 @@ export function Navbar() {
             <Link
               href="/profil"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-3 py-2"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg active:bg-slate-100 touch-manipulation select-none transition-colors"
             >
               <UserIcon className="h-5 w-5 text-[#172033]" />
               <span className="text-sm font-semibold text-[#172033]">Profil Saya</span>

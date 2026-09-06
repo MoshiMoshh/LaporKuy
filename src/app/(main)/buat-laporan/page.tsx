@@ -275,7 +275,7 @@ function BuatLaporanForm() {
 
             {!photoUrl ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer bg-white dark:bg-slate-900 group">
+                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-[0.98] active:bg-slate-100 dark:active:bg-slate-800 transition-all touch-manipulation select-none cursor-pointer bg-white dark:bg-slate-900 group">
                   <input 
                     type="file" 
                     accept="image/*" 
@@ -299,7 +299,7 @@ function BuatLaporanForm() {
                   </span>
                 </label>
 
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer bg-white dark:bg-slate-900 group">
+                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 active:scale-[0.98] active:bg-slate-100 dark:active:bg-slate-800 transition-all touch-manipulation select-none cursor-pointer bg-white dark:bg-slate-900 group">
                   <input 
                     type="file" 
                     accept="image/*" 
@@ -415,7 +415,7 @@ function BuatLaporanForm() {
               onChange={(e) => setIsUrgent(e.target.checked)}
               className="h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
             />
-            <label htmlFor="urgent" className="text-xs font-semibold text-rose-900 dark:text-rose-200 cursor-pointer flex items-center gap-1.5">
+            <label htmlFor="urgent" className="text-xs font-semibold text-rose-900 dark:text-rose-200 cursor-pointer flex items-center gap-1.5 select-none touch-manipulation active:opacity-75">
               <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
               Tandai sebagai Laporan Darurat / Butuh Penanganan URC Segera
             </label>
