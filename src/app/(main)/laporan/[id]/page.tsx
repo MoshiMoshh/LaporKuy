@@ -128,7 +128,7 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
             />
           </div>
         ) : (
-          <div className="rounded-2xl overflow-hidden border border-border">
+          <div className="rounded-3xl overflow-hidden border border-border shadow-card">
             <img 
               src={report.photoUrl || fallbackPhotoUrl} 
               alt={report.title} 
@@ -355,8 +355,8 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
               rel="noopener noreferrer"
               className="block"
             >
-              <Button variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
-                <MapPin className="h-3.5 w-3.5 text-[#0057B8]" /> Buka di Google Maps
+              <Button variant="outline" size="default" className="w-full text-xs font-bold gap-1.5 h-11 rounded-2xl border-border hover:text-primary">
+                <MapPin className="h-4 w-4 text-primary" /> Buka di Google Maps
               </Button>
             </a>
           </Card>

@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Lock, Phone, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Phone, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -67,44 +68,60 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#003B73] to-[#00143A] p-5 relative overflow-hidden font-sans">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#001F5B] via-[#003082] to-[#001040] p-5 relative overflow-hidden font-sans">
       
       {/* Decorative Cityscape Silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
-        {/* Mobile View (Focus on Monas on the left) */}
         <img 
           src="/skyline-jakarta.png" 
           alt="Jakarta Skyline Mobile" 
-          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1000%] grayscale"
         />
-        {/* Desktop View (Centered Panorama) */}
         <img 
           src="/skyline-jakarta.png" 
           alt="Jakarta Skyline Desktop" 
-          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1000%] grayscale"
         />
       </div>
 
-      <div className="w-full max-w-md z-10 flex flex-col items-center py-8">
+      {/* Radial glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-blue-500/15 rounded-full blur-[100px] pointer-events-none" />
+
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0, 0, 0.2, 1] }}
+        className="w-full max-w-md z-10 flex flex-col items-center py-6"
+      >
         {/* Branding */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="mb-6 drop-shadow-2xl">
-             <Logo size={100} theme="dark" layout="vertical" />
+        <div className="flex flex-col items-center mb-7">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="mb-5 drop-shadow-2xl"
+          >
+             <Logo size={85} theme="dark" layout="vertical" />
+          </motion.div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-blue-200 text-xs font-semibold tracking-wide">
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-300" />
+            Registrasi Warga Resmi & Aman
           </div>
-          <p className="text-slate-300 mt-2 text-center text-[15px] font-medium tracking-wide leading-relaxed">
-            Sampaikan Laporanmu.<br/>Kuy Action.
-          </p>
         </div>
 
-        {/* Register Card */}
-        <div className="w-full bg-[#0A1629] rounded-[2rem] p-7 sm:p-9 shadow-2xl border border-white/5">
-          <div className="mb-8">
-            <h1 className="text-xl font-bold text-white mb-2 tracking-wide">Buat Akun Baru</h1>
-            <p className="text-slate-400 text-sm">Daftar sekarang buat mulai lapor.</p>
+        {/* Register Card with Modern Curved Glassmorphism */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.15, duration: 0.4 }}
+          className="w-full bg-[#08152B]/85 backdrop-blur-2xl rounded-[2.25rem] p-7 sm:p-9 shadow-float border border-white/10"
+        >
+          <div className="mb-7 text-center sm:text-left">
+            <h1 className="text-2xl font-bold text-white mb-1.5 tracking-tight">Buat Akun Baru</h1>
+            <p className="text-slate-300 text-sm font-medium">Bergabung dan berpartisipasi menjaga fasilitas kota</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4">
-            
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-slate-400" />
@@ -114,7 +131,7 @@ export default function RegisterPage() {
                 placeholder="Nama Lengkap"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
                 required
                 disabled={isLoading}
               />
@@ -129,7 +146,7 @@ export default function RegisterPage() {
                 placeholder="Email Aktif"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
                 required
                 disabled={isLoading}
               />
@@ -141,10 +158,10 @@ export default function RegisterPage() {
               </div>
               <Input
                 type="tel"
-                placeholder="Nomor Telepon (Opsional)"
+                placeholder="Nomor WhatsApp (Opsional)"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
                 disabled={isLoading}
               />
             </div>
@@ -158,14 +175,14 @@ export default function RegisterPage() {
                 placeholder="Kata Sandi (Min. 8 Karakter)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-11 pr-12 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                className="pl-11 pr-12 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
                 required
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-300 focus:outline-none"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none min-h-[44px] min-w-[44px] justify-center touch-manipulation"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -174,16 +191,18 @@ export default function RegisterPage() {
             <Button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full h-14 font-bold text-[15px] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-xl shadow-sm transition-all mt-6"
+              variant="liquid-primary"
+              size="lg"
+              className="w-full h-13 font-bold text-[15px] rounded-2xl shadow-md transition-all touch-manipulation mt-5"
             >
-              {isLoading ? 'Memproses...' : 'Daftar'}
+              {isLoading ? 'Mendaftarkan...' : 'Daftar Sekarang'}
             </Button>
           </form>
 
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <div className="h-[1px] flex-1 bg-slate-800" />
-            <span className="text-[13px] font-medium text-slate-500">atau</span>
-            <div className="h-[1px] flex-1 bg-slate-800" />
+          <div className="mt-7 flex items-center justify-center gap-4">
+            <div className="h-[1px] flex-1 bg-white/10" />
+            <span className="text-xs font-medium text-slate-400">atau</span>
+            <div className="h-[1px] flex-1 bg-white/10" />
           </div>
 
           <Button 
@@ -191,7 +210,7 @@ export default function RegisterPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleRegister}
-            className="w-full h-14 font-semibold mt-6 flex items-center justify-center gap-3 bg-transparent hover:bg-slate-800/50 border-slate-700 rounded-xl text-white transition-all text-[14px]"
+            className="w-full h-13 font-semibold mt-5 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border-white/15 rounded-2xl text-white transition-all text-sm touch-manipulation active:scale-[0.98]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -202,14 +221,14 @@ export default function RegisterPage() {
             Daftar dengan Google
           </Button>
 
-          <p className="text-center mt-8 text-[13px] text-slate-400 font-medium">
+          <p className="text-center mt-7 text-xs text-slate-400 font-medium">
             Sudah punya akun?{' '}
-            <Link href="/login" className="font-semibold text-[#0084FF] hover:text-blue-400 transition-colors">
+            <Link href="/login" className="font-bold text-blue-400 hover:text-blue-300 transition-colors underline-offset-4 hover:underline py-1 touch-manipulation">
               Masuk Sekarang
             </Link>
           </p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

@@ -1,217 +1,254 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { useLaporKuyStore } from '@/lib/store';
-import {
-  MapPin,
-  Clock,
-  ChevronRight,
-  Camera,
-  CheckCircle2,
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { MapPin, Clock, ChevronRight, Camera, CheckCircle2, Zap } from 'lucide-react';
 
 const formatDate = (isoString: string) => {
   try {
     const date = new Date(isoString);
     const diff = Date.now() - date.getTime();
     const hours = Math.floor(diff / 3600000);
-
     if (hours < 1) return 'Baru saja';
     if (hours < 24) return `${hours} jam lalu`;
-    return date.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-    });
-  } catch {
-    return 'Baru saja';
-  }
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  } catch { return 'Baru saja'; }
 };
 
 const getCategoryMeta = (category: string) => {
-  if (category.includes('Lampu')) return { bg: 'bg-amber-100/90', text: 'text-amber-800', emoji: '💡' };
-  if (category.includes('Banjir')) return { bg: 'bg-blue-100/90', text: 'text-blue-800', emoji: '🌊' };
-  if (category.includes('Sampah')) return { bg: 'bg-emerald-100/90', text: 'text-emerald-800', emoji: '🗑️' };
-  return { bg: 'bg-slate-100/90', text: 'text-slate-800', emoji: '🛣️' };
+  if (category.includes('Lampu')) return { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', emoji: '💡' };
+  if (category.includes('Banjir')) return { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', emoji: '🌊' };
+  if (category.includes('Sampah')) return { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', emoji: '🗑️' };
+  if (category.includes('Trotoar')) return { bg: 'bg-rose-50 border-rose-200', text: 'text-rose-700', emoji: '🚶' };
+  return { bg: 'bg-slate-50 border-slate-200', text: 'text-slate-700', emoji: '🛣️' };
+};
+
+const stagger = {
+  container: { transition: { staggerChildren: 0.09 } },
+  item: { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.45, ease: 'easeOut' as const } },
 };
 
 export default function HomePage() {
   const { reports } = useLaporKuyStore();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20 md:pb-0">
-      {/* HERO SECTION */}
-      <section className="relative w-full bg-gradient-to-b from-[#003B73] to-[#00143A] pt-24 pb-32 overflow-hidden">
-        {/* Decorative Cityscape Silhouette */}
+    <div className="min-h-screen bg-background text-foreground font-sans pb-20 md:pb-0">
+
+      {/* ── HERO ── */}
+      <section className="relative w-full bg-gradient-to-b from-[#001F5B] via-[#003082] to-[#001040] pt-24 pb-36 overflow-hidden">
+        {/* Decorative city silhouette */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
-          {/* Mobile View */}
-          <img 
-            src="/skyline-jakarta.png" 
-            alt="Jakarta Skyline" 
-            className="block md:hidden w-full h-[60vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
-          />
-          {/* Desktop View */}
-          <img 
-            src="/skyline-jakarta.png" 
-            alt="Jakarta Skyline" 
-            className="hidden md:block w-full h-[55vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
-          />
+          <img src="/skyline-jakarta.png" alt="Jakarta Skyline"
+            className="block md:hidden w-full h-[60vh] object-cover object-[15%_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1200%] grayscale" />
+          <img src="/skyline-jakarta.png" alt="Jakarta Skyline"
+            className="hidden md:block w-full h-[55vh] object-cover object-center opacity-20 mix-blend-multiply brightness-150 contrast-[1200%] grayscale" />
         </div>
 
-        <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto px-5">
-          <h1 className="text-[2.5rem] leading-[1.05] font-extrabold tracking-tighter sm:text-6xl md:text-7xl text-white drop-shadow-md">
-            Fasilitas rusak<br/>di sekitar lo?
+        {/* Radial glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/25 rounded-full blur-[120px] pointer-events-none" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: 'easeOut' }}
+          className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto px-5"
+        >
+          {/* Trust badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-white/85 text-xs font-semibold tracking-wide mb-7"
+          >
+            <Zap className="w-3.5 h-3.5 text-yellow-300" />
+            Diverifikasi AI dalam &lt;30 detik
+          </motion.div>
+
+          <h1 className="text-[2.6rem] leading-[1.04] font-extrabold tracking-tight sm:text-6xl text-white mb-5">
+            Fasilitas rusak<br />
+            <span className="text-blue-200">di sekitar lo?</span>
           </h1>
-          <p className="text-[1.05rem] sm:text-lg text-blue-100/90 leading-relaxed mt-5 max-w-sm font-medium">
-            Kirim foto, biar yang urus bagian yang nindaklanjuti. Laporan diverifikasi instan.
+          <p className="text-[1.05rem] text-blue-100/85 leading-relaxed max-w-sm font-medium">
+            Foto + lokasi otomatis. AI klasifikasi instan. Diteruskan ke dinas. Tinggal pantau.
           </p>
 
-          <div className="flex flex-col sm:flex-row w-full justify-center gap-4 mt-10">
-            <Link href="/buat-laporan" className="w-full sm:w-auto">
-              <Button variant="liquid-primary" size="xl" className="w-full sm:w-auto">
-                <Camera className="w-5 h-5 drop-shadow-md" />
-                <span className="drop-shadow-md">Lapor Sekarang</span>
-              </Button>
+          {/* Side-by-Side Action Buttons — High-Affordance Civic-Tech */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md sm:max-w-lg mx-auto mt-8 select-none">
+            {/* Primary Action: Lapor Sekarang (Orange) */}
+            <Link
+              href="/buat-laporan"
+              className="w-full h-14 rounded-2xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 hover:brightness-105 active:brightness-95 active:scale-95 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
+            >
+              <Camera className="w-5 h-5 shrink-0 text-white" />
+              <span className="truncate">Lapor Sekarang</span>
             </Link>
-            <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button variant="liquid-glass" size="xl" className="w-full sm:w-auto">
-                <MapPin className="w-5 h-5 text-orange-400 drop-shadow-md" />
-                <span className="drop-shadow-md">Buka Peta</span>
-              </Button>
+
+            {/* Secondary Action: Buka Peta / Lihat Peta Laporan */}
+            <Link
+              href="/dashboard"
+              className="w-full h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 text-slate-800 dark:text-slate-100 font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
+            >
+              <MapPin className="w-5 h-5 shrink-0 text-[#0057B8] dark:text-blue-400" />
+              <span className="truncate">Lihat Peta Laporan</span>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Curved Wave Divider to transition to the light content */}
+        {/* Wave divider */}
         <div className="absolute bottom-[-1px] w-full overflow-hidden leading-none z-20">
-          <svg className="relative block w-[calc(100%+1.3px)] h-[40px] md:h-[80px]" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,115.34,188.75,99.43,234.84,86.7,278.47,72.26,321.39,56.44Z" className="fill-slate-50"></path>
+          <svg className="relative block w-[calc(100%+1.3px)] h-[48px] md:h-[80px]" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,115.34,188.75,99.43,234.84,86.7,278.47,72.26,321.39,56.44Z" className="fill-background" />
           </svg>
         </div>
       </section>
 
-      {/* CARA KERJA - Horizontal scroll on mobile for premium app feel */}
-      <section className="py-12 md:py-20 bg-slate-50/50 border-y border-slate-100/60">
-        <div className="px-5 max-w-6xl mx-auto mb-6 md:mb-10">
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-            Cara pakai
-          </h2>
+      {/* ── CARA KERJA ── */}
+      <section className="py-10 md:py-16">
+        <div className="px-5 max-w-6xl mx-auto mb-5 md:mb-8">
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">Cara pakai</h2>
+          <p className="text-muted-foreground text-xs md:text-sm mt-1 font-medium">Tiga langkah cepat. Langsung dari HP lo.</p>
         </div>
 
-        <div className="w-full overflow-x-auto pb-6 pt-2 hide-scrollbar">
-          <div className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 px-5 max-w-6xl mx-auto w-max md:w-auto">
-            {/* Step 1 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100/80 text-slate-800 flex items-center justify-center mb-5 shadow-sm">
-                <Camera className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-lg mb-1.5">1. Foto kerusakan</h3>
-              <p className="text-sm text-slate-500 leading-relaxed font-medium">Jalan, lampu, drainase — apa aja yang ganggu fasilitas.</p>
-            </div>
-            
-            {/* Step 2 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50/80 text-blue-600 flex items-center justify-center mb-5 shadow-sm">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-lg mb-1.5">2. Lokasi ke-detect</h3>
-              <p className="text-sm text-slate-500 leading-relaxed font-medium">Nggak perlu ketik alamat. HP lo yang kerja otomatis.</p>
-            </div>
+        <div className="px-5 max-w-6xl mx-auto w-full">
+          <motion.div
+            className="flex flex-col md:grid md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-6"
+            {...stagger.container}
+          >
+            {[
+              { icon: Camera, color: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/40', step: '01', title: 'Foto kerusakan', desc: 'Jalan, lampu, drainase — apa aja fasilitas umum yang rusak.' },
+              { icon: MapPin, color: 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border border-orange-200/50 dark:border-orange-800/40', step: '02', title: 'Lokasi ke-detect', desc: 'Tanpa perlu ketik alamat manual. GPS HP lo yang kerja otomatis.' },
+              { icon: CheckCircle2, color: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40', step: '03', title: 'Diteruskan ke dinas', desc: 'Laporan diverifikasi AI dan diteruskan langsung. Tinggal pantau.' },
+            ].map((item) => (
+              <motion.div
+                key={item.step}
+                {...stagger.item}
+                whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                className="bg-card rounded-2xl border border-border/80 p-3.5 sm:p-4 md:p-6 shadow-xs select-none touch-manipulation transition-all"
+                style={{ boxShadow: 'var(--shadow-card)' }}
+              >
+                {/* Mobile View: Compact Row Layout (No Swipe Needed, Low Height) */}
+                <div className="flex md:hidden items-center gap-3.5">
+                  <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center shrink-0`}>
+                    <item.icon className="w-5 h-5" strokeWidth={2.2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-bold text-sm text-foreground truncate">{item.title}</h3>
+                      <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground/80 font-mono shrink-0">
+                        {item.step}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-snug mt-0.5 line-clamp-2">{item.desc}</p>
+                  </div>
+                </div>
 
-            {/* Step 3 */}
-            <div className="w-[260px] md:w-auto shrink-0 bg-white/60 backdrop-blur-xl rounded-[1.75rem] border border-white/80 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-green-50/80 text-green-600 flex items-center justify-center mb-5 shadow-sm">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-lg mb-1.5">3. Diteruskan ke dinas</h3>
-              <p className="text-sm text-slate-500 leading-relaxed font-medium">Laporan diverifikasi sistem dan diteruskan. Tinggal pantau.</p>
-            </div>
-          </div>
+                {/* Desktop View: Traditional Spacious Card Layout */}
+                <div className="hidden md:block">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`w-11 h-11 rounded-xl ${item.color} flex items-center justify-center`}>
+                      <item.icon className="w-5 h-5" strokeWidth={2.2} />
+                    </div>
+                    <span className="text-3xl font-black text-border/60 leading-none">{item.step}</span>
+                  </div>
+                  <h3 className="font-bold text-base text-foreground mb-1.5">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      {/* LAPORAN TERBARU */}
-      <section className="px-5 py-14 md:py-24 max-w-6xl mx-auto">
-        <div className="flex items-end justify-between mb-8 md:mb-12">
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-            Laporan terbaru
-          </h2>
-          <Link href="/dashboard" className="text-sm font-bold text-blue-600 flex items-center gap-1 group shrink-0 hover:text-blue-700">
+      {/* ── LAPORAN TERBARU ── */}
+      <section className="px-5 py-12 md:py-20 max-w-6xl mx-auto">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">Laporan terbaru</h2>
+            <p className="text-muted-foreground text-sm mt-1 font-medium">Langsung dari warga sekitar</p>
+          </div>
+          <Link href="/dashboard" className="flex items-center gap-1 text-sm font-bold text-primary hover:text-primary/80 transition-colors touch-manipulation active:opacity-75 shrink-0 group">
             Lihat semua
             <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+          {...stagger.container}
+        >
           {reports.slice(0, 6).map((report) => {
             const cat = getCategoryMeta(report.category);
-
-            const fallbackPhotoUrl = report.category.includes('Lampu')
-              ? '/images/reports/streetlight.jpg'
-              : report.category.includes('Banjir')
-              ? '/images/reports/flood.jpg'
-              : report.category.includes('Sampah')
-              ? '/images/reports/trash.jpg'
+            const fallbackPhotoUrl = report.category.includes('Lampu') ? '/images/reports/streetlight.jpg'
+              : report.category.includes('Banjir') ? '/images/reports/flood.jpg'
+              : report.category.includes('Sampah') ? '/images/reports/trash.jpg'
               : '/images/reports/pothole.jpg';
 
             return (
-              <Link
-                href={`/laporan/${report.id}`}
-                key={report.id}
-                className="group flex flex-col bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all"
-              >
-                {/* Borderless Canvas Card Pattern */}
-                <div className="w-full relative bg-slate-100 rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4">
-                  <img
-                    src={report.photoUrl || fallbackPhotoUrl}
-                    alt={report.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(e) => {
-                      e.currentTarget.src = fallbackPhotoUrl;
-                    }}
-                  />
-                  {/* Subtle overlay gradient on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
-                  <div className="absolute top-4 left-4">
-                    <div className={`${cat.bg} ${cat.text} backdrop-blur-md text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm border border-white/20`}>
-                      {cat.emoji} {report.category}
+              <motion.div key={report.id} {...stagger.item}>
+                <Link
+                  href={`/laporan/${report.id}`}
+                  className="group flex flex-col bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-float transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] touch-manipulation select-none"
+                  style={{ boxShadow: 'var(--shadow-card)' }}
+                >
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                    <img
+                      src={report.photoUrl || fallbackPhotoUrl}
+                      alt={report.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={(e) => { e.currentTarget.src = fallbackPhotoUrl; }}
+                    />
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+                    {/* Category badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className={`${cat.bg} ${cat.text} inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border`}>
+                        {cat.emoji} {report.category}
+                      </span>
                     </div>
+                    {/* Urgent badge */}
+                    {report.isUrgent && (
+                      <div className="absolute top-3 right-3">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-urgent text-white border border-white/20">
+                          ⚡ Urgen
+                        </span>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                <div className="px-2 pb-2 flex flex-col flex-1">
-                  <h3 className="font-bold text-[1.1rem] leading-[1.3] text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {report.title}
-                  </h3>
-                  
-                  <div className="mt-3 flex items-center justify-between text-xs font-semibold text-slate-500">
-                    <div className="flex items-center gap-1.5 truncate pr-4">
-                      <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
-                      <span className="truncate">{report.address}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0 bg-slate-100/80 px-2 py-1 rounded-lg">
-                      <Clock className="w-3 h-3 text-slate-400" />
-                      {formatDate(report.createdAt)}
+                  {/* Content */}
+                  <div className="p-4 flex flex-col flex-1">
+                    <h3 className="font-bold text-[0.95rem] leading-snug text-foreground line-clamp-2 group-hover:text-primary transition-colors mb-3">
+                      {report.title}
+                    </h3>
+                    <div className="mt-auto flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+                      <div className="flex items-center gap-1.5 truncate pr-3">
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{report.address}</span>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0 bg-muted px-2 py-1 rounded-lg">
+                        <Clock className="w-3 h-3" />
+                        {formatDate(report.createdAt)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </motion.div>
             );
           })}
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Enable horizontal scroll hiding */}
-      <style jsx global>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+        {reports.length === 0 && (
+          <div className="text-center py-20 text-muted-foreground">
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+              <Camera className="w-8 h-8 text-muted-foreground/50" />
+            </div>
+            <p className="font-semibold">Belum ada laporan</p>
+            <p className="text-sm mt-1">Jadilah yang pertama melaporkan!</p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

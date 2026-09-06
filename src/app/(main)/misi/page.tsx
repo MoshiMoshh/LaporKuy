@@ -227,7 +227,7 @@ export default function MisiPage() {
       </Card>
 
       {/* Filter Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-2.5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="border-b border-border pb-2.5 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex items-center gap-2 pr-8 sm:pr-0 shrink-0 min-w-max">
           {[
             { id: 'all', label: 'Semua Misi' },
@@ -238,10 +238,10 @@ export default function MisiPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 ${
+              className={`px-4 py-2 text-xs font-bold rounded-full transition-all whitespace-nowrap shrink-0 min-h-[38px] touch-manipulation active:scale-95 ${
                 activeTab === tab.id
-                  ? 'bg-[#0057B8] text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
               }`}
             >
               {tab.label}
@@ -333,7 +333,7 @@ export default function MisiPage() {
                 ) : (
                   <button
                     onClick={() => setSelectedQuestForModal(quest)}
-                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1"
+                    className="px-4 py-2 rounded-2xl bg-primary hover:bg-primary/90 active:scale-95 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1 min-h-[38px] touch-manipulation"
                   >
                     <span>Kerjakan</span>
                     <ArrowUpRight className="h-3.5 w-3.5 opacity-80" />
