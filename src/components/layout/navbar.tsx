@@ -7,10 +7,10 @@ import { Logo } from '@/components/ui/logo';
 import { useLaporKuyStore } from '@/lib/store';
 import { useState } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
+import { PlusSquare, Plus, User, Menu, X } from 'lucide-react';
 
 const mainNavLinks = [
   { href: '/', label: 'Beranda' },
-  { href: '/buat-laporan', label: 'Buat Laporan' },
   { href: '/dashboard', label: 'Peta & Lacak' },
   { href: '/transparansi', label: 'Transparansi SLA' },
   { href: '/papan-peringkat', label: 'Peringkat' },
@@ -19,8 +19,8 @@ const mainNavLinks = [
 ];
 
 const mobileMenuVariants = {
-  closed: { height: 0, opacity: 0, transition: { duration: 0.25, ease: 'easeInOut' as const } },
-  open:   { height: 'auto', opacity: 1, transition: { duration: 0.32, ease: 'easeOut' as const } },
+  closed: { height: 0, opacity: 0, scale: 0.98, transition: { duration: 0.22, ease: 'easeInOut' as const } },
+  open:   { height: 'auto', opacity: 1, scale: 1, transition: { duration: 0.28, ease: 'easeOut' as const } },
 };
 
 export function Navbar() {
@@ -32,56 +32,66 @@ export function Navbar() {
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    setIsScrolled(latest > 20);
+    setIsScrolled(latest > 16);
   });
 
   return (
-    <motion.header
-      initial={{ y: -72, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.05 }}
-      className="sticky top-0 z-50 w-full"
-    >
-      {/* Glass bar — transitions based on scroll */}
+    <div className="sticky top-2 sm:top-4 z-50 px-3 sm:px-6 max-w-7xl mx-auto w-full transition-all duration-300">
+      {/* Floating Island Glass Navbar Dock */}
       <motion.div
-        animate={isScrolled
-          ? { backgroundColor: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(16px) saturate(160%)', boxShadow: '0 2px 16px 0 rgba(13,27,46,0.09)', borderBottomColor: 'rgba(255,255,255,0.30)' }
-          : { backgroundColor: 'rgba(255,255,255,1)', backdropFilter: 'blur(0px) saturate(100%)', boxShadow: '0 1px 0 0 rgba(13,27,46,0.08)', borderBottomColor: 'rgba(13,27,46,0.08)' }
-        }
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', WebkitBackdropFilter: isScrolled ? 'blur(16px) saturate(160%)' : 'none' }}
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className={`w-full rounded-2xl sm:rounded-3xl transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white/90 dark:bg-slate-900/90 shadow-[0_12px_36px_rgba(13,27,46,0.12)] border border-white/60 dark:border-white/15'
+            : 'bg-white/80 dark:bg-slate-900/80 shadow-[0_6px_24px_rgba(13,27,46,0.06)] border border-white/40 dark:border-white/10'
+        }`}
+        style={{
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        }}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between px-3.5 sm:px-5">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <Logo size={34} />
+          {/* Logo & Civic Badge */}
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 select-none group">
+            <div className="group-hover:scale-105 transition-transform duration-200">
+              <Logo size={32} />
+            </div>
             <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-[11px] uppercase font-bold text-primary tracking-widest">LaporKuy</span>
-              <span className="text-[9px] text-muted-foreground tracking-wider font-medium">Layanan Pengaduan Publik</span>
+              <span className="text-xs font-black text-foreground tracking-tight flex items-center gap-1">
+                LaporKuy
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-primary/10 text-primary uppercase">
+                  Publik
+                </span>
+              </span>
+              <span className="text-[9px] text-muted-foreground tracking-wider font-semibold mt-0.5">
+                Pengaduan Infrastruktur
+              </span>
             </div>
           </Link>
 
-          {/* Desktop Nav — pill links */}
-          <nav className="hidden md:flex items-center gap-1 ml-8 mr-auto">
+          {/* Desktop Nav Items — Squircle Touch Tiles */}
+          <nav className="hidden lg:flex items-center gap-1.5 mx-4">
             {mainNavLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-3.5 py-2 text-sm font-semibold rounded-xl transition-colors duration-150 ${
+                  className={`relative px-3.5 py-2 text-xs sm:text-[13px] font-bold rounded-xl transition-all duration-150 select-none touch-manipulation ${
                     isActive
-                      ? 'text-primary bg-primary/8'
-                      : 'text-foreground/70 hover:text-foreground hover:bg-muted/60'
+                      ? 'text-primary bg-primary/10 shadow-xs'
+                      : 'text-foreground/75 hover:text-foreground hover:bg-muted/60'
                   }`}
                 >
                   {link.label}
                   {isActive && (
                     <motion.span
-                      layoutId="nav-active-pill"
+                      layoutId="nav-squircle-active"
                       className="absolute inset-0 rounded-xl bg-primary/10 -z-10"
-                      transition={{ type: 'spring', stiffness: 400, damping: 36 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 36 }}
                     />
                   )}
                 </Link>
@@ -89,129 +99,159 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Desktop Right */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Desktop Right Actions — Signature Orange Report Button & Profile */}
+          <div className="hidden sm:flex items-center gap-3">
+            {/* Orange Report Action Button */}
+            <Link href="/buat-laporan">
+              <Button
+                variant="liquid-primary"
+                size="default"
+                className="h-11 px-5 rounded-2xl font-extrabold text-xs sm:text-sm tracking-wide shadow-md flex items-center gap-2 touch-manipulation group"
+              >
+                <Plus className="w-4 h-4 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
+                <span>Buat Laporan</span>
+              </Button>
+            </Link>
+
+            {/* Profile Squircle Tile */}
             {isLoggedIn ? (
               <Link
                 href="/profil"
-                className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-muted/60 transition-colors touch-manipulation"
+                className="h-11 w-11 rounded-2xl flex items-center justify-center p-0.5 border border-border/80 hover:border-primary/50 bg-card hover:bg-muted/40 shadow-xs active:scale-95 transition-all touch-manipulation"
+                title="Profil Pengguna"
               >
                 <img
                   src={profile.avatar}
                   alt={profile.name}
-                  className="h-8 w-8 rounded-xl object-cover border-2 border-border"
+                  className="w-full h-full rounded-[14px] object-cover"
                 />
-                <span className="text-sm font-semibold text-foreground/80">
-                  {profile.name}
-                </span>
               </Link>
             ) : (
               <Link href="/login">
-                <Button size="sm" className="rounded-xl font-semibold px-5 bg-primary hover:bg-primary/90 text-white shadow-sm">
+                <Button size="default" variant="outline" className="rounded-2xl font-bold text-xs h-11 px-4 border-border">
                   Masuk
                 </Button>
               </Link>
             )}
           </div>
 
-          {/* Mobile: right side actions */}
-          <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Right Bar: Orange Square + Quick Action & Menu Button */}
+          <div className="flex sm:hidden items-center gap-2">
+            {/* Square Orange Action Button for Mobile */}
+            <Link href="/buat-laporan" aria-label="Buat Laporan Baru">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 text-white flex items-center justify-center shadow-md active:scale-95 transition-all touch-manipulation border-t border-white/30">
+                <Plus className="w-5 h-5 stroke-[3]" />
+              </div>
+            </Link>
+
+            {/* Square Profile Tile for Mobile */}
             {isLoggedIn && (
               <Link href="/profil" className="touch-manipulation">
-                <img
-                  src={profile.avatar}
-                  alt={profile.name}
-                  className="h-8 w-8 rounded-xl object-cover border-2 border-border"
-                />
+                <div className="w-10 h-10 rounded-xl overflow-hidden border border-border p-0.5 bg-card active:scale-95 transition-transform">
+                  <img
+                    src={profile.avatar}
+                    alt={profile.name}
+                    className="w-full h-full rounded-[10px] object-cover"
+                  />
+                </div>
               </Link>
             )}
+
+            {/* Square Menu Toggle Button */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors touch-manipulation"
-              aria-label="Toggle navigation menu"
+              className="w-10 h-10 rounded-xl bg-muted/70 hover:bg-muted text-foreground flex items-center justify-center active:scale-95 transition-all touch-manipulation border border-border/50"
+              aria-label="Menu Navigasi"
               aria-expanded={mobileOpen}
             >
-              <motion.div
-                animate={mobileOpen ? 'open' : 'closed'}
-                className="relative w-5 h-4 flex flex-col justify-between"
-              >
-                <motion.span
-                  variants={{ closed: { rotate: 0, y: 0 }, open: { rotate: 45, y: 7.5 } }}
-                  className="block h-[2.5px] rounded-full bg-current origin-center transition-colors"
-                />
-                <motion.span
-                  variants={{ closed: { opacity: 1, scaleX: 1 }, open: { opacity: 0, scaleX: 0 } }}
-                  className="block h-[2.5px] rounded-full bg-current"
-                />
-                <motion.span
-                  variants={{ closed: { rotate: 0, y: 0 }, open: { rotate: -45, y: -7.5 } }}
-                  className="block h-[2.5px] rounded-full bg-current origin-center"
-                />
-              </motion.div>
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
+
         </div>
       </motion.div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Menu Dropdown — Floating Squircle Card */}
       <AnimatePresence initial={false}>
         {mobileOpen && (
           <motion.div
-            key="mobile-menu"
+            key="mobile-menu-card"
             variants={mobileMenuVariants}
             initial="closed"
             animate="open"
             exit="closed"
-            className="md:hidden overflow-hidden"
+            className="sm:hidden mt-2 rounded-3xl overflow-hidden border border-white/60 dark:border-white/15 shadow-[0_12px_40px_rgba(13,27,46,0.16)]"
             style={{
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              borderBottom: '1px solid rgba(13,27,46,0.08)',
-              boxShadow: '0 8px 24px rgba(13,27,46,0.10)',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
             }}
           >
-            <nav className="px-4 pt-3 pb-4 space-y-0.5">
-              {mainNavLinks.map((link, i) => {
-                const isActive = pathname === link.href;
-                return (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04, duration: 0.2 }}
-                  >
+            <div className="p-3.5 space-y-2">
+              {/* Primary Mobile Orange CTA Button in Drawer */}
+              <Link
+                href="/buat-laporan"
+                onClick={() => setMobileOpen(false)}
+                className="block mb-2"
+              >
+                <div className="w-full h-12 rounded-2xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 text-white flex items-center justify-center gap-2 font-extrabold text-sm shadow-md active:scale-98 transition-all touch-manipulation border-t border-white/40">
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Buat Laporan Kerusakan</span>
+                </div>
+              </Link>
+
+              {/* Navigation Links — Squircle Tiles */}
+              <nav className="space-y-1">
+                {mainNavLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
                     <Link
+                      key={link.href}
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors touch-manipulation select-none ${
+                      className={`flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all touch-manipulation select-none ${
                         isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-foreground/75 active:bg-muted/60'
+                          ? 'bg-primary/10 text-primary shadow-xs'
+                          : 'text-foreground/80 active:bg-muted/60'
                       }`}
                     >
-                      {link.label}
+                      <span>{link.label}</span>
                       {isActive && (
-                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span className="w-2 h-2 rounded-full bg-primary" />
                       )}
                     </Link>
-                  </motion.div>
-                );
-              })}
+                  );
+                })}
+              </nav>
 
               <div className="h-px bg-border/60 my-2" />
 
-              {!isLoggedIn && (
+              {/* Profile or Login */}
+              {isLoggedIn ? (
+                <Link
+                  href="/profil"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-muted/60 text-xs font-bold text-foreground touch-manipulation"
+                >
+                  <div className="w-8 h-8 rounded-xl overflow-hidden border border-border shrink-0">
+                    <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-foreground font-bold">{profile.name}</p>
+                    <p className="text-[10px] text-muted-foreground font-medium">Buka Profil & Laporan Saya</p>
+                  </div>
+                </Link>
+              ) : (
                 <Link href="/login" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full rounded-xl font-semibold h-12 bg-primary hover:bg-primary/90 text-white mt-1">
+                  <Button className="w-full rounded-2xl font-bold h-12 bg-primary text-white mt-1">
                     Masuk ke Akun
                   </Button>
                 </Link>
               )}
-            </nav>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </div>
   );
 }
