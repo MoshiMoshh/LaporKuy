@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 import { useLaporKuyStore } from '@/lib/store';
+import { useAuthStore } from '@/lib/auth-store';
 import { useState } from 'react';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
@@ -28,7 +29,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { profile } = useLaporKuyStore();
-  const isLoggedIn = true;
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
