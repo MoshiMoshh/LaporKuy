@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import { ShieldCheck } from 'lucide-react';
 
+const isBypassEnabled = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
+
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -12,8 +14,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
   useEffect(() => {
+    // If auth bypass is enabled (local audit mode), do not force-redirect anywhere.
+    // This allows inspecting all pages freely (both main app and auth pages).
+    if (isBypassEnabled) return;
+
     // CRITICAL: never redirect until the session check is complete.
-    // Premature redirect (before isInitialized) causes the mobile loop.
     if (!isInitialized) return;
 
     if (!isLoggedIn) {
@@ -29,23 +34,23 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isInitialized, isLoggedIn, pathname, router]);
 
-  // Show loading screen until:
-  // 1. isInitialized is true (Supabase check is complete), AND
-  // 2. the user is either allowed on this page (no redirect needed)
-  //    OR a redirect has already been issued.
-  //
-  // This avoids flashing protected content before redirecting.
+  // When bypass is enabled for UI audit, render content immediately
+  if (isBypassEnabled) {
+    return <>{children}</>;
+  }
+
+  // Normal mode: Show loading screen until session check is complete
   const isOnAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
   const shouldShowContent =
     isInitialized && (isLoggedIn ? !isOnAuthPage : isOnAuthPage);
 
   if (!shouldShowContent) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center">
-        <div className="w-16 h-16 bg-[#0057B8] rounded-2xl flex items-center justify-center animate-pulse mb-4 shadow-lg">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="w-16 h-16 bg-primary rounded-3xl flex items-center justify-center animate-pulse mb-4 shadow-float">
           <ShieldCheck className="w-8 h-8 text-white" />
         </div>
-        <p className="text-[#003B73] font-bold tracking-widest text-sm animate-pulse">
+        <p className="text-primary font-bold tracking-widest text-xs animate-pulse">
           MEMVERIFIKASI SESI...
         </p>
       </div>

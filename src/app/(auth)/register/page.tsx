@@ -221,6 +221,18 @@ export default function RegisterPage() {
             Daftar dengan Google
           </Button>
 
+          <Button 
+            type="button" 
+            variant="ghost" 
+            onClick={() => {
+              toast.success('Masuk dalam Mode Audit UI/UX');
+              router.push('/');
+            }}
+            className="w-full h-11 font-bold mt-2 text-blue-300 hover:text-white hover:bg-white/10 rounded-2xl text-xs touch-manipulation active:scale-[0.98] border border-blue-400/20"
+          >
+            🚀 Masuk Langsung (Mode Audit UI/UX)
+          </Button>
+
           <p className="text-center mt-7 text-xs text-slate-400 font-medium">
             Sudah punya akun?{' '}
             <Link href="/login" className="font-bold text-blue-400 hover:text-blue-300 transition-colors underline-offset-4 hover:underline py-1 touch-manipulation">

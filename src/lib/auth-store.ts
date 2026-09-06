@@ -8,17 +8,27 @@ interface AuthState {
   isInitialized: boolean;
   _booted: boolean;
   initialize: () => void;
+  setLoggedIn: (val: boolean) => void;
 }
+
+const isBypassEnabled = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
 
 // Module-level singleton: one Supabase client for the whole app
 const supabase = createClient();
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  isLoggedIn: false,
-  isInitialized: false,
-  _booted: false,
+  isLoggedIn: isBypassEnabled,
+  isInitialized: isBypassEnabled,
+  _booted: isBypassEnabled,
+
+  setLoggedIn: (val: boolean) => set({ isLoggedIn: val, isInitialized: true }),
 
   initialize: () => {
+    if (isBypassEnabled) {
+      set({ isLoggedIn: true, isInitialized: true, _booted: true });
+      return;
+    }
+
     // Idempotent: only runs once across all component trees
     if (get()._booted) return;
     set({ _booted: true });
