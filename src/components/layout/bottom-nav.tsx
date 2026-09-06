@@ -34,7 +34,7 @@ export function BottomNav() {
           const isActive = pathname === link.href;
           const badgeCount = link.hasBadge ? unreadCount : 0;
 
-          // Model 2: The Protruding Center FAB (#0057B8)
+          // Center Protruding FAB (Orange)
           if (link.isPrimary) {
             return (
               <Link
@@ -46,11 +46,11 @@ export function BottomNav() {
                 <motion.div
                   whileTap={{ scale: 0.90 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 26 }}
-                  className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-[#0057B8] hover:bg-[#004694] active:bg-[#003B73] border-4 border-white dark:border-slate-900 shadow-lg shadow-blue-600/25 touch-manipulation"
+                  className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 border-4 border-white dark:border-slate-900 shadow-lg shadow-orange-500/30 touch-manipulation"
                 >
                   <Plus className="h-7 w-7 text-white stroke-[2.5] group-hover:rotate-90 transition-transform duration-200" />
                 </motion.div>
-                <span className="text-[10px] font-bold mt-1 text-[#0057B8] dark:text-blue-400 tracking-tight">
+                <span className="text-[10px] font-bold mt-1 text-orange-600 dark:text-orange-400 tracking-tight">
                   {link.label}
                 </span>
               </Link>

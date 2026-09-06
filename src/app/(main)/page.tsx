@@ -75,10 +75,10 @@ export default function HomePage() {
 
           {/* Side-by-Side Action Buttons — High-Affordance Civic-Tech */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md sm:max-w-lg mx-auto mt-8 select-none">
-            {/* Primary Action: Lapor Sekarang */}
+            {/* Primary Action: Lapor Sekarang (Orange) */}
             <Link
               href="/buat-laporan"
-              className="w-full h-14 rounded-2xl bg-[#0057B8] hover:bg-[#004694] active:bg-[#003B73] active:scale-95 text-white font-bold text-sm sm:text-base shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
+              className="w-full h-14 rounded-2xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 hover:brightness-105 active:brightness-95 active:scale-95 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
             >
               <Camera className="w-5 h-5 shrink-0 text-white" />
               <span className="truncate">Lapor Sekarang</span>
