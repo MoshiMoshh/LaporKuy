@@ -64,11 +64,11 @@ export const mockLeaderboard: LeaderboardUser[] = [
 ];
 
 export const mockDistrictRanks: DistrictRank[] = [
-  { rank: 1, districtName: 'Kec. Wonokromo', totalReports: 245, resolvedPercentage: 94, activeCitizens: 128, score: 980 },
-  { rank: 2, districtName: 'Kec. Gubeng', totalReports: 210, resolvedPercentage: 92, activeCitizens: 115, score: 920 },
-  { rank: 3, districtName: 'Kec. Sukolilo', totalReports: 185, resolvedPercentage: 89, activeCitizens: 98, score: 860 },
-  { rank: 4, districtName: 'Kec. Tegalsari', totalReports: 160, resolvedPercentage: 88, activeCitizens: 84, score: 810 },
-  { rank: 5, districtName: 'Kec. Rungkut', totalReports: 140, resolvedPercentage: 85, activeCitizens: 72, score: 750 },
+  { rank: 1, districtName: 'Kec. Wonokromo', totalReports: 245, resolvedPercentage: 94, activeCitizens: 128, score: 980, imageUrl: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=500&auto=format&fit=crop&q=80' },
+  { rank: 2, districtName: 'Kec. Gubeng', totalReports: 210, resolvedPercentage: 92, activeCitizens: 115, score: 920, imageUrl: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=500&auto=format&fit=crop&q=80' },
+  { rank: 3, districtName: 'Kec. Sukolilo', totalReports: 185, resolvedPercentage: 89, activeCitizens: 98, score: 860, imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&auto=format&fit=crop&q=80' },
+  { rank: 4, districtName: 'Kec. Tegalsari', totalReports: 160, resolvedPercentage: 88, activeCitizens: 84, score: 810, imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500&auto=format&fit=crop&q=80' },
+  { rank: 5, districtName: 'Kec. Rungkut', totalReports: 140, resolvedPercentage: 85, activeCitizens: 72, score: 750, imageUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=500&auto=format&fit=crop&q=80' },
 ];
 
 export const mockQuests: Quest[] = [

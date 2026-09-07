@@ -18,12 +18,13 @@ import {
   ShieldAlert,
   Target,
   ThumbsUp,
-  Loader2
+  Loader2,
+  Zap
 } from 'lucide-react';
 import gsap from 'gsap';
 
 function DashboardContent() {
-  const { reports } = useLaporKuyStore();
+  const { reports, toggleUpvote } = useLaporKuyStore();
   const searchParams = useSearchParams();
   const questParam = searchParams.get('quest');
   const questTitle = searchParams.get('title');
@@ -194,8 +195,8 @@ function DashboardContent() {
                   </h3>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900 text-xs font-semibold shrink-0 px-2.5 py-1 rounded-md">
-                +10 Pts Reward
+              <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-xs font-bold shrink-0 px-2.5 py-1 rounded-md">
+                +10 Poin Reward
               </Badge>
             </div>
 
@@ -278,9 +279,22 @@ function DashboardContent() {
                       <span>{report.address}</span>
                     </p>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
-                      <span className="text-slate-500 flex items-center gap-1 font-medium">
-                        <ThumbsUp className="h-3.5 w-3.5 text-blue-500" /> {report.upvotes} Dukungan
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleUpvote(report.id);
+                        }}
+                        className={`flex items-center gap-1 font-medium px-2 py-0.5 rounded transition-colors ${
+                          report.hasUpvoted 
+                            ? 'bg-blue-50 text-[#0057B8] font-bold dark:bg-blue-950/60 dark:text-blue-400' 
+                            : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        <ThumbsUp className={`h-3.5 w-3.5 ${report.hasUpvoted ? 'fill-current text-[#0057B8]' : 'text-slate-400'}`} /> 
+                        <span>{report.upvotes} Dukungan</span>
+                      </button>
                       <span className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
                         report.status === 'Selesai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                       }`}>

@@ -91,6 +91,7 @@ export interface DistrictRank {
   resolvedPercentage: number;
   activeCitizens: number;
   score: number;
+  imageUrl?: string;
 }
 
 export interface Quest {

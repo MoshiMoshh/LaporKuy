@@ -180,7 +180,7 @@ export default function MisiPage() {
               <Award className="h-4 w-4 text-amber-300" />
               <div className="text-right">
                 <span className="text-[9px] font-semibold uppercase tracking-wider text-blue-100/70 block leading-tight">Total Poin</span>
-                <span className="text-sm font-extrabold text-amber-300 font-mono leading-tight">{profile.points} Pts</span>
+                <span className="text-sm font-extrabold text-amber-300 leading-tight">{profile.points} Pts</span>
               </div>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function MisiPage() {
           <div className="space-y-1 pt-1">
             <div className="flex justify-between text-[11px] font-medium text-blue-100/90">
               <span>Progression XP ({xpProgressPercent}%)</span>
-              <span className="font-mono text-blue-200">
+              <span className="font-semibold text-blue-200">
                 {profile.xp.toLocaleString()} / {profile.nextLevelXp.toLocaleString()} XP
               </span>
             </div>
@@ -260,84 +260,87 @@ export default function MisiPage() {
           return (
             <Card
               key={quest.id}
-              className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
+              className="p-4 bg-card text-card-foreground border-border/80 rounded-2xl shadow-xs hover:shadow-sm transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5"
             >
               <div className="flex items-start gap-3.5 flex-1 min-w-0">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0 shadow-2xs">
                   {quest.id === 'q-2' ? (
-                    <ThumbsUp className="w-5 h-5" />
+                    <ThumbsUp className="w-5 h-5 text-primary" />
                   ) : quest.id === 'q-3' ? (
-                    <Compass className="w-5 h-5" />
+                    <Compass className="w-5 h-5 text-primary" />
                   ) : quest.id === 'q-4' ? (
-                    <Sparkles className="w-5 h-5" />
+                    <Sparkles className="w-5 h-5 text-primary" />
                   ) : (
-                    <FileText className="w-5 h-5" />
+                    <FileText className="w-5 h-5 text-primary" />
                   )}
                 </div>
 
-                <div className="space-y-1 flex-1 min-w-0">
+                <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-100 tracking-tight">
+                    <h3 className="font-bold text-sm text-foreground tracking-tight">
                       {quest.title}
                     </h3>
                     <Badge
                       variant="outline"
-                      className="text-[10px] font-semibold py-0 px-1.5 border-slate-200 dark:border-slate-800 text-slate-500 capitalize"
+                      className="text-[10px] font-bold py-0 px-2 border-border/60 bg-muted/40 text-muted-foreground rounded-md capitalize"
                     >
                       {quest.type === 'daily' ? 'Harian' : quest.type === 'weekly' ? 'Mingguan' : 'Event'}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 font-normal">
+                  <p className="text-xs text-muted-foreground line-clamp-1 font-medium">
                     {quest.description}
                   </p>
 
-                  <div className="flex items-center gap-2.5 pt-1 max-w-md">
-                    <div className="flex-1 bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-200/60 dark:border-slate-700/50">
+                  <div className="flex items-center gap-3 pt-0.5 max-w-md">
+                    <div className="flex-1 bg-muted h-2 rounded-full overflow-hidden">
                       <div
                         className={`h-full transition-all duration-500 rounded-full ${
-                          isCompleted ? 'bg-emerald-500' : 'bg-blue-600'
+                          isCompleted ? 'bg-emerald-500' : 'bg-primary'
                         }`}
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 shrink-0">
+                    <span className="text-[11px] font-bold text-muted-foreground shrink-0">
                       {effectiveProgress}/{quest.target}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800">
-                <div className="text-left sm:text-right">
-                  <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900/60 px-2.5 py-1 rounded-lg block font-mono">
-                    +{quest.rewardPoints} Pts
-                  </span>
-                </div>
+              {/* Action and Points Section */}
+              <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-border/50">
+                {/* Clean Rewards Badge - Minimalist Civic Standard */}
+                <Badge
+                  variant="outline"
+                  className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md shrink-0"
+                >
+                  +{quest.rewardPoints} Poin
+                </Badge>
 
                 {quest.isClaimed ? (
-                  <Button
-                    disabled
-                    size="sm"
-                    className="h-8 text-xs font-semibold gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed px-3"
+                  <Badge
+                    variant="outline"
+                    className="h-9 px-3.5 text-xs font-bold gap-1.5 bg-muted/50 text-muted-foreground border-border cursor-default rounded-xl"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Selesai
-                  </Button>
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Selesai
+                  </Badge>
                 ) : isCompleted ? (
                   <Button
                     size="sm"
                     onClick={() => handleClaim(quest.id)}
-                    className="h-8 text-xs font-semibold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all animate-pulse px-3"
+                    className="h-9 px-4 text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs transition-all animate-pulse"
                   >
-                    <Gift className="h-3.5 w-3.5" /> Klaim Bonus
+                    <Gift className="h-4 w-4" /> Klaim Poin
                   </Button>
                 ) : (
-                  <button
+                  <Button
+                    size="sm"
                     onClick={() => setSelectedQuestForModal(quest)}
-                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1"
+                    className="h-9 px-4 text-xs font-bold gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-xs transition-all"
                   >
                     <span>Kerjakan</span>
-                    <ArrowUpRight className="h-3.5 w-3.5 opacity-80" />
-                  </button>
+                    <ArrowUpRight className="h-3.5 w-3.5 opacity-90" />
+                  </Button>
                 )}
               </div>
             </Card>
@@ -371,10 +374,10 @@ export default function MisiPage() {
                     <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                       {selectedQuestForModal.title}
                     </h3>
-                    {/* 3. Reward Pill Badge Sederhana */}
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-                      ⚡ +{selectedQuestForModal.rewardPoints} Poin
-                    </span>
+                    {/* 3. Reward Badge Sederhana */}
+                    <Badge variant="outline" className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md">
+                      +{selectedQuestForModal.rewardPoints} Poin
+                    </Badge>
                   </div>
                 </div>
               </div>

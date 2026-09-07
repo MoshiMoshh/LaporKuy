@@ -18,6 +18,24 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
 
+  const formatAuthError = (msg?: string) => {
+    if (!msg) return 'Terjadi kesalahan saat masuk. Silakan coba lagi.';
+    const lower = msg.toLowerCase();
+    if (lower.includes('invalid login credentials')) {
+      return 'Email atau kata sandi yang Anda masukkan salah. Silakan periksa kembali.';
+    }
+    if (lower.includes('email not confirmed')) {
+      return 'Email Anda belum dikonfirmasi. Silakan periksa kotak masuk email Anda.';
+    }
+    if (lower.includes('user not found')) {
+      return 'Akun dengan email ini tidak ditemukan.';
+    }
+    if (lower.includes('rate limit') || lower.includes('too many requests')) {
+      return 'Terlalu banyak percobaan masuk. Silakan tunggu beberapa saat.';
+    }
+    return msg;
+  };
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -28,8 +46,8 @@ export default function LoginPage() {
     });
 
     if (error) {
-      toast.error('Gagal masuk', {
-        description: error.message,
+      toast.error('Gagal Masuk', {
+        description: formatAuthError(error.message),
       });
       setIsLoading(false);
     } else {
@@ -47,8 +65,8 @@ export default function LoginPage() {
     });
     
     if (error) {
-      toast.error('Login Google gagal', {
-        description: error.message,
+      toast.error('Login Google Gagal', {
+        description: formatAuthError(error.message),
       });
       setIsLoading(false);
     }
@@ -130,8 +148,11 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="flex justify-end pt-1 pb-2">
-              <Link href="#" className="text-[13px] font-semibold text-[#0084FF] hover:text-blue-400 transition-colors">
+            <div className="flex justify-end pt-1 pb-2 relative z-20">
+              <Link 
+                href="/forgot-password" 
+                className="text-[13px] font-semibold text-[#0084FF] hover:text-blue-400 transition-colors p-1 -mr-1 cursor-pointer relative z-30"
+              >
                 Lupa Kata Sandi?
               </Link>
             </div>

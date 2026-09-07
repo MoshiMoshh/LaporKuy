@@ -42,7 +42,7 @@ export function MapView({
   className = '',
 }: MapViewProps) {
   const [selectedPin, setSelectedPin] = useState<Report | null>(reports[0] || null);
-  const [mapTheme, setMapTheme] = useState<'dataviz-dark' | 'streets-v2' | 'satellite'>('dataviz-dark');
+  const [mapTheme] = useState<'streets-v2'>('streets-v2');
 
   const getTileUrl = () => {
     return `https://api.maptiler.com/maps/${mapTheme}/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`;
@@ -149,29 +149,8 @@ export function MapView({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* MapTiler Style Switcher */}
-            <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800 text-[11px]">
-              <button
-                type="button"
-                onClick={() => setMapTheme('dataviz-dark')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'dataviz-dark' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
-              >
-                🌙 Dark
-              </button>
-              <button
-                type="button"
-                onClick={() => setMapTheme('streets-v2')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'streets-v2' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
-              >
-                🗺️ Jalan
-              </button>
-              <button
-                type="button"
-                onClick={() => setMapTheme('satellite')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${mapTheme === 'satellite' ? 'bg-[#0057B8] text-white font-semibold shadow-sm' : 'text-slate-400 hover:text-white'}`}
-              >
-                🛰️ Satelit
-              </button>
+            <div className="flex items-center gap-1.5 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800 text-[11px] font-semibold text-[#0084FF]">
+              🗺️ Mode Peta Jalan
             </div>
           </div>
         </div>

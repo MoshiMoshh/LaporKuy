@@ -20,6 +20,24 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
 
+  const formatAuthError = (msg?: string) => {
+    if (!msg) return 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.';
+    const lower = msg.toLowerCase();
+    if (lower.includes('user already registered') || lower.includes('already in use') || lower.includes('already registered')) {
+      return 'Email ini sudah terdaftar. Silakan masuk menggunakan akun ini atau gunakan email lain.';
+    }
+    if (lower.includes('password should be at least')) {
+      return 'Kata sandi minimal harus 6 karakter.';
+    }
+    if (lower.includes('invalid email')) {
+      return 'Format alamat email tidak valid.';
+    }
+    if (lower.includes('rate limit') || lower.includes('too many requests')) {
+      return 'Terlalu banyak percobaan pendaftaran. Silakan tunggu beberapa saat.';
+    }
+    return msg;
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || !name) return;
@@ -37,8 +55,8 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      toast.error('Gagal mendaftar', {
-        description: error.message,
+      toast.error('Gagal Mendaftar', {
+        description: formatAuthError(error.message),
       });
       setIsLoading(false);
     } else {
@@ -59,8 +77,8 @@ export default function RegisterPage() {
     });
     
     if (error) {
-      toast.error('Daftar dengan Google gagal', {
-        description: error.message,
+      toast.error('Daftar dengan Google Gagal', {
+        description: formatAuthError(error.message),
       });
       setIsLoading(false);
     }

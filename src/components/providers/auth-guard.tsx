@@ -16,15 +16,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!isInitialized) return;
 
     if (!isLoggedIn) {
-      // If they are not logged in and not on login/register, kick them out
-      if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
+      // If they are not logged in and not on login/register/forgot-password, kick them out
+      if (!pathname.startsWith('/login') && !pathname.startsWith('/register') && !pathname.startsWith('/forgot-password')) {
         router.replace('/login');
       } else {
         setIsReady(true);
       }
     } else {
-      // If they are logged in but trying to access login/register, redirect to home
-      if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+      // If they are logged in but trying to access login/register/forgot-password, redirect to home
+      if (pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password')) {
         router.replace('/');
       } else {
         setIsReady(true);
