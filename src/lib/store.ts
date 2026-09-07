@@ -5,6 +5,7 @@ import { Report, UserProfile, Quest, Reward, NotificationItem, Comment } from '@
 import { createClient } from '@/lib/supabase/client';
 import { mockUserProfile, initialReports, mockQuests, mockRewards, mockNotifications } from './mock-data';
 import { useAuthStore } from './auth-store';
+import { toast } from 'sonner';
 
 const supabase = createClient();
 
@@ -68,12 +69,38 @@ export function useLaporKuyStore() {
         }
 
         if (questsData && questsData.length > 0) {
-          setQuests(questsData.map((q: any) => ({
+          let mergedQuests = questsData.map((q: any) => ({
             ...q,
             rewardPoints: q.reward_points,
             isClaimed: q.is_claimed,
             expiresIn: q.expires_in
-          })));
+          }));
+
+          if (typeof window !== 'undefined') {
+            const savedQuests = localStorage.getItem('laporkuy_quests_v1');
+            if (savedQuests) {
+              try {
+                const parsed = JSON.parse(savedQuests);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  mergedQuests = mergedQuests.map(mq => {
+                    const localMatch = parsed.find((p: any) => p.id === mq.id);
+                    return localMatch ? { ...mq, ...localMatch } : mq;
+                  });
+                }
+              } catch (e) {}
+            }
+          }
+          setQuests(mergedQuests);
+        } else if (typeof window !== 'undefined') {
+          const savedQuests = localStorage.getItem('laporkuy_quests_v1');
+          if (savedQuests) {
+            try {
+              const parsed = JSON.parse(savedQuests);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setQuests(parsed);
+              }
+            } catch (e) {}
+          }
         }
 
         if (rewardsData && rewardsData.length > 0) {
@@ -87,10 +114,61 @@ export function useLaporKuyStore() {
 
         // Fetch user-specific data if logged in
         if (userId) {
-          const [{ data: profileData }, { data: notifsData }] = await Promise.all([
+          const [{ data: fetchedProfile }, { data: notifsData }] = await Promise.all([
             supabase.from('profiles').select('*').eq('id', userId).single(),
             supabase.from('notifications').select('*').eq('user_id', userId).order('timestamp', { ascending: false })
           ]);
+
+          let profileData = fetchedProfile;
+          const meta = session?.user?.user_metadata || {};
+          const googleAvatar = meta.avatar_url || meta.picture || '';
+          const googleName = meta.full_name || meta.name || '';
+
+          // If no profile row in profiles table yet (common for Google OAuth sign-in)
+          if (!profileData && session?.user) {
+            profileData = {
+              id: userId,
+              name: googleName || session.user.email?.split('@')[0] || 'Pengguna LaporKuy',
+              email: session.user.email || '',
+              phone: meta.phone || session.user.phone || '',
+              avatar: googleAvatar,
+              points: 50,
+              xp: 150,
+              level: 'Pemula',
+            };
+
+            // Auto insert row into Supabase profiles table
+            try {
+              await supabase.from('profiles').upsert({
+                id: userId,
+                name: profileData.name,
+                email: profileData.email,
+                avatar: profileData.avatar,
+                phone: profileData.phone,
+              });
+            } catch (e) {
+              console.warn("Profiles auto-insert warning:", e);
+            }
+          } else if (profileData && session?.user) {
+            // Update profileData with Google avatar/name if present and missing in DB
+            if (!profileData.avatar && googleAvatar) {
+              profileData.avatar = googleAvatar;
+            }
+            if ((!profileData.name || profileData.name === 'Pengguna LaporKuy') && googleName) {
+              profileData.name = googleName;
+            }
+          }
+
+          // Check if there is a local profile override in localStorage for this user
+          if (profileData && typeof window !== 'undefined') {
+            const localOverride = localStorage.getItem(`laporkuy_profile_override_${userId}`);
+            if (localOverride) {
+              try {
+                const parsed = JSON.parse(localOverride);
+                profileData = { ...profileData, ...parsed };
+              } catch (e) {}
+            }
+          }
 
           if (profileData) {
             let savedPoints = profileData.points || 0;
@@ -237,19 +315,50 @@ export function useLaporKuyStore() {
       completedReports: newCompleted
     }));
 
-    // Update quest progress dynamically
-    setQuests(prev => prev.map(q => {
-      if (q.id === 'q-1') {
-        return { ...q, progress: 1 };
+    // Update quest progress dynamically & persist to localStorage
+    setQuests(prev => {
+      const updated = prev.map(q => {
+        if (q.id === 'q-1') {
+          const newProgress = 1;
+          const wasCompleted = q.progress >= q.target;
+          if (!wasCompleted && newProgress >= q.target) {
+            toast.success('Misi Selesai', {
+              description: 'Pelapor Harian • Klaim +15 Poin di menu Misi',
+              id: 'quest-completed-q-1'
+            });
+          }
+          return { ...q, progress: newProgress };
+        }
+        if (q.id === 'q-3') {
+          const newProgress = Math.min(q.target, q.progress + 1);
+          const wasCompleted = q.progress >= q.target;
+          if (!wasCompleted && newProgress >= q.target) {
+            toast.success('Misi Selesai', {
+              description: 'Penjelajah Kecamatan • Klaim +50 Poin di menu Misi',
+              id: 'quest-completed-q-3'
+            });
+          }
+          return { ...q, progress: newProgress };
+        }
+        if (q.id === 'q-4' && newReportData.category === 'Sampah') {
+          const newProgress = Math.min(q.target, q.progress + 1);
+          const wasCompleted = q.progress >= q.target;
+          if (!wasCompleted && newProgress >= q.target) {
+            toast.success('Misi Selesai', {
+              description: 'Bulan Bersih Sampah • Klaim +100 Poin di menu Misi',
+              id: 'quest-completed-q-4'
+            });
+          }
+          return { ...q, progress: newProgress };
+        }
+        return q;
+      });
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('laporkuy_quests_v1', JSON.stringify(updated));
       }
-      if (q.id === 'q-3') {
-        return { ...q, progress: Math.min(q.target, q.progress + 1) };
-      }
-      if (q.id === 'q-4' && newReportData.category === 'Sampah') {
-        return { ...q, progress: Math.min(q.target, q.progress + 1) };
-      }
-      return q;
-    }));
+      return updated;
+    });
 
     try {
       await supabase.from('profiles').update({
@@ -275,12 +384,27 @@ export function useLaporKuyStore() {
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, upvotes: newUpvotes, hasUpvoted: isUpvoted } : r));
 
     if (isUpvoted) {
-      setQuests(prev => prev.map(q => {
-        if (q.id === 'q-2') {
-          return { ...q, progress: Math.min(q.target, q.progress + 1) };
+      setQuests(prev => {
+        const updated = prev.map(q => {
+          if (q.id === 'q-2') {
+            const newProgress = Math.min(q.target, q.progress + 1);
+            const wasCompleted = q.progress >= q.target;
+            if (!wasCompleted && newProgress >= q.target) {
+              toast.success('Misi Selesai', {
+                description: 'Verifikator Komunitas • Klaim +10 Poin di menu Misi',
+                id: 'quest-completed-q-2'
+              });
+            }
+            return { ...q, progress: newProgress };
+          }
+          return q;
+        });
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('laporkuy_quests_v1', JSON.stringify(updated));
         }
-        return q;
-      }));
+        return updated;
+      });
     }
 
     await supabase.from('reports').update({ upvotes: newUpvotes }).eq('id', reportId);
@@ -359,8 +483,13 @@ export function useLaporKuyStore() {
     const reward = quest.rewardPoints || 15;
     const bonusXp = reward * 2;
 
-    setQuests(prev => prev.map(q => q.id === questId ? { ...q, isClaimed: true, progress: q.target } : q));
+    const updatedQuests = quests.map(q => q.id === questId ? { ...q, isClaimed: true, progress: q.target } : q);
+    setQuests(updatedQuests);
     
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('laporkuy_quests_v1', JSON.stringify(updatedQuests));
+    }
+
     const newPoints = (profile.points || 0) + reward;
     const newXp = (profile.xp || 0) + bonusXp;
 
@@ -375,6 +504,11 @@ export function useLaporKuyStore() {
       xp: newXp,
       level: currentLevel
     }));
+
+    toast.success('Poin Berhasil Diklaim', {
+      description: `+${reward} Poin telah ditambahkan ke akun Anda (Total: ${newPoints} Pts)`,
+      id: `quest-claimed-${questId}`
+    });
 
     if (typeof window !== 'undefined' && profile.id) {
       localStorage.setItem(`laporkuy_points_v3_${profile.id}`, JSON.stringify({
@@ -415,15 +549,46 @@ export function useLaporKuyStore() {
   };
 
   const updateProfile = async (updatedData: Partial<UserProfile>) => {
-    setProfile(prev => ({ ...prev, ...updatedData }));
-    
-    const dbUpdate: any = {};
-    if (updatedData.name) dbUpdate.name = updatedData.name;
-    if (updatedData.avatar) dbUpdate.avatar = updatedData.avatar;
-    if (updatedData.phone) dbUpdate.phone = updatedData.phone;
-    
-    if (Object.keys(dbUpdate).length > 0) {
-      await supabase.from('profiles').update(dbUpdate).eq('id', profile.id);
+    setProfile(prev => {
+      const newProfile = { ...prev, ...updatedData };
+      if (typeof window !== 'undefined' && newProfile.id) {
+        localStorage.setItem(`laporkuy_profile_override_${newProfile.id}`, JSON.stringify({
+          name: newProfile.name,
+          email: newProfile.email,
+          phone: newProfile.phone,
+          avatar: newProfile.avatar,
+        }));
+      }
+      return newProfile;
+    });
+
+    // 1. Sync update with Supabase Auth User Metadata (crucial for Google/OAuth logins)
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          name: updatedData.name,
+          full_name: updatedData.name,
+          avatar_url: updatedData.avatar,
+          phone: updatedData.phone,
+        }
+      });
+    } catch (e) {
+      console.warn("Supabase auth updateUser metadata warning:", e);
+    }
+
+    // 2. Upsert into Supabase DB profiles table (works even if row did not exist prior)
+    if (profile.id) {
+      const dbUpdate: any = { id: profile.id };
+      if (updatedData.name !== undefined) dbUpdate.name = updatedData.name;
+      if (updatedData.email !== undefined) dbUpdate.email = updatedData.email;
+      if (updatedData.avatar !== undefined) dbUpdate.avatar = updatedData.avatar;
+      if (updatedData.phone !== undefined) dbUpdate.phone = updatedData.phone;
+      
+      try {
+        await supabase.from('profiles').upsert(dbUpdate);
+      } catch (e) {
+        console.warn("Supabase profiles upsert warning:", e);
+      }
     }
   };
 

@@ -5,6 +5,7 @@ import { useLaporKuyStore } from '@/lib/store';
 import { Reward } from '@/types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { History, CheckCircle2, X, Coins, Zap } from 'lucide-react';
 import { ConfettiOverlay } from '@/components/ui/confetti-overlay';
 
@@ -145,10 +146,9 @@ export default function TukarPoinPage() {
                 <h3 className="line-clamp-2 leading-tight text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100">
                   {item.title}
                 </h3>
-                <div className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 font-mono pt-0.5">
-                  <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-600 shrink-0" />
-                  <span>{item.pointsCost} Pts</span>
-                </div>
+                <Badge variant="outline" className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md mt-1 w-fit">
+                  {item.pointsCost} Poin
+                </Badge>
               </div>
 
               {/* 2. Sisi Kanan: Action CTA (shrink-0 min-w-[76px]) */}
@@ -213,8 +213,8 @@ export default function TukarPoinPage() {
                 <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 line-clamp-1">
                   {selectedReward.title}
                 </h4>
-                <span className="text-xs font-bold text-amber-600 font-mono mt-0.5 flex items-center gap-1">
-                  <Zap className="h-3.5 w-3.5 fill-amber-500 text-amber-600" /> {selectedReward.pointsCost} Pts
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-0.5 flex items-center gap-1">
+                  {selectedReward.pointsCost} Poin
                 </span>
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function TukarPoinPage() {
                   <h4 className="font-bold text-slate-900 dark:text-slate-100">Voucher Belanja Tokopedia Rp 25.000</h4>
                   <span className="text-[10px] text-slate-400 block mt-0.5">25 Agustus 2026 • Kode: LPR-TKP-8821</span>
                 </div>
-                <span className="font-bold text-amber-600 font-mono shrink-0">-200 Pts</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300 shrink-0">-200 Poin</span>
               </div>
             </div>
 

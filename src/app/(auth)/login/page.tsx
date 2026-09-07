@@ -6,10 +6,9 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,6 +17,24 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
+
+  const formatAuthError = (msg?: string) => {
+    if (!msg) return 'Terjadi kesalahan saat masuk. Silakan coba lagi.';
+    const lower = msg.toLowerCase();
+    if (lower.includes('invalid login credentials')) {
+      return 'Email atau kata sandi yang Anda masukkan salah. Silakan periksa kembali.';
+    }
+    if (lower.includes('email not confirmed')) {
+      return 'Email Anda belum dikonfirmasi. Silakan periksa kotak masuk email Anda.';
+    }
+    if (lower.includes('user not found')) {
+      return 'Akun dengan email ini tidak ditemukan.';
+    }
+    if (lower.includes('rate limit') || lower.includes('too many requests')) {
+      return 'Terlalu banyak percobaan masuk. Silakan tunggu beberapa saat.';
+    }
+    return msg;
+  };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +46,8 @@ export default function LoginPage() {
     });
 
     if (error) {
-      toast.error('Gagal masuk', {
-        description: error.message,
+      toast.error('Gagal Masuk', {
+        description: formatAuthError(error.message),
       });
       setIsLoading(false);
     } else {
@@ -48,68 +65,52 @@ export default function LoginPage() {
     });
     
     if (error) {
-      toast.error('Login Google gagal', {
-        description: error.message,
+      toast.error('Login Google Gagal', {
+        description: formatAuthError(error.message),
       });
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#001F5B] via-[#003082] to-[#001040] p-5 relative overflow-hidden font-sans">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#003B73] to-[#00143A] p-5 relative overflow-hidden font-sans">
       
       {/* Decorative Cityscape Silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
+        {/* Mobile View (Focus on Monas on the left) */}
         <img 
           src="/skyline-jakarta.png" 
           alt="Jakarta Skyline Mobile" 
-          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1000%] grayscale"
+          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
         />
+        {/* Desktop View (Centered Panorama) */}
         <img 
           src="/skyline-jakarta.png" 
           alt="Jakarta Skyline Desktop" 
-          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1000%] grayscale"
+          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
         />
       </div>
 
-      {/* Radial glow for depth */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-blue-500/15 rounded-full blur-[100px] pointer-events-none" />
-
-      <motion.div 
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0, 0, 0.2, 1] }}
-        className="w-full max-w-md z-10 flex flex-col items-center"
-      >
+      <div className="w-full max-w-md z-10 flex flex-col items-center">
         {/* Branding */}
         <div className="flex flex-col items-center mb-8">
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="mb-5 drop-shadow-2xl"
-          >
-             <Logo size={90} theme="dark" layout="vertical" />
-          </motion.div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-blue-200 text-xs font-semibold tracking-wide">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-300" />
-            Portal Pengaduan Resmi & Terenkripsi
+          <div className="mb-6 drop-shadow-2xl">
+             <Logo size={100} theme="dark" layout="vertical" />
           </div>
+          <p className="text-slate-300 mt-2 text-center text-[15px] font-medium tracking-wide leading-relaxed">
+            Sampaikan Laporanmu.<br/>Kuy Action.
+          </p>
         </div>
 
-        {/* Login Card with Modern Curved Glassmorphism */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15, duration: 0.4 }}
-          className="w-full bg-[#08152B]/85 backdrop-blur-2xl rounded-[2.25rem] p-7 sm:p-9 shadow-float border border-white/10"
-        >
-          <div className="mb-7 text-center sm:text-left">
-            <h1 className="text-2xl font-bold text-white mb-1.5 tracking-tight">Selamat Datang!</h1>
-            <p className="text-slate-300 text-sm font-medium">Masuk untuk memantau status laporan Anda</p>
+        {/* Login Card */}
+        <div className="w-full bg-[#0A1629] rounded-[2rem] p-7 sm:p-9 shadow-2xl border border-white/5">
+          <div className="mb-8">
+            <h1 className="text-xl font-bold text-white mb-2 tracking-wide">Selamat Datang!</h1>
+            <p className="text-slate-400 text-sm">Silakan masuk untuk melanjutkan</p>
           </div>
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
+            
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-slate-400" />
@@ -119,7 +120,7 @@ export default function LoginPage() {
                 placeholder="Email atau Username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
+                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
                 required
                 disabled={isLoading}
               />
@@ -134,21 +135,24 @@ export default function LoginPage() {
                 placeholder="Kata Sandi"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-11 pr-12 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
+                className="pl-11 pr-12 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
                 required
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none min-h-[44px] min-w-[44px] justify-center touch-manipulation"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-300 focus:outline-none"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
 
-            <div className="flex justify-end pt-1 pb-1">
-              <Link href="#" className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors py-1.5 touch-manipulation">
+            <div className="flex justify-end pt-1 pb-2 relative z-20">
+              <Link 
+                href="/forgot-password" 
+                className="text-[13px] font-semibold text-[#0084FF] hover:text-blue-400 transition-colors p-1 -mr-1 cursor-pointer relative z-30"
+              >
                 Lupa Kata Sandi?
               </Link>
             </div>
@@ -156,18 +160,16 @@ export default function LoginPage() {
             <Button 
               type="submit" 
               disabled={isLoading} 
-              variant="liquid-primary"
-              size="lg"
-              className="w-full h-13 font-bold text-[15px] rounded-2xl shadow-md transition-all touch-manipulation"
+              className="w-full h-14 font-bold text-[15px] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-xl shadow-sm transition-all"
             >
-              {isLoading ? 'Memverifikasi...' : 'Masuk Sekarang'}
+              {isLoading ? 'Memproses...' : 'Masuk'}
             </Button>
           </form>
 
-          <div className="mt-7 flex items-center justify-center gap-4">
-            <div className="h-[1px] flex-1 bg-white/10" />
-            <span className="text-xs font-medium text-slate-400">atau</span>
-            <div className="h-[1px] flex-1 bg-white/10" />
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <div className="h-[1px] flex-1 bg-slate-800" />
+            <span className="text-[13px] font-medium text-slate-500">atau</span>
+            <div className="h-[1px] flex-1 bg-slate-800" />
           </div>
 
           <Button 
@@ -175,7 +177,7 @@ export default function LoginPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleLogin}
-            className="w-full h-13 font-semibold mt-5 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border-white/15 rounded-2xl text-white transition-all text-sm touch-manipulation active:scale-[0.98]"
+            className="w-full h-14 font-semibold mt-6 flex items-center justify-center gap-3 bg-transparent hover:bg-slate-800/50 border-slate-700 rounded-xl text-white transition-all text-[14px]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -186,14 +188,14 @@ export default function LoginPage() {
             Masuk dengan Google
           </Button>
 
-          <p className="text-center mt-7 text-xs text-slate-400 font-medium">
+          <p className="text-center mt-8 text-[13px] text-slate-400 font-medium">
             Belum punya akun?{' '}
-            <Link href="/register" className="font-bold text-blue-400 hover:text-blue-300 transition-colors underline-offset-4 hover:underline py-1 touch-manipulation">
+            <Link href="/register" className="font-semibold text-[#0084FF] hover:text-blue-400 transition-colors">
               Daftar sekarang
             </Link>
           </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,56 +1,45 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuthStore } from '@/lib/auth-store';
+import { useLaporKuyStore } from '@/lib/store';
 import { ShieldCheck } from 'lucide-react';
-
-const isBypassEnabled = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const isInitialized = useAuthStore((s) => s.isInitialized);
-  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const { isInitialized, isLoggedIn } = useLaporKuyStore();
+  const [isReady, setIsReady] = useState(false);
+
 
   useEffect(() => {
-    // If auth bypass is enabled (local audit mode), do not force-redirect anywhere.
-    // This allows inspecting all pages freely (both main app and auth pages).
-    if (isBypassEnabled) return;
-
-    // CRITICAL: never redirect until the session check is complete.
     if (!isInitialized) return;
 
     if (!isLoggedIn) {
-      // Not logged in — redirect away from protected pages
-      if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
+      // If they are not logged in and not on login/register/forgot-password, kick them out
+      if (!pathname.startsWith('/login') && !pathname.startsWith('/register') && !pathname.startsWith('/forgot-password')) {
         router.replace('/login');
+      } else {
+        setIsReady(true);
       }
     } else {
-      // Logged in — redirect away from auth pages
-      if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+      // If they are logged in but trying to access login/register/forgot-password, redirect to home
+      if (pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/forgot-password')) {
         router.replace('/');
+      } else {
+        setIsReady(true);
       }
     }
   }, [isInitialized, isLoggedIn, pathname, router]);
 
-  // When bypass is enabled for UI audit, render content immediately
-  if (isBypassEnabled) {
-    return <>{children}</>;
-  }
-
-  // Normal mode: Show loading screen until session check is complete
-  const isOnAuthPage = pathname.startsWith('/login') || pathname.startsWith('/register');
-  const shouldShowContent =
-    isInitialized && (isLoggedIn ? !isOnAuthPage : isOnAuthPage);
-
-  if (!shouldShowContent) {
+  if (!isReady || !isInitialized) {
+    // Show a sleek loading screen while checking auth
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="w-16 h-16 bg-primary rounded-3xl flex items-center justify-center animate-pulse mb-4 shadow-float">
+      <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 bg-[#0057B8] rounded-2xl flex items-center justify-center animate-pulse mb-4 shadow-lg">
           <ShieldCheck className="w-8 h-8 text-white" />
         </div>
-        <p className="text-primary font-bold tracking-widest text-xs animate-pulse">
+        <p className="text-[#003B73] font-bold tracking-widest text-sm animate-pulse">
           MEMVERIFIKASI SESI...
         </p>
       </div>

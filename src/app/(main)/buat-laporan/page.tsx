@@ -230,8 +230,8 @@ function BuatLaporanForm() {
                 </h3>
               </div>
             </div>
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900 text-xs font-semibold shrink-0 px-2.5 py-1 rounded-md">
-              +15 Pts Reward
+            <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-xs font-bold shrink-0 px-2.5 py-1 rounded-md">
+              +15 Poin Reward
             </Badge>
           </div>
 
