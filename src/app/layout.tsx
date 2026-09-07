@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
@@ -16,7 +16,7 @@ export const viewport: Viewport = {
   ],
 };
 
-const jakartaSans = Plus_Jakarta_Sans({
+const interFont = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
 });
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${jakartaSans.variable} h-full antialiased`} data-scroll-behavior="smooth">
+    <html lang="id" className={`${interFont.variable} h-full antialiased`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-slate-950 dark:text-slate-50 font-sans">
         <Providers>{children}</Providers>
           <Toaster position="top-center" richColors closeButton />

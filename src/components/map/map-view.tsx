@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, ThumbsUp, Eye, Compass } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 // Leaflet imports
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -51,6 +52,7 @@ export function MapView({
   const [selectedPin, setSelectedPin] = useState<Report | null>(reports[0] || null);
   const [mapTheme, setMapTheme] = useState<'dataviz-dark' | 'streets-v2' | 'satellite'>('dataviz-dark');
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -58,7 +60,19 @@ export function MapView({
         (pos) => {
           setUserLocation([pos.coords.latitude, pos.coords.longitude]);
         },
-        (err) => console.error('Geoloc error:', err),
+        (err) => {
+          console.error('Geoloc error:', err);
+          if (err.code === 1) {
+            setLocationDenied(true);
+            toast.error("Akses lokasi ditolak", {
+              description: "Aplikasi ini mewajibkan akses lokasi. Silakan izinkan di pengaturan browser."
+            });
+          } else {
+            toast.error("Gagal mendapatkan lokasi", {
+              description: "Pastikan GPS kamu aktif atau sinyal stabil. Menggunakan default lokasi."
+            });
+          }
+        },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     }
@@ -102,6 +116,39 @@ export function MapView({
 
   // Center on user if available, else fallback to Surabaya
   const centerPosition: [number, number] = userLocation || [-7.2575, 112.7521];
+
+  if (locationDenied) {
+    return (
+      <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 flex flex-col items-center justify-center p-6 text-center ${className}`}>
+        <div className="bg-slate-900 border border-red-500/30 p-6 rounded-2xl max-w-md shadow-2xl z-10 animate-in zoom-in-95 duration-300">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MapPin className="w-8 h-8 text-red-500" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">Akses Lokasi Wajib Diizinkan</h3>
+          <p className="text-sm text-slate-400 mb-6">
+            Aplikasi LaporKuy wajib menggunakan akurasi lokasi asli untuk memetakan laporan infrastruktur di sekitarmu.
+          </p>
+          <div className="bg-slate-950 p-4 rounded-lg text-left mb-6 border border-slate-800 text-xs text-slate-300">
+            <strong>Cara Mengaktifkan:</strong>
+            <ol className="list-decimal pl-4 mt-2 space-y-1">
+              <li>Klik ikon gembok (🔒) atau info di sebelah kiri URL bar browser kamu.</li>
+              <li>Cari menu "Location" atau "Lokasi".</li>
+              <li>Ubah pengaturannya menjadi "Allow" atau "Izinkan".</li>
+              <li>Muat ulang (Refresh) halaman ini.</li>
+            </ol>
+          </div>
+          <Button 
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold"
+            onClick={() => window.location.reload()}
+          >
+            Saya Sudah Mengizinkan, Muat Ulang
+          </Button>
+        </div>
+        {/* Blurred background effect */}
+        <div className="absolute inset-0 opacity-20 bg-[url('https://api.maptiler.com/maps/dataviz-dark/13/6575/4232.png?key=qNmsb52QZkhFrzAr5QnL')] bg-cover bg-center filter blur-sm"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>

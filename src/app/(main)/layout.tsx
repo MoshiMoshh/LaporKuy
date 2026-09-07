@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
-import { AIChatWidget } from "@/components/ui/ai-chat-widget";
 import { AuthGuard } from "@/components/providers/auth-guard";
 
 export default function MainLayout({
@@ -11,11 +10,10 @@ export default function MainLayout({
   return (
     <AuthGuard>
       <div className="min-h-screen flex flex-col pb-24 md:pb-0">
-      <Navbar />
-      <main className="flex-1">{children}</main>
-      <BottomNav />
-      <AIChatWidget />
-    </div>
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <BottomNav />
+      </div>
     </AuthGuard>
   );
 }
