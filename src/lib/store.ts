@@ -119,16 +119,18 @@ export function useLaporKuyStore() {
           ]);
 
           let profileData = fetchedProfile;
+          const meta = session?.user?.user_metadata || {};
+          const googleAvatar = meta.avatar_url || meta.picture || '';
+          const googleName = meta.full_name || meta.name || '';
 
           // If no profile row in profiles table yet (common for Google OAuth sign-in)
           if (!profileData && session?.user) {
-            const meta = session.user.user_metadata || {};
             profileData = {
               id: userId,
-              name: meta.full_name || meta.name || session.user.email?.split('@')[0] || 'Pengguna LaporKuy',
+              name: googleName || session.user.email?.split('@')[0] || 'Pengguna LaporKuy',
               email: session.user.email || '',
               phone: meta.phone || session.user.phone || '',
-              avatar: meta.avatar_url || meta.picture || '',
+              avatar: googleAvatar,
               points: 50,
               xp: 150,
               level: 'Pemula',
@@ -145,6 +147,14 @@ export function useLaporKuyStore() {
               });
             } catch (e) {
               console.warn("Profiles auto-insert warning:", e);
+            }
+          } else if (profileData && session?.user) {
+            // Update profileData with Google avatar/name if present and missing in DB
+            if (!profileData.avatar && googleAvatar) {
+              profileData.avatar = googleAvatar;
+            }
+            if ((!profileData.name || profileData.name === 'Pengguna LaporKuy') && googleName) {
+              profileData.name = googleName;
             }
           }
 
