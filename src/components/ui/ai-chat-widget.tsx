@@ -63,7 +63,13 @@ export function AIChatWidget() {
       // Memeriksa apakah ini response JSON (Mock) atau Stream
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
+        const text = await response.text();
+        let data: { message?: string; error?: string } = {};
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { message: text };
+        }
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
@@ -88,15 +94,26 @@ export function AIChatWidget() {
             const lines = chunk.split('\n').filter(line => line.trim() !== '');
             for (const line of lines) {
               if (line.startsWith('0:')) {
+                const jsonPayload = line.substring(2);
                 try {
-                  const text = JSON.parse(line.substring(2));
+                  const text = JSON.parse(jsonPayload);
                   botResponse += text;
                   setMessages(prev => prev.map(msg => 
                     msg.id === botMessageId ? { ...msg, content: botResponse } : msg
                   ));
-                } catch (e) {
-                  // Ignore parsing errors for partial chunks
+                } catch {
+                  // If not valid JSON string literal, append literal string directly
+                  botResponse += jsonPayload.replace(/^"|"$/g, '');
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === botMessageId ? { ...msg, content: botResponse } : msg
+                  ));
                 }
+              } else {
+                // Raw text chunk fallback
+                botResponse += line;
+                setMessages(prev => prev.map(msg => 
+                  msg.id === botMessageId ? { ...msg, content: botResponse } : msg
+                ));
               }
             }
           }

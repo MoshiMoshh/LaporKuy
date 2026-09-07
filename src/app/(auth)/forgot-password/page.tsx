@@ -48,13 +48,21 @@ export default function ForgotPasswordPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
         });
-        const data = await res.json();
+        
+        let data: { success?: boolean; mock_otp?: string; error?: string } = {};
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          console.error('Non-JSON OTP response:', text);
+        }
         
         if (data.success) {
           setOtpSent(true);
           setMockOtpCode(data.mock_otp || '1234');
         } else {
-          toast.error(error.message === 'Signups not allowed for this method' ? 'Email belum terdaftar.' : error.message || 'Gagal mengirim kode OTP ke email.');
+          toast.error(error.message === 'Signups not allowed for this method' ? 'Email belum terdaftar.' : data.error || error.message || 'Gagal mengirim kode OTP ke email.');
           return;
         }
       } else {
