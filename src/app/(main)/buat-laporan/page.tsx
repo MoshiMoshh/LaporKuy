@@ -42,11 +42,12 @@ function BuatLaporanForm() {
   const districtParam = searchParams.get('district');
 
   const [location, setLocation] = useState({
-    address: addressParam || 'Jl. Raya Darmo No. 42, Wonokromo, Surabaya',
-    district: districtParam || 'Kec. Wonokromo',
-    lat: -7.2891,
-    lng: 112.7385,
+    address: addressParam || 'Mendeteksi lokasi...',
+    district: districtParam || '',
+    lat: 0,
+    lng: 0,
   });
+
 
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [description, setDescription] = useState('');
@@ -68,36 +69,77 @@ function BuatLaporanForm() {
       }));
     }
 
-    // Dynamic Geolocation Detection with location variations
+    // Real Geolocation Detection + Reverse Geocoding via MapTiler
     if (navigator.geolocation && !addressParam) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
 
-          const sampleLocations = [
-            { address: 'Jl. Pemuda No. 18, Genteng, Surabaya (Terdeteksi GPS)', district: 'Kec. Genteng' },
-            { address: 'Jl. Gubeng Kertajaya No. 88, Gubeng, Surabaya (Terdeteksi GPS)', district: 'Kec. Gubeng' },
-            { address: 'Jl. Mayjen Sungkono No. 102, Dukuh Pakis, Surabaya (Terdeteksi GPS)', district: 'Kec. Dukuh Pakis' },
-            { address: 'Jl. Keputih Timur No. 15, Sukolilo, Surabaya (Terdeteksi GPS)', district: 'Kec. Sukolilo' },
-            { address: 'Jl. Raya Darmo No. 42, Wonokromo, Surabaya (Terdeteksi GPS)', district: 'Kec. Wonokromo' },
-          ];
-          const chosen = sampleLocations[Math.abs(Math.floor((lat + lng) * 1000)) % sampleLocations.length];
+          try {
+            const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY || '';
+            const res = await fetch(
+              `https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${apiKey}&language=id`
+            );
+            const data = await res.json();
 
-          setLocation({
-            address: chosen.address,
-            district: chosen.district,
-            lat: lat,
-            lng: lng,
-          });
+            let address = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            let district = 'Tidak terdeteksi';
+
+            if (data.features && data.features.length > 0) {
+              // Build address from the most specific feature
+              const place = data.features[0];
+              address = place.place_name || address;
+
+              // Try to extract district/kecamatan from context
+              const contexts = place.context || [];
+              for (const ctx of contexts) {
+                const ctxId = ctx.id || '';
+                const ctxText = ctx.text || '';
+                // MapTiler uses "municipality" or "district" layer for kecamatan
+                if (ctxId.startsWith('municipality') || ctxId.startsWith('district')) {
+                  district = ctxText.startsWith('Kec') ? ctxText : `Kec. ${ctxText}`;
+                  break;
+                }
+              }
+
+              // Fallback: if district not found in context, use place_type
+              if (district === 'Tidak terdeteksi') {
+                // Try the second-level feature (usually the sub-district)
+                if (data.features.length > 1) {
+                  district = `Kec. ${data.features[1].text || ''}`;
+                }
+              }
+
+              // Clean up address: remove country suffix if too long
+              address = address
+                .replace(/, Indonesia$/i, '')
+                .replace(/ \(Terdeteksi GPS\)/, '');
+              address += ' (Terdeteksi GPS)';
+            }
+
+            setLocation({ address, district, lat, lng });
+          } catch (err) {
+            console.error('Reverse geocoding failed:', err);
+            setLocation((prev) => ({ ...prev, lat, lng }));
+          }
+
           setIsLocating(false);
         },
-        () => setIsLocating(false),
-        { timeout: 5000 }
+        (err) => {
+          console.error('Geolocation error:', err.message);
+          setIsLocating(false);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
       );
     }
   }, [searchParams, addressParam, districtParam]);
+
 
   const handlePhotoSelected = (imgUrl: string) => {
     setPhotoUrl(imgUrl);

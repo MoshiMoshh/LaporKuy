@@ -2,65 +2,95 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, PlusCircle, Bell, User } from 'lucide-react';
+import { Home, LayoutDashboard, Plus, Bell, User } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useLaporKuyStore } from '@/lib/store';
+import { cn } from '@/lib/utils';
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  isPrimary?: boolean;
+  hasBadge?: boolean;
+}
+
+const navItems: NavItem[] = [
+  { href: '/', label: 'Beranda', icon: Home },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/buat-laporan', label: 'Lapor', icon: Plus, isPrimary: true },
+  { href: '/notifikasi', label: 'Notifikasi', icon: Bell, hasBadge: true },
+  { href: '/profil', label: 'Profil', icon: User },
+];
+
 
 export function BottomNav() {
   const pathname = usePathname();
   const { notifications } = useLaporKuyStore();
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const links = [
-    { href: '/', label: 'Beranda', icon: Home },
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/buat-laporan', label: 'Lapor', icon: PlusCircle, isPrimary: true },
-    { href: '/notifikasi', label: 'Notifikasi', icon: Bell, badge: unreadCount },
-    { href: '/profil', label: 'Profil', icon: User },
-  ];
-
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 w-full">
-      <div className="bg-background px-2 py-2 flex items-center justify-between shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-border relative">
-        
-        {links.map((link) => {
-          const isActive = pathname === link.href;
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40" aria-label="Mobile navigation">
+      <div className="bg-card/95 backdrop-blur-lg px-1 pb-[env(safe-area-inset-bottom)] border-t border-border shadow-[0_-1px_3px_rgba(0,0,0,0.06)]">
+        <div className="flex items-end justify-around h-16">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            const Icon = item.icon;
 
-          if (link.isPrimary) {
+            /* ── FAB (Primary Action) ── */
+            if (item.isPrimary) {
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-label={item.label}
+                  className="relative -top-4 flex items-center justify-center"
+                >
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_4px_14px_rgba(0,87,184,0.4)] ring-4 ring-card active:scale-95 transition-transform">
+                    <Icon className="h-6 w-6" strokeWidth={2.5} />
+                  </span>
+                </Link>
+              );
+            }
+
+            /* ── Regular Nav Item ── */
             return (
               <Link
-                key={link.href}
-                href={link.href}
-                className="flex flex-col items-center justify-center -mt-10 relative z-10 group px-2"
+                key={item.href}
+                href={item.href}
+                aria-label={item.label}
+                className={cn(
+                  'relative flex flex-col items-center justify-center gap-0.5 py-2 w-16 text-[10px] font-semibold tracking-wide transition-colors',
+                  isActive
+                    ? 'text-primary'
+                    : 'text-muted-foreground active:text-foreground'
+                )}
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-all border-4 border-background">
-                  <PlusCircle className="h-7 w-7" />
-                </div>
+                <Icon
+                  className={cn('h-[22px] w-[22px] transition-transform', isActive && 'scale-110')}
+                  strokeWidth={isActive ? 2.5 : 2}
+                />
+                <span>{item.label}</span>
+
+                {/* Active indicator dot */}
+                {isActive && (
+                  <span className="absolute -bottom-0 h-[3px] w-5 rounded-full bg-primary" />
+                )}
+
+                {/* Notification badge */}
+                {item.hasBadge && unreadCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-0.5 left-[calc(50%+4px)] h-4 min-w-4 px-1 text-[9px] font-bold justify-center rounded-full shadow-sm"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
               </Link>
             );
-          }
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`relative flex flex-col items-center justify-center py-1 w-[60px] text-[10px] font-semibold transition-all duration-300 ${
-                isActive 
-                  ? 'text-primary' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <link.icon className={`h-6 w-6 mb-1 transition-transform ${isActive ? 'scale-110' : ''}`} />
-              <span className={isActive ? 'opacity-100' : 'opacity-70'}>{link.label}</span>
-
-              {link.badge && link.badge > 0 ? (
-                <span className="absolute top-0.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white shadow-sm">
-                  {link.badge}
-                </span>
-              ) : null}
-            </Link>
-          );
-        })}
+          })}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 }

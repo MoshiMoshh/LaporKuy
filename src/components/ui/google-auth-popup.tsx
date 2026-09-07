@@ -15,7 +15,7 @@ export function GoogleAuthPopup({ isOpen, onClose, onSelectAccount }: GoogleAuth
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div 
-        className="bg-[#202124] text-white w-full max-w-[400px] rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
+        className="bg-[#202124] text-white w-full max-w-[400px] rounded-3xl shadow-float overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-white/10"
         style={{ fontFamily: '"Google Sans", Roboto, Arial, sans-serif' }}
       >
         {/* Header */}
@@ -42,7 +42,7 @@ export function GoogleAuthPopup({ isOpen, onClose, onSelectAccount }: GoogleAuth
             {/* Account Option */}
             <button 
               onClick={onSelectAccount}
-              className="w-full flex items-center gap-4 px-4 py-3 rounded-full hover:bg-[#3c4043] transition-colors text-left group border border-transparent hover:border-[#5f6368]"
+              className="w-full flex items-center gap-4 px-4 py-3 rounded-full hover:bg-[#3c4043] active:bg-[#4a4d52] active:scale-[0.98] transition-all text-left group border border-transparent hover:border-[#5f6368] touch-manipulation"
             >
               <div className="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center text-white text-lg font-medium shrink-0">
                 A
@@ -58,7 +58,7 @@ export function GoogleAuthPopup({ isOpen, onClose, onSelectAccount }: GoogleAuth
             {/* Use another account Option */}
             <button 
               onClick={onSelectAccount}
-              className="w-full flex items-center gap-4 px-4 py-3 rounded-full hover:bg-[#3c4043] transition-colors text-left group"
+              className="w-full flex items-center gap-4 px-4 py-3 rounded-full hover:bg-[#3c4043] active:bg-[#4a4d52] active:scale-[0.98] transition-all text-left group touch-manipulation"
             >
               <div className="w-9 h-9 flex items-center justify-center text-[#9aa0a6] shrink-0">
                 <UserCircle2 className="w-6 h-6" />

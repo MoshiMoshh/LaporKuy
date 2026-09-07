@@ -157,11 +157,11 @@ export function AIChatWidget() {
 
   return (
     <div 
-      className="fixed bottom-24 right-4 sm:bottom-8 sm:right-6 z-50 touch-none"
+      className="fixed bottom-20 right-3 sm:bottom-8 sm:right-6 z-50 touch-none select-none"
       style={!isOpen ? { transform: `translate(${position.x}px, ${position.y}px)` } : {}}
     >
       {isOpen ? (
-        <Card className="w-80 sm:w-[400px] shadow-2xl border border-white/20 dark:border-white/10 bg-background/70 backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-300 overflow-hidden flex flex-col">
+        <Card className="w-[calc(100vw-24px)] max-w-[360px] sm:max-w-[400px] max-h-[82dvh] shadow-2xl border border-white/20 dark:border-white/10 bg-background/95 backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-300 overflow-hidden flex flex-col rounded-2xl">
           <CardHeader className="bg-gradient-to-r from-[#0057B8] to-cyan-500 text-white p-4 flex flex-row items-center justify-between border-b border-white/10 relative">
             <div className="absolute inset-0 bg-white/5 mix-blend-overlay" />
             <div className="flex items-center gap-3 relative z-10">
@@ -184,17 +184,17 @@ export function AIChatWidget() {
             <Button
               size="icon"
               variant="ghost"
-              className="h-8 w-8 text-white hover:bg-white/20 rounded-full transition-colors relative z-10"
+              className="h-9 w-9 text-white hover:bg-white/20 active:scale-95 rounded-full transition-all relative z-10 touch-manipulation"
               onClick={() => {
                 setIsOpen(false);
-                // Reset position when closed if desired, or keep it. Let's keep it.
               }}
+              aria-label="Tutup Bantuan"
             >
               <X className="h-4 w-4" />
             </Button>
           </CardHeader>
           
-          <CardContent className="p-4 h-[350px] overflow-y-auto space-y-4 bg-transparent scrollbar-thin">
+          <CardContent className="p-4 h-[300px] sm:h-[350px] overflow-y-auto space-y-4 bg-transparent scrollbar-thin overscroll-contain">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -229,7 +229,7 @@ export function AIChatWidget() {
             <div ref={messagesEndRef} />
           </CardContent>
           
-          <CardFooter className="p-3 border-t border-border/40 bg-background/50 backdrop-blur-md">
+          <CardFooter className="p-3 border-t border-border/40 bg-background/50 backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
               <Input
                 placeholder="Ketik pesan..."
@@ -240,7 +240,7 @@ export function AIChatWidget() {
                 autoComplete="off"
                 className="h-10 text-sm bg-white/50 dark:bg-slate-900/50 border-border/50 focus-visible:ring-[#0057B8]/50 rounded-full px-4"
               />
-              <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="h-10 w-10 shrink-0 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 bg-[#0057B8] hover:bg-[#003B73] text-white">
+              <Button type="submit" disabled={isLoading || !input.trim()} size="icon" className="h-10 w-10 shrink-0 rounded-full shadow-md active:scale-95 transition-all bg-[#0057B8] hover:bg-[#003B73] text-white touch-manipulation">
                 <Send className="h-4 w-4 ml-0.5" />
               </Button>
             </form>
@@ -253,9 +253,10 @@ export function AIChatWidget() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="h-14 w-14 rounded-full shadow-[0_0_20px_rgba(0,87,184,0.3)] hover:shadow-[0_0_30px_rgba(0,87,184,0.5)] hover:-translate-y-1 transition-all bg-gradient-to-br from-[#0057B8] to-cyan-500 text-white flex items-center justify-center group cursor-move"
+          aria-label="Buka Chat Bantuan AI"
+          className="h-14 w-14 rounded-full shadow-[0_0_20px_rgba(0,87,184,0.3)] active:scale-95 active:shadow-md transition-all bg-gradient-to-br from-[#0057B8] to-cyan-500 text-white flex items-center justify-center group touch-none select-none"
         >
-          <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform duration-300 pointer-events-none" />
+          <MessageCircle className="h-6 w-6 group-hover:scale-105 active:scale-95 transition-transform duration-200 pointer-events-none" />
         </Button>
       )}
     </div>

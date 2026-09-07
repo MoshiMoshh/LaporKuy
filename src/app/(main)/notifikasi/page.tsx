@@ -87,39 +87,25 @@ export default function NotifikasiPage() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b pb-2 overflow-x-auto">
-        <Button
-          size="sm"
-          variant={filter === 'all' ? 'default' : 'ghost'}
-          onClick={() => setFilter('all')}
-          className="text-xs"
-        >
-          Semua Notifikasi
-        </Button>
-        <Button
-          size="sm"
-          variant={filter === 'status' ? 'default' : 'ghost'}
-          onClick={() => setFilter('status')}
-          className="text-xs"
-        >
-          Status Laporan
-        </Button>
-        <Button
-          size="sm"
-          variant={filter === 'community' ? 'default' : 'ghost'}
-          onClick={() => setFilter('community')}
-          className="text-xs"
-        >
-          Komunitas
-        </Button>
-        <Button
-          size="sm"
-          variant={filter === 'reward' ? 'default' : 'ghost'}
-          onClick={() => setFilter('reward')}
-          className="text-xs"
-        >
-          Reward & Poin
-        </Button>
+      <div className="flex items-center gap-1.5 border-b border-border pb-2.5 overflow-x-auto scrollbar-hide">
+        {[
+          { id: 'all', label: 'Semua Notifikasi' },
+          { id: 'status', label: 'Status Laporan' },
+          { id: 'community', label: 'Komunitas' },
+          { id: 'reward', label: 'Reward & Poin' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setFilter(tab.id as any)}
+            className={`px-4 py-2 text-xs font-bold rounded-full transition-all whitespace-nowrap shrink-0 min-h-[36px] touch-manipulation active:scale-95 ${
+              filter === tab.id
+                ? 'bg-primary text-white shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Notifications List */}

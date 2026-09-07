@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Allow mobile browser on local network to access dev resources (HMR, etc.)
+  allowedDevOrigins: ['192.168.100.4'],
+
   async headers() {
     return [
       {
