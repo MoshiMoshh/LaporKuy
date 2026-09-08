@@ -2,15 +2,32 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useRef, useEffect } from 'react';
-import { Menu, X, User } from 'lucide-react';
-import gsap from 'gsap';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { Logo } from '@/components/ui/logo';
 import { useLaporKuyStore } from '@/lib/store';
-import { cn } from '@/lib/utils';
+import { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
+
+
+
+
+const MenuIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+  </svg>
+);
+
+const XIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const UserIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+  </svg>
+);
 
 const mainNavLinks = [
   { href: '/', label: 'Beranda' },
@@ -20,62 +37,61 @@ const mainNavLinks = [
   { href: '/papan-peringkat', label: 'Peringkat' },
   { href: '/misi', label: 'Misi & Poin' },
   { href: '/bantuan', label: 'Bantuan' },
-] as const;
+];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const { profile } = useLaporKuyStore();
-  const isLoggedIn = true;
+  const isLoggedIn = true; // In real app, check auth status
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!menuRef.current) return;
     if (mobileOpen) {
-      gsap.to(menuRef.current, {
-        height: 'auto',
-        opacity: 1,
-        duration: 0.4,
+      gsap.to(menuRef.current, { 
+        height: 'auto', 
+        opacity: 1, 
+        duration: 0.4, 
         ease: 'power3.out',
-        display: 'block',
+        display: 'block' 
       });
     } else {
-      gsap.to(menuRef.current, {
-        height: 0,
-        opacity: 0,
-        duration: 0.3,
+      gsap.to(menuRef.current, { 
+        height: 0, 
+        opacity: 0, 
+        duration: 0.3, 
         ease: 'power2.inOut',
-        display: 'none',
+        display: 'none' 
       });
     }
   }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-card border-b-[3px] border-primary shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-white border-b-[3px] border-[#0057B8] shadow-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-
+        
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
           <Logo size={34} />
-          <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider hidden sm:block">
+          <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider hidden sm:block">
             Layanan Pengaduan Publik
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1 ml-8 mr-auto" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center gap-8 ml-8 mr-auto">
           {mainNavLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={cn(
-                  'px-3 py-5 text-sm font-semibold transition-colors',
+                className={`text-sm font-semibold transition-colors ${
                   isActive
-                    ? 'text-primary border-b-2 border-primary -mb-[3px]'
-                    : 'text-foreground/80 hover:text-primary'
-                )}
+                    ? 'text-[#0057B8] border-b-2 border-[#0057B8] py-5 -mb-[3px]'
+                    : 'text-[#172033] hover:text-[#0057B8] py-5'
+                }`}
               >
                 {link.label}
               </Link>
@@ -84,25 +100,21 @@ export function Navbar() {
         </nav>
 
         {/* Desktop Right Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-4">
           {isLoggedIn ? (
-            <Link
-              href="/profil"
-              className="flex items-center gap-2.5 group p-1.5 rounded-md hover:bg-accent transition-colors"
-            >
-              <Avatar className="h-7 w-7">
-                <AvatarImage src={profile.avatar} alt={profile.name} />
-                <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                  {profile.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+            <Link href="/profil" className="flex items-center gap-2 group p-1.5 rounded hover:bg-slate-50">
+              <img
+                src={profile.avatar}
+                alt={profile.name}
+                className="h-7 w-7 rounded object-cover border border-[#D9DEE5]"
+              />
+              <span className="text-sm font-semibold text-[#172033] group-hover:text-[#0057B8] transition-colors">
                 {profile.name}
               </span>
             </Link>
           ) : (
             <Link href="/login">
-              <Button size="sm" className="font-semibold px-6">
+              <Button className="rounded-md font-semibold px-6 shadow-none bg-[#0057B8] hover:bg-[#003B73] text-white">
                 Masuk
               </Button>
             </Link>
@@ -110,70 +122,49 @@ export function Navbar() {
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex md:hidden items-center">
-          <Button
-            variant="ghost"
-            size="icon"
+        <div className="flex md:hidden items-center gap-3">
+          <button
             onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 text-[#172033]"
             aria-label="Toggle navigation menu"
-            aria-expanded={mobileOpen}
-            className="text-foreground"
           >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+            {mobileOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+          </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      <div
+      <div 
         ref={menuRef}
-        className="md:hidden border-t border-border bg-card shadow-lg absolute w-full inset-x-0 z-50 overflow-hidden"
+        className="md:hidden border-t border-[#D9DEE5] bg-white shadow-lg absolute w-full left-0 right-0 z-50 overflow-hidden"
         style={{ height: 0, opacity: 0, display: 'none' }}
       >
-        <div className="px-4 py-4 space-y-3">
-          <nav className="flex flex-col gap-0.5" aria-label="Mobile navigation">
-            {mainNavLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    'block px-3 py-2.5 text-sm font-semibold rounded-md transition-colors',
-                    isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-foreground hover:bg-accent'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+        <div className="px-4 py-4 space-y-4">
+          <nav className="flex flex-col gap-2">
+            {mainNavLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2 text-sm font-semibold text-[#172033] rounded hover:bg-slate-50"
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
-
-          <Separator />
-
+          <div className="h-px bg-[#D9DEE5]" />
           {isLoggedIn ? (
             <Link
               href="/profil"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-accent transition-colors"
+              className="flex items-center gap-3 px-3 py-2"
             >
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={profile.avatar} alt={profile.name} />
-                <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
-                  {profile.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-foreground">{profile.name}</span>
-                <span className="text-xs text-muted-foreground">{profile.level}</span>
-              </div>
+              <UserIcon className="h-5 w-5 text-[#172033]" />
+              <span className="text-sm font-semibold text-[#172033]">Profil Saya</span>
             </Link>
           ) : (
             <Link href="/login" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full font-semibold">
+              <Button className="w-full rounded font-semibold shadow-none bg-[#0057B8] hover:bg-[#003B73]">
                 Masuk
               </Button>
             </Link>
