@@ -219,45 +219,29 @@ function DashboardContent() {
         )}
 
         {/* Category Filter Horizontal Scroll */}
-        <div className="flex gap-3 px-4 py-3 border-b border-border/40 overflow-x-auto scrollbar-none shrink-0 bg-background/50 backdrop-blur-md sticky top-16 z-30">
+        <div className="flex gap-2 px-4 py-3 border-b border-slate-200/70 dark:border-slate-800 overflow-x-auto scrollbar-none shrink-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-16 z-30">
           {[
-            { id: 'Semua', label: 'Semua', icon: <Globe className="w-4 h-4" /> },
-            { id: 'Jalan Rusak', label: 'Jalan Rusak', imgSrc: '/icons/pothole.png' },
-            { id: 'Fasilitas Umum', label: 'Fasilitas Umum', icon: <Building2 className="w-4 h-4" /> },
-            { id: 'Lampu Mati', label: 'Lampu Mati', icon: <LightbulbOff className="w-4 h-4" /> },
-            { id: 'Sampah', label: 'Sampah', icon: <Trash2 className="w-4 h-4" /> },
+            { id: 'Semua', label: 'Semua', icon: <Globe className="w-3.5 h-3.5" /> },
+            { id: 'Jalan Rusak', label: 'Jalan Rusak', icon: <ShieldAlert className="w-3.5 h-3.5" /> },
+            { id: 'Fasilitas Umum', label: 'Fasilitas Umum', icon: <Building2 className="w-3.5 h-3.5" /> },
+            { id: 'Lampu Mati', label: 'Lampu Mati', icon: <LightbulbOff className="w-3.5 h-3.5" /> },
+            { id: 'Sampah', label: 'Sampah', icon: <Trash2 className="w-3.5 h-3.5" /> },
           ].map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
               <button 
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`group flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap active:scale-95 ${
+                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 whitespace-nowrap border ${
                   isActive 
-                    ? 'bg-gradient-to-b from-[#0066FF] to-[#0057B8] text-white border-x border-t border-b-2 border-[#3385FF]/50 border-b-[#003B73]/60 shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.3),0px_4px_12px_0px_rgba(0,87,184,0.4)] hover:-translate-y-0.5' 
-                    : 'bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-sm'
+                    ? 'bg-[#003B73] text-white border-[#003B73] shadow-sm' 
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'
                 }`}
               >
-                <div className={`flex items-center justify-center rounded-full w-6 h-6 text-sm shrink-0 transition-transform duration-300 ${
-                  isActive 
-                    ? 'bg-white/20 scale-110 text-white' 
-                    : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 shadow-sm group-hover:scale-105 group-hover:text-slate-800 dark:group-hover:text-slate-200'
-                }`}>
-                  {cat.imgSrc ? (
-                    <img 
-                      src={cat.imgSrc} 
-                      alt={cat.label} 
-                      className={`w-4 h-4 object-contain transition-all duration-300 ${
-                        isActive 
-                          ? 'brightness-0 invert opacity-100' 
-                          : 'brightness-0 dark:invert opacity-60 group-hover:opacity-100' 
-                      }`} 
-                    />
-                  ) : (
-                    cat.icon
-                  )}
-                </div>
-                {cat.label}
+                <span className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-400'}>
+                  {cat.icon}
+                </span>
+                <span>{cat.label}</span>
               </button>
             );
           })}
