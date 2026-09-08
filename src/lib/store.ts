@@ -330,15 +330,11 @@ export function useLaporKuyStore() {
       updated_at: now
     });
 
-    const newPoints = (profile.points || 0) + 15;
-    const newXp = (profile.xp || 0) + 25;
     const newTotal = (profile.totalReports || 0) + 1;
     const newCompleted = (profile.completedReports || 0) + 1;
 
     setProfile(prev => ({
       ...prev,
-      points: newPoints,
-      xp: newXp,
       totalReports: newTotal,
       completedReports: newCompleted
     }));
@@ -350,8 +346,8 @@ export function useLaporKuyStore() {
           const newProgress = 1;
           const wasCompleted = q.progress >= q.target;
           if (!wasCompleted && newProgress >= q.target) {
-            toast.success('Misi Selesai', {
-              description: 'Pelapor Harian • Klaim +15 Poin di menu Misi',
+            toast.success('Misi Selesai!', {
+              description: 'Misi Pelapor Harian selesai. Buka menu Misi untuk mengklaim +15 Poin Anda!',
               id: 'quest-completed-q-1'
             });
           }
@@ -361,8 +357,8 @@ export function useLaporKuyStore() {
           const newProgress = Math.min(q.target, q.progress + 1);
           const wasCompleted = q.progress >= q.target;
           if (!wasCompleted && newProgress >= q.target) {
-            toast.success('Misi Selesai', {
-              description: 'Penjelajah Kecamatan • Klaim +50 Poin di menu Misi',
+            toast.success('Misi Selesai!', {
+              description: 'Misi Penjelajah Kecamatan selesai. Buka menu Misi untuk mengklaim +50 Poin Anda!',
               id: 'quest-completed-q-3'
             });
           }
@@ -390,8 +386,6 @@ export function useLaporKuyStore() {
 
     try {
       await supabase.from('profiles').update({
-        points: newPoints,
-        xp: newXp,
         total_reports: newTotal,
         completed_reports: newCompleted
       }).eq('id', profile.id);
