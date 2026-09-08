@@ -140,19 +140,19 @@ function DashboardContent() {
       </div>
 
       {/* MOBILE FLOATING HEADER */}
-      <div className="md:hidden absolute top-4 inset-x-4 z-10 space-y-3 pointer-events-none">
-        <div className="flex gap-2 pointer-events-auto drop-shadow-xl">
+      <div className="md:hidden absolute top-4 inset-x-4 z-10 pointer-events-none">
+        <div className="flex gap-2 pointer-events-auto">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Cari aduan atau lokasi..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-12 w-full rounded-2xl border-none shadow-none bg-white/95 backdrop-blur-xl text-sm font-medium focus-visible:ring-2 focus-visible:ring-[#0057B8]"
+              className="pl-10 h-10 w-full rounded-xl border border-slate-200 bg-white text-xs font-medium focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md"
             />
           </div>
-          <Button variant="outline" size="icon" className="h-12 w-12 shrink-0 rounded-2xl border-none shadow-none bg-white/95 backdrop-blur-xl text-slate-600 hover:text-[#0057B8]">
-            <Filter className="h-5 w-5" />
+          <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md">
+            <Filter className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -163,23 +163,22 @@ function DashboardContent() {
         className="
           w-full md:w-[400px] lg:w-[450px] 
           absolute bottom-0 inset-x-0 md:relative md:bottom-auto md:inset-x-auto
-          bg-white/95 md:bg-white 
-          backdrop-blur-2xl md:backdrop-blur-none
-          border-t md:border-t-0 md:border-r border-[#D9DEE5]/50 md:border-[#D9DEE5] 
-          rounded-t-[28px] md:rounded-none
-          flex flex-col z-20 shadow-[0_-8px_40px_rgba(0,0,0,0.12)] md:shadow-sm 
+          bg-white dark:bg-slate-900
+          border-t md:border-t-0 md:border-r border-slate-200 dark:border-slate-800
+          rounded-t-2xl md:rounded-none
+          flex flex-col z-20 shadow-xl md:shadow-none 
           min-h-0 order-last md:order-first
         "
         style={{ maxHeight: isMobile ? '95%' : 'auto' }}
       >
         <div 
-          className="md:hidden w-full flex justify-center pt-3 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none group"
+          className="md:hidden w-full flex justify-center pt-2.5 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none group"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          <div className="w-12 h-1.5 bg-slate-300 rounded-full group-hover:bg-[#0057B8] transition-colors" />
+          <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full group-hover:bg-slate-400 transition-colors" />
         </div>
 
         {/* ACTIVE QUEST BANNER */}
