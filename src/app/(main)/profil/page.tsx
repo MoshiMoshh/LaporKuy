@@ -54,10 +54,7 @@ export default function ProfilPage() {
 
   const myReports = reports.filter((r) => 
     r.userId === profile.id || 
-    r.userName === profile.name || 
-    r.userId === 'usr-me' || 
-    r.userId === 'usr-001' || 
-    r.id.startsWith('REP-')
+    (profile.name && r.userName === profile.name && r.userId === 'usr-me')
   );
 
   const [name, setName] = useState('');

@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { mockLeaderboard, mockDistrictRanks } from '@/lib/mock-data';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, ShieldCheck, UserCheck, Star, Trophy, Award } from 'lucide-react';
-import { LeaderboardUser } from '@/types';
-
+import { LeaderboardUser, DistrictRank } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 // Diverse, high-quality avatar photos for distinct users
 const weeklyLeaderboard: LeaderboardUser[] = [
   { rank: 1, id: 'usr-001', name: 'Budi Santoso (Kamu)', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&auto=format&fit=crop&q=80', level: 'Pahlawan Kota', points: 280, reportsCount: 7, district: 'Kec. Wonokromo', isCurrentUser: true },
@@ -39,6 +38,23 @@ const alltimeLeaderboard: LeaderboardUser[] = [
 export default function LeaderboardPage() {
   const [period, setPeriod] = useState<'weekly' | 'monthly' | 'alltime'>('monthly');
   const [activeTab, setActiveTab] = useState<'users' | 'districts'>('users');
+  const [districtRanks, setDistrictRanks] = useState<DistrictRank[]>([]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from('district_ranks').select('*').order('rank', { ascending: true }).then(({ data }) => {
+      if (data && data.length > 0) {
+        setDistrictRanks(data.map((d: any) => ({
+          ...d,
+          districtName: d.district_name,
+          totalReports: d.total_reports,
+          resolvedPercentage: d.resolved_percentage,
+          activeCitizens: d.active_citizens,
+          imageUrl: d.image_url,
+        })));
+      }
+    });
+  }, []);
 
   const currentLeaderboardData = period === 'weekly' 
     ? weeklyLeaderboard 
@@ -254,7 +270,7 @@ export default function LeaderboardPage() {
           </CardHeader>
 
           <div className="divide-y border-border/40">
-            {mockDistrictRanks.map((dist) => (
+            {districtRanks.length > 0 ? districtRanks.map((dist) => (
               <div key={dist.rank} className="p-3.5 sm:p-5 flex items-center justify-between gap-2 sm:gap-4 hover:bg-muted/20 transition-colors">
                 <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
                   {/* Clean Rank Number Circle */}
@@ -298,7 +314,12 @@ export default function LeaderboardPage() {
                   </Badge>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="p-8 text-center text-muted-foreground">
+                <MapPin className="w-6 h-6 mx-auto mb-2 opacity-40" />
+                <p className="text-xs font-bold">Belum ada data kecamatan.</p>
+              </div>
+            )}
           </div>
         </Card>
       )}

@@ -3,12 +3,28 @@
 import { useState, useEffect } from 'react';
 import { Report, UserProfile, Quest, Reward, NotificationItem, Comment } from '@/types';
 import { createClient } from '@/lib/supabase/client';
-import { mockUserProfile, initialReports, mockQuests, mockRewards, mockNotifications } from './mock-data';
 import { toast } from 'sonner';
 
 const supabase = createClient();
 
-// No mock user anymore, using Supabase Auth
+const defaultProfile: UserProfile = {
+  id: '',
+  name: '',
+  email: '',
+  phone: '',
+  avatar: '',
+  points: 0,
+  level: 'Pemula',
+  xp: 0,
+  nextLevelXp: 100,
+  streakDays: 0,
+  trustScore: 100,
+  impactCount: 0,
+  totalReports: 0,
+  completedReports: 0,
+  totalUpvotesReceived: 0,
+  badges: [],
+};
 
 export function useLaporKuyStore() {
   const [reports, setReports] = useState<Report[]>(() => {
@@ -23,17 +39,12 @@ export function useLaporKuyStore() {
         }
       } catch (e) {}
     }
-    return initialReports;
+    return [];
   });
-  const [profile, setProfile] = useState<UserProfile>(mockUserProfile);
-  const [quests, setQuests] = useState<Quest[]>(mockQuests);
-  const [rewards, setRewards] = useState<Reward[]>(mockRewards);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('laporkuy_notifs_read') === 'true') {
-      return mockNotifications.map(n => ({ ...n, isRead: true }));
-    }
-    return mockNotifications;
-  });
+  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -618,7 +629,7 @@ export function useLaporKuyStore() {
   const logout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
-    setProfile(mockUserProfile); // reset
+    setProfile(defaultProfile);
   };
 
   return {

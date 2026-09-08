@@ -1,17 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { mockDinasScorecard } from '@/lib/mock-data';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Download, Code, ShieldCheck, Clock, TrendingUp, Star, ExternalLink, Activity } from 'lucide-react';
+import { DinasScorecard } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 export default function TransparansiPage() {
   const [copied, setCopied] = useState(false);
+  const [dinasScorecard, setDinasScorecard] = useState<DinasScorecard[]>([]);
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   const embedCode = `<iframe src="${origin}/embed/map" width="100%" height="450" frameborder="0"></iframe>`;
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from('dinas_scorecards').select('*').order('rating', { ascending: false }).then(({ data }) => {
+      if (data && data.length > 0) {
+        setDinasScorecard(data.map((d: any) => ({
+          ...d,
+          dinasName: d.dinas_name,
+          totalAssigned: d.total_assigned,
+          totalResolved: d.total_resolved,
+          avgResponseTimeHours: d.avg_response_time_hours,
+          slaCompliancePercentage: d.sla_compliance_percentage,
+        })));
+      }
+    });
+  }, []);
 
   const handleCopyEmbed = () => {
     navigator.clipboard.writeText(embedCode);
@@ -21,7 +39,7 @@ export default function TransparansiPage() {
 
   const handleDownloadCSV = () => {
     const csvContent = 'data:text/csv;charset=utf-8,Dinas,TotalLaporan,Selesai,AvgWaktuJam,SLACompliance\n' +
-      mockDinasScorecard.map(d => `"${d.dinasName}",${d.totalAssigned},${d.totalResolved},${d.avgResponseTimeHours},${d.slaCompliancePercentage}%`).join('\n');
+      dinasScorecard.map(d => `"${d.dinasName}",${d.totalAssigned},${d.totalResolved},${d.avgResponseTimeHours},${d.slaCompliancePercentage}%`).join('\n');
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -131,7 +149,7 @@ export default function TransparansiPage() {
               </tr>
             </thead>
             <tbody className="divide-y border-border/40 font-medium text-foreground">
-              {mockDinasScorecard.map((dinas, idx) => (
+              {dinasScorecard.length > 0 ? dinasScorecard.map((dinas, idx) => (
                 <tr key={dinas.id} className="hover:bg-muted/20 transition-colors">
                   <td className="p-4 font-bold text-muted-foreground text-center">
                     {idx + 1}
@@ -158,7 +176,13 @@ export default function TransparansiPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-muted-foreground text-xs font-bold">
+                    Belum ada data kinerja dinas.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </CardContent>
