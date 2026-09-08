@@ -51,10 +51,10 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
               </div>
               <div className="min-w-0 flex-1">
                 <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                  Aktifkan Lokasi Anda
+                  Izin Akses Lokasi Diperlukan
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                  Aktifkan GPS agar LaporKuy dapat menampilkan aduan dan peta secara otomatis di kota tempat Anda berada saat ini.
+                  Mohon aktifkan akses lokasi (GPS) pada perangkat Anda agar sistem LaporKuy dapat menyajikan peta serta laporan infrastruktur secara akurat di wilayah Anda saat ini.
                 </p>
               </div>
             </div>

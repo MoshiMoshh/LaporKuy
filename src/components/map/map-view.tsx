@@ -117,24 +117,24 @@ export function MapView({
           <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <MapPin className="w-8 h-8 text-red-500" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">Akses Lokasi Wajib Diizinkan</h3>
+          <h3 className="text-xl font-bold text-white mb-2">Izin Lokasi Diperlukan</h3>
           <p className="text-sm text-slate-400 mb-6">
-            Aplikasi LaporKuy wajib menggunakan akurasi lokasi asli untuk memetakan laporan infrastruktur di sekitarmu.
+            Aplikasi LaporKuy memerlukan izin lokasi presisi perangkat Anda untuk memetakan laporan masalah infrastruktur publik secara akurat.
           </p>
           <div className="bg-slate-950 p-4 rounded-lg text-left mb-6 border border-slate-800 text-xs text-slate-300">
-            <strong>Cara Mengaktifkan:</strong>
+            <strong>Petunjuk Mengaktifkan Izin Lokasi:</strong>
             <ol className="list-decimal pl-4 mt-2 space-y-1">
-              <li>Klik ikon gembok (🔒) atau info di sebelah kiri URL bar browser kamu.</li>
-              <li>Cari menu "Location" atau "Lokasi".</li>
+              <li>Klik ikon gembok (🔒) atau informasi situs di sebelah kiri bilah URL browser Anda.</li>
+              <li>Pilih menu "Location" atau "Lokasi".</li>
               <li>Ubah pengaturannya menjadi "Allow" atau "Izinkan".</li>
-              <li>Muat ulang (Refresh) halaman ini.</li>
+              <li>Muat ulang (Refresh) halaman ini untuk melanjutkan.</li>
             </ol>
           </div>
           <Button 
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold"
+            className="w-full bg-[#0057B8] hover:bg-[#004494] text-white font-bold"
             onClick={() => window.location.reload()}
           >
-            Saya Sudah Mengizinkan, Muat Ulang
+            Izin Telah Diaktifkan, Muat Ulang Halaman
           </Button>
         </div>
         {/* Blurred background effect */}
