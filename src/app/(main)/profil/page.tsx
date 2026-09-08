@@ -546,6 +546,7 @@ export default function ProfilPage() {
             variant="outline"
             onClick={async () => {
               await supabase.auth.signOut();
+              window.location.href = '/login';
             }}
             className="w-full flex items-center justify-center gap-2 h-11 text-xs font-bold text-destructive hover:bg-destructive/10 border-destructive/30 rounded-xl transition-colors shadow-2xs mt-4"
           >

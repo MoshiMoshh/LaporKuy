@@ -42,8 +42,7 @@ const mainNavLinks = [
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const { profile } = useLaporKuyStore();
-  const isLoggedIn = true; // In real app, check auth status
+  const { profile, isLoggedIn } = useLaporKuyStore();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
