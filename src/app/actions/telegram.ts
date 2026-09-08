@@ -2,10 +2,11 @@
 
 export async function sendTelegramLog(message: string) {
   try {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    // HARDCODED untuk bypass masalah Vercel Environment Variables
+    const botToken = "8897180730:AAF23K8_zm4HB_h47k_nkAUNKQWdiVyRsDE";
+    const chatId = "1103507654";
 
-    if (!botToken || !chatId || chatId === 'YOUR_CHAT_ID_HERE') {
+    if (!botToken || !chatId) {
       console.warn('Telegram logger is not configured properly.');
       return { success: false, error: 'Telegram not configured' };
     }
