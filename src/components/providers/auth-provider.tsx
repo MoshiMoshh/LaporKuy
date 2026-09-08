@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
-import { useAuthStore } from '@/lib/auth-store';
+import { initializeAuth } from '@/lib/auth-store';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const initialize = useAuthStore((state) => state.initialize);
-
   useEffect(() => {
-    initialize();
-  }, [initialize]);
+    initializeAuth();
+  }, []);
 
   return <>{children}</>;
 }

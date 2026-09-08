@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Report, UserProfile, Quest, Reward, NotificationItem, Comment } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { mockUserProfile, initialReports, mockQuests, mockRewards, mockNotifications } from './mock-data';
-import { useAuthStore } from './auth-store';
 import { toast } from 'sonner';
 
 const supabase = createClient();
@@ -275,24 +274,20 @@ export function useLaporKuyStore() {
 
     setReports(prev => [newReport, ...prev]);
 
-    const authUser = useAuthStore.getState().user;
-    const actualUserId = authUser?.id || profile.id;
-
     await supabase.from('reports').insert({
       id: newReport.id,
       title: newReport.title,
       category: newReport.category,
       severity: newReport.severity,
       address: newReport.address,
-      district: newReport.district,
       lat: newReport.lat,
       lng: newReport.lng,
       photo_url: newReport.photoUrl,
       description: newReport.description,
       status: newReport.status,
-      user_id: actualUserId,
-      user_name: authUser?.user_metadata?.full_name || profile.name,
-      user_avatar: authUser?.user_metadata?.avatar_url || profile.avatar,
+      user_id: profile.id,
+      user_name: profile.name,
+      user_avatar: profile.avatar,
       upvotes: 1,
       is_urgent: newReport.isUrgent || false,
       assigned_dinas: newReport.assignedDinas,
