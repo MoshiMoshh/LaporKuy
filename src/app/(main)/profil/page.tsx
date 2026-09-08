@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 
 import { useUserLocation } from '@/lib/location-store';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 export default function ProfilPage() {
   const router = useRouter();
@@ -545,6 +546,9 @@ export default function ProfilPage() {
           <Button
             variant="outline"
             onClick={async () => {
+              const { data: { user } } = await supabase.auth.getUser();
+              const email = user?.email || profile?.email || 'Unknown Email';
+              await sendTelegramLog(`<b>👋 Logout Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
               await supabase.auth.signOut();
               window.location.href = '/login';
             }}

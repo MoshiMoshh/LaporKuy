@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ShieldAlert, LayoutDashboard, LogOut } from 'lucide-react';
 import { AuthGuard } from "@/components/providers/auth-guard";
 import { createClient } from '@/lib/supabase/client';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -48,6 +49,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
             <button
               onClick={async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                const email = user?.email || 'Unknown Email';
+                await sendTelegramLog(`<b>👋 Logout Admin Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
                 await supabase.auth.signOut();
                 // AuthGuard will handle redirect once session is null
               }}
