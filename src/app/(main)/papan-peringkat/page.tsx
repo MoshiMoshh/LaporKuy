@@ -88,25 +88,25 @@ export default function LeaderboardPage() {
         </div>
 
         {activeTab === 'users' && (
-          <div className="flex items-center gap-1 text-xs bg-muted/50 p-1 rounded-xl border border-border/50">
+          <div className="flex items-center gap-1 text-xs bg-muted/50 p-1 rounded-xl border border-border/50 max-w-full overflow-x-auto whitespace-nowrap scrollbar-none">
             <button
               type="button"
               onClick={() => setPeriod('weekly')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${period === 'weekly' ? 'bg-background text-foreground shadow-sm font-bold' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${period === 'weekly' ? 'bg-background text-foreground shadow-sm font-bold' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Mingguan
             </button>
             <button
               type="button"
               onClick={() => setPeriod('monthly')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${period === 'monthly' ? 'bg-background text-foreground shadow-sm font-bold' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${period === 'monthly' ? 'bg-background text-foreground shadow-sm font-bold' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Bulanan
             </button>
             <button
               type="button"
               onClick={() => setPeriod('alltime')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${period === 'alltime' ? 'bg-background text-foreground shadow-sm font-bold' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${period === 'alltime' ? 'bg-background text-foreground shadow-sm font-bold' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Sepanjang Waktu
             </button>
