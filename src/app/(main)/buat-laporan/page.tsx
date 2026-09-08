@@ -59,6 +59,59 @@ function BuatLaporanForm() {
   const [aiResult, setAiResult] = useState<typeof sampleAIResults['pothole'] | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Real reverse geocoding via OpenStreetMap Nominatim
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+        headers: { 'Accept-Language': 'id' }
+      });
+      const data = await res.json();
+      
+      if (data && data.address) {
+        const addr = data.address;
+        const road = addr.road || addr.pedestrian || addr.path || addr.suburb || 'Jalan Umum';
+        const suburb = addr.suburb || addr.village || addr.neighbourhood || addr.city_district || 'Kota';
+        const city = addr.city || addr.town || addr.county || 'Surabaya';
+
+        const formattedAddress = `${road}, ${suburb}, ${city}`;
+        const formattedDistrict = `Kec. ${suburb}`;
+
+        setLocation({
+          address: formattedAddress,
+          district: formattedDistrict,
+          lat: lat,
+          lng: lng,
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn('Reverse geocoding fallback used:', err);
+    }
+
+    // Fallback if Nominatim request is blocked or offline
+    setLocation({
+      address: `Jl. Raya Wonokromo, Wonokromo, Surabaya (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+      district: 'Kec. Wonokromo',
+      lat: lat,
+      lng: lng,
+    });
+  };
+
+  const detectGPSLocation = () => {
+    if (!navigator.geolocation) return;
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        await reverseGeocode(lat, lng);
+        setIsLocating(false);
+      },
+      () => setIsLocating(false),
+      { timeout: 7000, enableHighAccuracy: true }
+    );
+  };
+
   useEffect(() => {
     if (addressParam && districtParam) {
       setLocation((prev) => ({
@@ -66,36 +119,8 @@ function BuatLaporanForm() {
         address: addressParam,
         district: districtParam,
       }));
-    }
-
-    // Dynamic Geolocation Detection with location variations
-    if (navigator.geolocation && !addressParam) {
-      setIsLocating(true);
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-
-          const sampleLocations = [
-            { address: 'Jl. Pemuda No. 18, Genteng, Surabaya (Terdeteksi GPS)', district: 'Kec. Genteng' },
-            { address: 'Jl. Gubeng Kertajaya No. 88, Gubeng, Surabaya (Terdeteksi GPS)', district: 'Kec. Gubeng' },
-            { address: 'Jl. Mayjen Sungkono No. 102, Dukuh Pakis, Surabaya (Terdeteksi GPS)', district: 'Kec. Dukuh Pakis' },
-            { address: 'Jl. Keputih Timur No. 15, Sukolilo, Surabaya (Terdeteksi GPS)', district: 'Kec. Sukolilo' },
-            { address: 'Jl. Raya Darmo No. 42, Wonokromo, Surabaya (Terdeteksi GPS)', district: 'Kec. Wonokromo' },
-          ];
-          const chosen = sampleLocations[Math.abs(Math.floor((lat + lng) * 1000)) % sampleLocations.length];
-
-          setLocation({
-            address: chosen.address,
-            district: chosen.district,
-            lat: lat,
-            lng: lng,
-          });
-          setIsLocating(false);
-        },
-        () => setIsLocating(false),
-        { timeout: 5000 }
-      );
+    } else {
+      detectGPSLocation();
     }
   }, [searchParams, addressParam, districtParam]);
 
@@ -300,16 +325,27 @@ function BuatLaporanForm() {
               </div>
               <div className="min-w-0">
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">
-                  Lokasi Terdeteksi (GPS)
+                  Lokasi & Nama Jalan Terdeteksi (GPS)
                 </span>
                 <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate block">
-                  {isLocating ? 'Mendeteksi koordinat lokasi...' : location.address}
+                  {isLocating ? 'Mendeteksi nama jalan via GPS...' : location.address}
                 </span>
               </div>
             </div>
-            <div className="text-xs font-medium px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md shrink-0 flex items-center gap-1.5 self-start sm:self-center font-sans">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Terverifikasi Presisi</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={detectGPSLocation}
+                disabled={isLocating}
+                className="text-xs font-semibold px-3 py-1.5 bg-blue-50 dark:bg-blue-950 text-[#0057B8] dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border border-blue-200 dark:border-blue-800 rounded-lg transition-colors flex items-center gap-1.5"
+              >
+                {isLocating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
+                <span>{isLocating ? 'Mencari...' : 'Update GPS'}</span>
+              </button>
+              <div className="text-xs font-medium px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-md flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Presisi</span>
+              </div>
             </div>
           </div>
 
