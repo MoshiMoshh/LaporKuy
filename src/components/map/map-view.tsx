@@ -54,7 +54,7 @@ export function MapView({
           setUserLocation([pos.coords.latitude, pos.coords.longitude]);
         },
         (err) => {
-          console.error('Geoloc error:', err);
+          console.warn('Geoloc warning:', err.message || 'Permission denied or unavailable');
           if (err.code === 1) {
             setLocationDenied(true);
             toast.error("Akses lokasi ditolak", {
