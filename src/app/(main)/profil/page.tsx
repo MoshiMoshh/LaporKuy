@@ -54,7 +54,7 @@ export default function ProfilPage() {
   const myReports = reports.filter((r) => 
     r.userId === profile.id || 
     r.userName === profile.name || 
-    r.userName === 'Budi Santoso' || 
+    r.userId === 'usr-me' || 
     r.userId === 'usr-001' || 
     r.id.startsWith('REP-')
   );

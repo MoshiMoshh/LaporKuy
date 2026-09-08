@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
+import { createClient } from '@/lib/supabase/client';
 import { ReportCategory } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -221,6 +222,12 @@ function BuatLaporanForm() {
     setIsSubmitting(true);
 
     try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const currentUserId = user?.id || 'usr-me';
+      const currentUserName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Warga LaporKuy';
+
       const created = await addReport({
         title: `${finalCategory} di ${location.district}`,
         category: finalCategory,
@@ -232,8 +239,8 @@ function BuatLaporanForm() {
         photoUrl: photoUrl,
         description: description || 'Laporan pengaduan publik masyarakat.',
         status: 'Terverifikasi',
-        userId: 'usr-001',
-        userName: 'Budi Santoso',
+        userId: currentUserId,
+        userName: currentUserName,
         isUrgent,
         aiAuthenticityScore: 99,
         aiConfidence: 98,
