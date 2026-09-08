@@ -19,12 +19,16 @@ import {
   Target,
   ThumbsUp,
   Loader2,
-  Zap
+  MessageSquare,
+  Globe,
+  Building2,
+  LightbulbOff,
+  Trash2,
 } from 'lucide-react';
 import gsap from 'gsap';
 
 function DashboardContent() {
-  const { reports, toggleUpvote } = useLaporKuyStore();
+  const { reports } = useLaporKuyStore();
   const searchParams = useSearchParams();
   const questParam = searchParams.get('quest');
   const questTitle = searchParams.get('title');
@@ -195,8 +199,8 @@ function DashboardContent() {
                   </h3>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-xs font-bold shrink-0 px-2.5 py-1 rounded-md">
-                +10 Poin Reward
+              <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-900 text-xs font-semibold shrink-0 px-2.5 py-1 rounded-md">
+                +10 Pts Reward
               </Badge>
             </div>
 
@@ -215,20 +219,48 @@ function DashboardContent() {
         )}
 
         {/* Category Filter Horizontal Scroll */}
-        <div className="flex gap-2 px-4 py-3 border-b border-slate-100 overflow-x-auto scrollbar-none shrink-0">
-          {['Semua', 'Jalan Rusak', 'Fasilitas Umum', 'Lampu Mati', 'Sampah'].map((cat) => (
-            <Badge 
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`cursor-pointer rounded-xl px-4 py-1.5 text-[11px] font-bold transition-colors whitespace-nowrap ${
-                activeCategory === cat 
-                  ? 'bg-[#0057B8] text-white border-transparent' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-transparent'
-              }`}
-            >
-              {cat}
-            </Badge>
-          ))}
+        <div className="flex gap-3 px-4 py-3 border-b border-border/40 overflow-x-auto scrollbar-none shrink-0 bg-background/50 backdrop-blur-md sticky top-16 z-30">
+          {[
+            { id: 'Semua', label: 'Semua', icon: <Globe className="w-4 h-4" /> },
+            { id: 'Jalan Rusak', label: 'Jalan Rusak', imgSrc: '/icons/pothole.png' },
+            { id: 'Fasilitas Umum', label: 'Fasilitas Umum', icon: <Building2 className="w-4 h-4" /> },
+            { id: 'Lampu Mati', label: 'Lampu Mati', icon: <LightbulbOff className="w-4 h-4" /> },
+            { id: 'Sampah', label: 'Sampah', icon: <Trash2 className="w-4 h-4" /> },
+          ].map((cat) => {
+            const isActive = activeCategory === cat.id;
+            return (
+              <button 
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`group flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap active:scale-95 ${
+                  isActive 
+                    ? 'bg-gradient-to-b from-[#0066FF] to-[#0057B8] text-white border-x border-t border-b-2 border-[#3385FF]/50 border-b-[#003B73]/60 shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.3),0px_4px_12px_0px_rgba(0,87,184,0.4)] hover:-translate-y-0.5' 
+                    : 'bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-sm'
+                }`}
+              >
+                <div className={`flex items-center justify-center rounded-full w-6 h-6 text-sm shrink-0 transition-transform duration-300 ${
+                  isActive 
+                    ? 'bg-white/20 scale-110 text-white' 
+                    : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 shadow-sm group-hover:scale-105 group-hover:text-slate-800 dark:group-hover:text-slate-200'
+                }`}>
+                  {cat.imgSrc ? (
+                    <img 
+                      src={cat.imgSrc} 
+                      alt={cat.label} 
+                      className={`w-4 h-4 object-contain transition-all duration-300 ${
+                        isActive 
+                          ? 'brightness-0 invert opacity-100' 
+                          : 'brightness-0 dark:invert opacity-60 group-hover:opacity-100' 
+                      }`} 
+                    />
+                  ) : (
+                    cat.icon
+                  )}
+                </div>
+                {cat.label}
+              </button>
+            );
+          })}
         </div>
         
         {/* Desktop Header */}
@@ -279,22 +311,9 @@ function DashboardContent() {
                       <span>{report.address}</span>
                     </p>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleUpvote(report.id);
-                        }}
-                        className={`flex items-center gap-1 font-medium px-2 py-0.5 rounded transition-colors ${
-                          report.hasUpvoted 
-                            ? 'bg-blue-50 text-[#0057B8] font-bold dark:bg-blue-950/60 dark:text-blue-400' 
-                            : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        <ThumbsUp className={`h-3.5 w-3.5 ${report.hasUpvoted ? 'fill-current text-[#0057B8]' : 'text-slate-400'}`} /> 
-                        <span>{report.upvotes} Dukungan</span>
-                      </button>
+                      <span className="text-slate-500 flex items-center gap-1 font-medium">
+                        <ThumbsUp className="h-3.5 w-3.5 text-blue-500" /> {report.upvotes} Dukungan
+                      </span>
                       <span className={`font-semibold px-2 py-0.5 rounded text-[10px] ${
                         report.status === 'Selesai' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                       }`}>
