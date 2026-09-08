@@ -19,7 +19,13 @@ import {
   X,
   CheckCircle2,
   Target,
-  Award
+  Award,
+  Construction,
+  LightbulbOff,
+  Trash2,
+  Waves,
+  Footprints,
+  Building2
 } from 'lucide-react';
 
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string }> = {
@@ -437,12 +443,12 @@ function BuatLaporanForm() {
             </label>
             <div className="flex flex-wrap gap-2">
               {[
-                { id: 'Jalan Rusak', label: '🛣️ Jalan Rusak' },
-                { id: 'Lampu Mati', label: '💡 Lampu Mati' },
-                { id: 'Sampah', label: '🗑️ Sampah' },
-                { id: 'Banjir', label: '🌊 Banjir' },
-                { id: 'Trotoar Rusak', label: '🚶 Trotoar Rusak' },
-                { id: 'Fasilitas Umum', label: '🏛️ Fasilitas Umum' },
+                { id: 'Jalan Rusak', label: 'Jalan Rusak', icon: <Construction className="w-4 h-4 shrink-0" /> },
+                { id: 'Lampu Mati', label: 'Lampu Mati', icon: <LightbulbOff className="w-4 h-4 shrink-0" /> },
+                { id: 'Sampah', label: 'Sampah', icon: <Trash2 className="w-4 h-4 shrink-0" /> },
+                { id: 'Banjir', label: 'Banjir', icon: <Waves className="w-4 h-4 shrink-0" /> },
+                { id: 'Trotoar Rusak', label: 'Trotoar Rusak', icon: <Footprints className="w-4 h-4 shrink-0" /> },
+                { id: 'Fasilitas Umum', label: 'Fasilitas Umum', icon: <Building2 className="w-4 h-4 shrink-0" /> },
               ].map((cat) => {
                 const isSelected = selectedCategory === cat.id;
                 return (
@@ -450,13 +456,14 @@ function BuatLaporanForm() {
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategory(cat.id as ReportCategory)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95 ${
                       isSelected
                         ? 'bg-[#0057B8] text-white border-[#0057B8] shadow-sm'
                         : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    {cat.label}
+                    {cat.icon}
+                    <span>{cat.label}</span>
                   </button>
                 );
               })}
