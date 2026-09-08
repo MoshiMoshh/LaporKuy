@@ -11,7 +11,20 @@ const supabase = createClient();
 // No mock user anymore, using Supabase Auth
 
 export function useLaporKuyStore() {
-  const [reports, setReports] = useState<Report[]>(initialReports);
+  const [reports, setReports] = useState<Report[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('laporkuy_local_reports');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+    }
+    return initialReports;
+  });
   const [profile, setProfile] = useState<UserProfile>(mockUserProfile);
   const [quests, setQuests] = useState<Quest[]>(mockQuests);
   const [rewards, setRewards] = useState<Reward[]>(mockRewards);
@@ -44,7 +57,7 @@ export function useLaporKuyStore() {
         ]);
 
         if (reportsData && reportsData.length > 0) {
-          setReports(reportsData.map((r: any) => ({
+          const mappedRemote = reportsData.map((r: any) => ({
             ...r,
             photoUrl: r.photo_url,
             afterPhotoUrl: r.after_photo_url,
@@ -64,7 +77,19 @@ export function useLaporKuyStore() {
                createdAt: c.created_at,
                isOfficial: c.is_official
             }))
-          })));
+          }));
+
+          setReports(prev => {
+            const remoteIds = new Set(mappedRemote.map((r: any) => r.id));
+            const localOnly = prev.filter(r => !remoteIds.has(r.id));
+            const merged = [...localOnly, ...mappedRemote];
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem('laporkuy_local_reports', JSON.stringify(merged.slice(0, 50)));
+              } catch (e) {}
+            }
+            return merged;
+          });
         }
 
         if (questsData && questsData.length > 0) {
@@ -272,7 +297,15 @@ export function useLaporKuyStore() {
       assignedDinas: newReportData.assignedDinas || 'Dinas Bina Marga & Sumber Daya Air'
     };
 
-    setReports(prev => [newReport, ...prev]);
+    setReports(prev => {
+      const updated = [newReport, ...prev.filter(r => r.id !== newReport.id)];
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
+        } catch (e) {}
+      }
+      return updated;
+    });
 
     await supabase.from('reports').insert({
       id: newReport.id,

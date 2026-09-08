@@ -32,7 +32,23 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
   const resolvedParams = use(params);
   const { reports, toggleUpvote, addComment } = useLaporKuyStore();
 
-  const report = reports.find((r) => r.id === resolvedParams.id) || reports[0];
+  let report = reports.find((r) => r.id === resolvedParams.id);
+
+  if (!report && typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('laporkuy_local_reports');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          report = parsed.find((r: any) => r.id === resolvedParams.id);
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!report && reports.length > 0) {
+    report = reports[0];
+  }
   const [commentInput, setCommentInput] = useState('');
   const [isFollowing, setIsFollowing] = useState(report?.hasFollowed || false);
 
