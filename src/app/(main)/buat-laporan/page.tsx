@@ -315,11 +315,8 @@ function BuatLaporanForm() {
 
           {/* PHOTO UPLOAD SECTION */}
           <div className="space-y-3">
-            <label className="block text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
-              <span>Bukti Foto Kerusakan <span className="text-red-600">*</span></span>
-              <span className="text-xs text-blue-600 font-medium flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Auto EXIF & AI Vision Audit
-              </span>
+            <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
+              Bukti Foto Kerusakan <span className="text-red-600">*</span>
             </label>
 
             {!photoUrl ? (
@@ -344,7 +341,7 @@ function BuatLaporanForm() {
                   <Camera className="h-8 w-8 text-slate-400 group-hover:text-[#0057B8] mb-3 transition-colors" />
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#0057B8]">Gunakan Kamera</span>
                   <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">
-                    Ambil gambar langsung (Auto-Geotag)
+                    Ambil gambar langsung dari HP
                   </span>
                 </label>
 
@@ -372,44 +369,8 @@ function BuatLaporanForm() {
                 </label>
               </div>
             ) : (
-              <div className="relative rounded-2xl overflow-hidden border-2 border-[#0057B8]/40 shadow-lg group bg-slate-950">
-                <img src={photoUrl} alt="Preview Bukti Foto" className="h-72 w-full object-cover opacity-90" />
-                
-                {/* AI Vision Laser & Bounding Box HUD Overlay */}
-                {aiResult && (
-                  <div className="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
-                    {/* Top HUD bar */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="bg-slate-950/80 backdrop-blur-md border border-emerald-500/50 text-emerald-400 font-mono text-[11px] px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-md">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        AI VISION DETECTED • CONFIDENCE {(aiResult.confidence || 98.4)}%
-                      </div>
-                      {exifInfo && (
-                        <div className="bg-slate-950/80 backdrop-blur-md border border-blue-500/50 text-blue-300 font-mono text-[10px] px-2.5 py-1 rounded-lg hidden sm:block">
-                          GPS: {exifInfo.lat.toFixed(4)}, {exifInfo.lng.toFixed(4)} (EXIF VERIFIED 100%)
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bounding Box Visual Frame */}
-                    <div className="mx-auto my-auto w-[65%] h-[55%] border-2 border-dashed border-emerald-400/90 rounded-xl relative shadow-[0_0_20px_rgba(52,211,153,0.3)] bg-emerald-500/10 flex items-start p-2">
-                      <span className="bg-emerald-500 text-slate-950 text-[10px] font-black uppercase px-2 py-0.5 rounded tracking-wide shadow-sm">
-                        {(aiResult as any).category} [{(aiResult as any).severity}/10 HAZARD]
-                      </span>
-                      <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-emerald-300"></div>
-                      <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-emerald-300"></div>
-                      <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-emerald-300"></div>
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-emerald-300"></div>
-                    </div>
-
-                    {/* Bottom EXIF timestamp bar */}
-                    <div className="bg-slate-950/85 backdrop-blur-md border border-white/20 text-slate-200 font-mono text-[10px] px-3 py-1.5 rounded-lg flex items-center justify-between">
-                      <span>📍 TERDETEKSI: {location.address}</span>
-                      <span>100% TERVERIFIKASI SENSOR</span>
-                    </div>
-                  </div>
-                )}
-
+              <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900">
+                <img src={photoUrl} alt="Preview Bukti Foto" className="h-64 w-full object-cover" />
                 <button
                   type="button"
                   onClick={() => {
@@ -417,102 +378,55 @@ function BuatLaporanForm() {
                     setAiResult(null);
                     setDuplicateMatch(null);
                   }}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-900/90 text-white hover:bg-red-600 transition-colors backdrop-blur-md shadow-md z-20"
+                  className="absolute top-3 right-3 p-2 rounded-lg bg-slate-900/75 text-white hover:bg-slate-900 transition-colors backdrop-blur-md"
                   aria-label="Hapus Foto"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             )}
           </div>
 
-          {/* DUPLICATE CHECK & AI ANALYSIS PROGRESS */}
-          {isCheckingDuplicates && (
-            <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/60 dark:bg-blue-950/60 dark:border-blue-900 flex items-center gap-3">
-              <Loader2 className="h-5 w-5 text-[#0057B8] dark:text-blue-400 animate-spin shrink-0" />
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {aiScanStep || 'Memverifikasi metadata & lokasi foto...'}
+          {/* LOADING STATE */}
+          {(isCheckingDuplicates || isClassifying) && (
+            <div className="p-4 rounded-xl border border-blue-100 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/40 flex items-center gap-3">
+              <Loader2 className="h-5 w-5 text-[#0057B8] animate-spin shrink-0" />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Menganalisis foto dan lokasi aduan...
               </span>
             </div>
           )}
 
-          {isClassifying && (
-            <div className="p-4 rounded-xl border border-cyan-200 bg-cyan-50/60 dark:bg-cyan-950/60 dark:border-cyan-900 flex items-center gap-3">
-              <Loader2 className="h-5 w-5 text-cyan-700 dark:text-cyan-400 animate-spin shrink-0" />
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {aiScanStep || 'AI Vision sedang menganalisis foto dan mengklasifikasi kategori...'}
-              </span>
-            </div>
-          )}
-
-          {/* AI RESULT & COMPETITION VERIFICATION CERTIFICATE */}
-          {photoUrl && aiResult && !isClassifying && (
-            <div className="p-5 rounded-2xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 via-white to-blue-50/50 dark:from-emerald-950/30 dark:via-slate-900 dark:to-blue-950/30 shadow-md space-y-4">
-              <div className="flex items-center justify-between border-b border-emerald-200 dark:border-emerald-900/50 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                      Sertifikat Verifikasi AI Vision 100% Presisi
-                    </h4>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                      Status: Terautentikasi Bebas Rekayasa / Deepfake
-                    </span>
-                  </div>
-                </div>
-                <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1 rounded-full shadow-xs">
-                  Autentisitas {(aiResult as any).authenticity || 99.6}%
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="bg-white/80 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
-                  <span className="text-slate-500 dark:text-slate-400 font-medium block mb-1">Kategori Terdeteksi:</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-1">
-                    🎯 {(aiResult as any).category}
-                  </span>
-                </div>
-                <div className="bg-white/80 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
-                  <span className="text-slate-500 dark:text-slate-400 font-medium block mb-1">Skor Keparahan Bahaya:</span>
-                  <span className="font-bold text-rose-600 dark:text-rose-400 text-sm flex items-center gap-1">
-                    ⚠️ Tingkat {(aiResult as any).severity} / 10
-                  </span>
-                </div>
-                <div className="bg-white/80 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
-                  <span className="text-slate-500 dark:text-slate-400 font-medium block mb-1">Routing Otomatis Dinas:</span>
-                  <span className="font-bold text-[#0057B8] dark:text-blue-400 text-xs flex items-center gap-1">
-                    🏛️ {(aiResult as any).assignedDinas || 'Dinas Bina Marga'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Detected Feature Tags */}
-              {(aiResult as any).detectedElements && (
-                <div className="pt-1">
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1.5">
-                    Elemen Kerusakan Teridentifikasi AI:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {((aiResult as any).detectedElements as string[]).map((elem, i) => (
-                      <span key={i} className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-md text-[11px] font-semibold border border-emerald-200 dark:border-emerald-800">
-                        • {elem}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Technical Recommendation */}
-              <div className="bg-blue-50/80 dark:bg-blue-950/40 p-3 rounded-xl border border-blue-200 dark:border-blue-900 text-xs space-y-1">
-                <span className="font-bold text-[#0057B8] dark:text-blue-300 flex items-center gap-1">
-                  💡 Panduan Rekomendasi URC Teknolog:
+          {/* CLEAN AI ANALYSIS SUMMARY */}
+          {photoUrl && aiResult && !isClassifying && !isCheckingDuplicates && (
+            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/80 pb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Analisis Otomatis Sistem
                 </span>
-                <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
-                  {(aiResult as any).recommendation}
-                </p>
+                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-900">
+                  Terverifikasi
+                </span>
               </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block mb-0.5">Kategori:</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">{(aiResult as any).category}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block mb-0.5">Tingkat Keparahan:</span>
+                  <span className="font-bold text-amber-600 dark:text-amber-400 text-sm">{(aiResult as any).severity} / 10</span>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <span className="text-slate-500 dark:text-slate-400 block mb-0.5">Dinas Terkait:</span>
+                  <span className="font-bold text-[#0057B8] dark:text-blue-400 text-xs">{(aiResult as any).assignedDinas || 'Dinas Bina Marga'}</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-700/80 pt-2 font-medium">
+                💡 {(aiResult as any).recommendation}
+              </p>
             </div>
           )}
 
