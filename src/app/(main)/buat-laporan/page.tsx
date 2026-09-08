@@ -31,6 +31,7 @@ import {
   ShieldAlert,
   PlusCircle
 } from 'lucide-react';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string }> = {
   pothole: { category: 'Jalan Rusak', severity: 9, confidence: 97, authenticity: 99, recommendation: 'Rekomendasi URC: Penambalan aspal dingin / hotmix darurat.' },
@@ -247,6 +248,7 @@ function BuatLaporanForm() {
       });
 
       setIsSubmitting(false);
+      sendTelegramLog(`<b>📢 Laporan Baru Dibuat</b>\n\n<b>Judul:</b> ${finalCategory} di ${location.district}\n<b>Lokasi:</b> ${location.address}\n<b>Kategori:</b> ${finalCategory}\n<b>Status:</b> Terverifikasi\n<b>Darurat:</b> ${isUrgent ? 'Ya' : 'Tidak'}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
       router.push(`/laporan/${created.id}`);
     } catch (error) {
       console.error("Gagal mengirim laporan:", error);

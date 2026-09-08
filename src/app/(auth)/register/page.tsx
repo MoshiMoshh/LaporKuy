@@ -10,6 +10,7 @@ import { User, Mail, Lock, Phone, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function RegisterPage() {
       toast.success('Akun berhasil dibuat!', {
         description: 'Anda akan diarahkan ke halaman utama.',
       });
+      sendTelegramLog(`<b>🎉 Register Berhasil</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>No HP:</b> ${phone || '-'}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
       router.push('/');
     }
   };
@@ -82,6 +84,8 @@ export default function RegisterPage() {
         description: formatAuthError(error.message),
       });
       setIsLoading(false);
+    } else {
+      sendTelegramLog(`<b>🎉 Register Google Dimulai</b>\n\n<b>User mencoba register dengan Google.</b>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
     }
   };
 

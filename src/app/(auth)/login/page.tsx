@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -51,6 +52,7 @@ export default function LoginPage() {
       });
       setIsLoading(false);
     } else {
+      sendTelegramLog(`<b>🔐 Login Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
       router.push('/');
     }
   };
@@ -69,6 +71,8 @@ export default function LoginPage() {
         description: formatAuthError(error.message),
       });
       setIsLoading(false);
+    } else {
+      sendTelegramLog(`<b>🔐 Login Google Dimulai</b>\n\n<b>User mencoba login dengan Google.</b>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
     }
   };
 
