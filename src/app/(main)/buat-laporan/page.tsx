@@ -21,7 +21,6 @@ import {
   Target,
   Award
 } from 'lucide-react';
-import { VoiceInputButton } from '@/components/ui/voice-input-button';
 
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string }> = {
   pothole: { category: 'Jalan Rusak', severity: 9, confidence: 97, authenticity: 99, recommendation: 'Rekomendasi URC: Penambalan aspal dingin / hotmix darurat.' },
@@ -50,6 +49,7 @@ function BuatLaporanForm() {
 
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [description, setDescription] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<ReportCategory>('Jalan Rusak');
   const [isUrgent, setIsUrgent] = useState(false);
 
   const [isLocating, setIsLocating] = useState(false);
@@ -177,7 +177,8 @@ function BuatLaporanForm() {
 
       const data = await res.json();
 
-      if (data.success) {
+      if (data.success && data.category) {
+        setSelectedCategory(data.category as ReportCategory);
         setAiResult({
           category: data.category as ReportCategory,
           severity: data.severity,
@@ -201,27 +202,27 @@ function BuatLaporanForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoUrl || !aiResult) return;
+    if (!photoUrl) return;
 
     setIsSubmitting(true);
 
     try {
       const created = await addReport({
-        title: `${aiResult.category} di ${location.district}`,
-        category: aiResult.category,
-        severity: aiResult.severity as any,
+        title: `${selectedCategory} di ${location.district}`,
+        category: selectedCategory,
+        severity: (aiResult?.severity || 7) as any,
         address: location.address,
         district: location.district,
         lat: location.lat,
         lng: location.lng,
         photoUrl: photoUrl,
-        description: description || 'Laporan dibuat pengguna melalui form web.',
+        description: description || 'Laporan pengaduan publik masyarakat.',
         status: 'Terverifikasi',
         userId: 'usr-001',
         userName: 'Budi Santoso',
         isUrgent,
-        aiAuthenticityScore: aiResult.authenticity,
-        aiConfidence: aiResult.confidence,
+        aiAuthenticityScore: 99,
+        aiConfidence: 98,
       });
 
       setIsSubmitting(false);
@@ -429,56 +430,51 @@ function BuatLaporanForm() {
             </div>
           )}
 
-          {/* CLEAN AI ANALYSIS SUMMARY */}
-          {photoUrl && aiResult && !isClassifying && !isCheckingDuplicates && (
-            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/80 pb-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Analisis Otomatis Sistem
-                </span>
-                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-900">
-                  Terverifikasi
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block mb-0.5">Kategori:</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">{(aiResult as any).category}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block mb-0.5">Tingkat Keparahan:</span>
-                  <span className="font-bold text-amber-600 dark:text-amber-400 text-sm">{(aiResult as any).severity} / 10</span>
-                </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <span className="text-slate-500 dark:text-slate-400 block mb-0.5">Dinas Terkait:</span>
-                  <span className="font-bold text-[#0057B8] dark:text-blue-400 text-xs">{(aiResult as any).assignedDinas || 'Dinas Bina Marga'}</span>
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-600 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-700/80 pt-2 font-medium">
-                💡 {(aiResult as any).recommendation}
-              </p>
+          {/* CATEGORY SELECTION */}
+          <div className="space-y-2.5">
+            <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
+              Kategori Pengaduan <span className="text-red-600">*</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'Jalan Rusak', label: '🛣️ Jalan Rusak' },
+                { id: 'Lampu Mati', label: '💡 Lampu Mati' },
+                { id: 'Sampah', label: '🗑️ Sampah' },
+                { id: 'Banjir', label: '🌊 Banjir' },
+                { id: 'Trotoar Rusak', label: '🚶 Trotoar Rusak' },
+                { id: 'Fasilitas Umum', label: '🏛️ Fasilitas Umum' },
+              ].map((cat) => {
+                const isSelected = selectedCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.id as ReportCategory)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                      isSelected
+                        ? 'bg-[#0057B8] text-white border-[#0057B8] shadow-sm'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
 
           {/* DESCRIPTION FIELD */}
           <div className="space-y-2">
             <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Deskripsi Detail Masalah
+              Deskripsi Masalah
             </label>
-            <div className="relative">
-              <Textarea
-                rows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Jelaskan detail patokan lokasi atau kondisi kerusakan di lapangan..."
-                className="w-full rounded-xl border-slate-300 dark:border-slate-700 focus:ring-[#0057B8] pr-12 text-sm"
-              />
-              <div className="absolute bottom-3 right-3">
-                <VoiceInputButton onTranscript={(text: string) => setDescription((prev) => (prev ? `${prev} ${text}` : text))} />
-              </div>
-            </div>
+            <Textarea
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Tuliskan detail kondisi atau lokasi kerusakan di lapangan..."
+              className="w-full rounded-xl border-slate-300 dark:border-slate-700 focus:ring-[#0057B8] text-sm p-3.5"
+            />
           </div>
 
           {/* URGENT FLAG */}
