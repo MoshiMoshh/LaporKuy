@@ -65,7 +65,7 @@ export default function RegisterPage() {
       toast.success('Akun berhasil dibuat!', {
         description: 'Anda akan diarahkan ke halaman utama.',
       });
-      sendTelegramLog(`<b>🎉 Register Berhasil</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>No HP:</b> ${phone || '-'}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
+      await sendTelegramLog(`<b>🎉 Register Berhasil</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>No HP:</b> ${phone || '-'}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
       router.push('/');
     }
   };
@@ -85,7 +85,7 @@ export default function RegisterPage() {
       });
       setIsLoading(false);
     } else {
-      sendTelegramLog(`<b>🎉 Register Google Dimulai</b>\n\n<b>User mencoba register dengan Google.</b>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
+      await sendTelegramLog(`<b>🎉 Register Google Dimulai</b>\n\n<b>User mencoba register dengan Google.</b>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
     }
   };
 
