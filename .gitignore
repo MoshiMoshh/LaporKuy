@@ -50,3 +50,6 @@ AGENTS.md
 CLAUDE.md
 skills-lock.json
 session-*.md
+
+# Supabase
+supabase/.temp/
