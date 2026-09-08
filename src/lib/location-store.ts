@@ -13,9 +13,9 @@ export interface UserLocationState {
 }
 
 const DEFAULT_LOCATION: UserLocationState = {
-  city: 'Surabaya',
-  province: 'Jawa Timur',
-  fullLocation: 'Surabaya, Jawa Timur',
+  city: '',
+  province: '',
+  fullLocation: '',
   lat: -7.2575,
   lng: 112.7521,
   isGranted: false,
@@ -78,9 +78,9 @@ export async function requestUserLocation() {
       }
 
       globalLocation = {
-        city: 'Surabaya',
-        province: 'Jawa Timur',
-        fullLocation: 'Surabaya, Jawa Timur',
+        city: '',
+        province: '',
+        fullLocation: 'Lokasi tidak diketahui',
         lat,
         lng,
         isGranted: true,

@@ -180,7 +180,7 @@ export default function ProfilPage() {
           <div className="flex items-center justify-center gap-3 mb-4 text-xs text-muted-foreground font-medium flex-wrap">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span>{userLoc.fullLocation || 'Surabaya, Jawa Timur'}</span>
+              <span>{userLoc.isLoading ? 'Mendeteksi lokasi...' : (userLoc.fullLocation || 'Lokasi tidak diketahui')}</span>
             </span>
             <span>•</span>
             <div className="flex items-center gap-1">

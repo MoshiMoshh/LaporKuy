@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const defaultApiKey = process.env.GEMINI_API_KEY || 'AIzaSyBKjW37QoGztY0Cs0ZDvR9oZ9XQqPyuTng';
+const defaultApiKey = '';
 
 export async function POST(req: Request) {
   try {
     const { imageBase64, filename, location } = await req.json();
 
     const apiKey = process.env.GEMINI_API_KEY || defaultApiKey;
-    const hasValidKey = apiKey && apiKey !== 'AIzaSyBKjW37QoGztY0Cs0ZDvR9oZ9XQqPyuTng';
+    const hasValidKey = Boolean(apiKey);
 
     // 1. Try Gemini Vision Model if API Key is set
     if (hasValidKey && imageBase64 && imageBase64.includes('base64,')) {
