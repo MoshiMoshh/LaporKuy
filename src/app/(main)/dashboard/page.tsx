@@ -140,15 +140,15 @@ function DashboardContent() {
       </div>
 
       {/* MOBILE FLOATING HEADER */}
-      <div className="md:hidden absolute top-4 inset-x-4 z-10 pointer-events-none">
-        <div className="flex gap-2 pointer-events-auto">
+      <div className="md:hidden absolute top-4 inset-x-4 z-30 pointer-events-auto">
+        <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
               placeholder="Cari aduan atau lokasi..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10 w-full rounded-xl border border-slate-200 bg-white text-xs font-medium focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md"
+              className="pl-10 h-10 w-full rounded-xl border border-slate-200 bg-white text-base sm:text-xs font-medium focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md"
             />
           </div>
           <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md">
