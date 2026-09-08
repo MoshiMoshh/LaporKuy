@@ -189,10 +189,6 @@ function BuatLaporanForm() {
           suggestedTitle: data.suggestedTitle,
           boundingBox: data.boundingBox,
         } as any);
-
-        if (data.suggestedTitle && !description) {
-          setDescription(`[Terdeteksi AI] ${data.suggestedTitle} di area ${location.district}. Potensi bahaya tingkat ${data.severity}/10.`);
-        }
       } else {
         setAiResult(sampleAIResults.pothole as any);
       }
