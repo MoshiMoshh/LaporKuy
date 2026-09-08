@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
 import { ReportCategory } from '@/types';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +26,9 @@ import {
   Trash2,
   Waves,
   Footprints,
-  Building2
+  Building2,
+  ShieldAlert,
+  PlusCircle
 } from 'lucide-react';
 
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string }> = {
@@ -56,6 +59,7 @@ function BuatLaporanForm() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ReportCategory>('Jalan Rusak');
+  const [customCategory, setCustomCategory] = useState<string>('');
   const [isUrgent, setIsUrgent] = useState(false);
 
   const [isLocating, setIsLocating] = useState(false);
@@ -210,12 +214,16 @@ function BuatLaporanForm() {
     e.preventDefault();
     if (!photoUrl) return;
 
+    const finalCategory = (selectedCategory === 'Lainnya' && customCategory.trim()) 
+      ? customCategory.trim() 
+      : selectedCategory;
+
     setIsSubmitting(true);
 
     try {
       const created = await addReport({
-        title: `${selectedCategory} di ${location.district}`,
-        category: selectedCategory,
+        title: `${finalCategory} di ${location.district}`,
+        category: finalCategory,
         severity: (aiResult?.severity || 7) as any,
         address: location.address,
         district: location.district,
@@ -437,18 +445,25 @@ function BuatLaporanForm() {
           )}
 
           {/* CATEGORY SELECTION */}
-          <div className="space-y-2.5">
-            <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Kategori Pengaduan <span className="text-red-600">*</span>
-            </label>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">
+                Kategori Pengaduan <span className="text-red-600">*</span>
+              </label>
+              <span className="text-[11px] text-slate-500 font-medium">
+                Pilih kategori atau ketik bebas di &quot;Lainnya&quot;
+              </span>
+            </div>
             <div className="flex flex-wrap gap-2">
               {[
                 { id: 'Jalan Rusak', label: 'Jalan Rusak', icon: <Construction className="w-4 h-4 shrink-0" /> },
                 { id: 'Lampu Mati', label: 'Lampu Mati', icon: <LightbulbOff className="w-4 h-4 shrink-0" /> },
-                { id: 'Sampah', label: 'Sampah', icon: <Trash2 className="w-4 h-4 shrink-0" /> },
-                { id: 'Banjir', label: 'Banjir', icon: <Waves className="w-4 h-4 shrink-0" /> },
-                { id: 'Trotoar Rusak', label: 'Trotoar Rusak', icon: <Footprints className="w-4 h-4 shrink-0" /> },
-                { id: 'Fasilitas Umum', label: 'Fasilitas Umum', icon: <Building2 className="w-4 h-4 shrink-0" /> },
+                { id: 'Sampah', label: 'Sampah & Kebersihan', icon: <Trash2 className="w-4 h-4 shrink-0" /> },
+                { id: 'Banjir', label: 'Banjir & Saluran', icon: <Waves className="w-4 h-4 shrink-0" /> },
+                { id: 'Trotoar Rusak', label: 'Trotoar & Pedestrian', icon: <Footprints className="w-4 h-4 shrink-0" /> },
+                { id: 'Lalu Lintas', label: 'Lalu Lintas & Rambu', icon: <ShieldAlert className="w-4 h-4 shrink-0" /> },
+                { id: 'Fasilitas Umum', label: 'Fasilitas Publik', icon: <Building2 className="w-4 h-4 shrink-0" /> },
+                { id: 'Lainnya', label: 'Lainnya (Bebas)', icon: <PlusCircle className="w-4 h-4 shrink-0" /> },
               ].map((cat) => {
                 const isSelected = selectedCategory === cat.id;
                 return (
@@ -468,6 +483,19 @@ function BuatLaporanForm() {
                 );
               })}
             </div>
+
+            {/* CUSTOM CATEGORY INPUT (IF LAINNYA SELECTED) */}
+            {selectedCategory === 'Lainnya' && (
+              <div className="pt-2 animate-in fade-in duration-200">
+                <Input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Ketikkan nama kategori spesifik (contoh: Jembatan Rusak, Pohon Tumbang, Pungli, Kabel Melambai, dll)..."
+                  className="w-full rounded-xl border-slate-300 dark:border-slate-700 focus:ring-[#0057B8] text-xs h-10 px-3.5"
+                />
+              </div>
+            )}
           </div>
 
           {/* DESCRIPTION FIELD */}

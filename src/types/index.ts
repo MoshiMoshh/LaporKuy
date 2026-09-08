@@ -1,6 +1,6 @@
 export type ReportStatus = 'Pending' | 'Terverifikasi' | 'Diproses' | 'Selesai' | 'Ditolak';
 
-export type ReportCategory = 'Jalan Rusak' | 'Lampu Mati' | 'Sampah' | 'Banjir' | 'Trotoar Rusak' | 'Fasilitas Umum';
+export type ReportCategory = 'Jalan Rusak' | 'Lampu Mati' | 'Sampah' | 'Banjir' | 'Trotoar Rusak' | 'Fasilitas Umum' | 'Lalu Lintas' | 'Lainnya' | (string & {});
 
 export type SeverityLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
