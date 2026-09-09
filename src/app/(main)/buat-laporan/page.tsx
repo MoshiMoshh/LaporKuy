@@ -134,7 +134,7 @@ function BuatLaporanForm() {
       }
     } catch (err) {
       console.error('Geocoding error:', err);
-      toast.error('Gagal melacak lokasi otomatis. Silakan tulis alamat secara manual.');
+      toast.error('Gagal mendapatkan nama jalan. Pastikan internet stabil dan coba update GPS lagi.');
       setLocation({
         address: '',
         district: '',
@@ -154,11 +154,12 @@ function BuatLaporanForm() {
         await reverseGeocode(lat, lng);
         setIsLocating(false);
       },
-      () => {
+      (error) => {
         setIsLocating(false);
-        setLocation((prev) => ({ ...prev, address: 'Lokasi tidak diizinkan / gagal dideteksi', district: 'Akses GPS Ditolak' }));
+        toast.error('Akses lokasi WAJIB diizinkan. Silakan izinkan akses GPS di pengaturan browser/HP Anda.');
+        setLocation((prev) => ({ ...prev, address: 'Akses GPS Ditolak', district: '' }));
       },
-      { timeout: 7000, enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
@@ -185,7 +186,12 @@ function BuatLaporanForm() {
   const [aiScanStep, setAiScanStep] = useState<string>('');
   const [aiProgress, setAiProgress] = useState(0);
 
-  const handlePhotoSelected = (imgUrl: string, fileObj?: File) => {
+  useEffect(() => {
+    // Automatically trigger GPS on mount
+    detectGPSLocation();
+  }, []);
+
+  const handlePhotoSelected = async (imgUrl: string, fileObj?: File) => {
     setPhotoUrl(imgUrl);
     setPhotoError(null);
     setDuplicateMatch(null);
@@ -418,7 +424,7 @@ function BuatLaporanForm() {
                   Lokasi & Nama Jalan Terdeteksi (GPS)
                 </span>
                 <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate block">
-                  {isLocating ? 'Mendeteksi lokasi...' : (location.address || 'Menunggu Izin Lokasi...')}
+                  {isLocating ? 'Mendeteksi lokasi...' : (location.address || 'GPS Wajib Diaktifkan')}
                 </span>
               </div>
             </div>
@@ -612,7 +618,7 @@ function BuatLaporanForm() {
           {/* SUBMIT BUTTON */}
           <Button
             onClick={handleSubmit}
-            disabled={!photoUrl || isSubmitting || isCheckingDuplicates || isClassifying}
+            disabled={!photoUrl || isSubmitting || isCheckingDuplicates || isClassifying || (location.lat === 0 && location.lng === 0)}
             className="w-full h-12 text-base font-bold bg-[#0057B8] hover:bg-[#004494] text-white shadow-md rounded-xl"
           >
             {isSubmitting ? (
