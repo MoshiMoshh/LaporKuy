@@ -73,62 +73,19 @@ Jawab HANYA dalam format JSON valid tanpa markdown/backticks:
           assignedDinas: parsed.assignedDinas || 'Dinas Bina Marga & Sumber Daya Air',
           recommendation: parsed.recommendation || 'Pemeriksaan lokasi dan penanganan oleh petugas dinas.',
         });
-      } catch (err) {
-        console.warn('Gemini vision API error, switching to smart pattern analyzer:', err);
+      } catch (err: any) {
+        console.error('Gemini vision API error:', err);
+        return Response.json(
+          { success: false, error: err.message || 'Gagal memproses gambar dengan AI' },
+          { status: 500 }
+        );
       }
+    } else {
+      return Response.json(
+        { success: false, error: 'Tidak ada API Key atau input gambar tidak valid' },
+        { status: 400 }
+      );
     }
-
-    // 2. Smart Visual Pattern Fallback Analyzer
-    let isValid = true;
-    let invalidReason = null;
-    let category = 'Jalan Rusak';
-    let severity = 7;
-    let assignedDinas = 'Dinas Bina Marga & Sumber Daya Air';
-    let recommendation = 'Penambalan aspal darurat dan perbaikan struktur perkerasan jalan.';
-
-    const lowerStr = `${filename || ''} ${imageBase64 || ''}`.toLowerCase();
-
-    if (lowerStr.includes('lamp') || lowerStr.includes('light') || lowerStr.includes('pju')) {
-      category = 'Lampu Mati';
-      severity = 6;
-      assignedDinas = 'Dinas Perhubungan & Energi';
-      recommendation = 'Penggantian unit bohlam LED PJU 150W & pengecekan sekring gardu.';
-    } else if (lowerStr.includes('trash') || lowerStr.includes('sampah') || lowerStr.includes('limbah')) {
-      category = 'Sampah';
-      severity = 8;
-      assignedDinas = 'Dinas Lingkungan Hidup (DLH)';
-      recommendation = 'Pengangkutan armada truk sampah DLH & pembersihan area.';
-    } else if (lowerStr.includes('flood') || lowerStr.includes('banjir') || lowerStr.includes('genangan')) {
-      category = 'Banjir';
-      severity = 9;
-      assignedDinas = 'Dinas Pekerjaan Umum & Penanggulangan Bencana';
-      recommendation = 'Mobilisasi pompa penyedot air URC & pengerukan saluran air.';
-    } else if (lowerStr.includes('trotoar') || lowerStr.includes('pedestrian') || lowerStr.includes('walkway')) {
-      category = 'Trotoar Rusak';
-      severity = 6;
-      assignedDinas = 'Dinas Bina Marga';
-      recommendation = 'Perbaikan ubin guiding block & penataan kerb pejalan kaki.';
-    } else if (lowerStr.includes('person') || lowerStr.includes('selfie') || lowerStr.includes('orang') || lowerStr.includes('face') || lowerStr.includes('kucing') || lowerStr.includes('meme')) {
-      isValid = false;
-      invalidReason = 'Sistem AI mendeteksi foto ini tidak menunjukkan fasilitas publik atau kerusakan yang valid. Harap unggah foto bukti kondisi di lapangan yang sesungguhnya.';
-      category = 'Fasilitas Umum';
-      severity = 0;
-    } else if (lowerStr.includes('rusak1') || lowerStr.includes('rusak2') || lowerStr.includes('rusak3') || lowerStr.includes('pothole') || lowerStr.includes('hole') || lowerStr.includes('lubang') || lowerStr.includes('aspal')) {
-      category = 'Jalan Rusak';
-      severity = 8;
-      assignedDinas = 'Dinas Bina Marga & Sumber Daya Air';
-      recommendation = 'Penambalan aspal hotmix darurat dan perataan permukaan jalan.';
-    }
-
-    return Response.json({
-      success: true,
-      isValid,
-      invalidReason,
-      category,
-      severity,
-      assignedDinas,
-      recommendation,
-    });
 
   } catch (error: any) {
     return Response.json(

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
 import { ReportCategory } from '@/types';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -132,16 +133,15 @@ function BuatLaporanForm() {
         return;
       }
     } catch (err) {
-      console.warn('Reverse geocoding fallback used:', err);
+      console.error('Geocoding error:', err);
+      toast.error('Gagal melacak lokasi otomatis. Silakan tulis alamat secara manual.');
+      setLocation({
+        address: '',
+        district: '',
+        lat: lat,
+        lng: lng,
+      });
     }
-
-    // Fallback if Nominatim request is blocked or offline
-    setLocation({
-      address: `Lokasi tidak diketahui (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
-      district: 'Kec. Tidak Diketahui',
-      lat: lat,
-      lng: lng,
-    });
   };
 
   const detectGPSLocation = () => {
@@ -274,10 +274,12 @@ function BuatLaporanForm() {
           assignedDinas: data.assignedDinas,
         } as any);
       } else {
-        setAiResult(sampleAIResults.pothole as any);
+        console.error("AI Analysis failed:", data);
+        toast.error('Gagal menganalisis foto: ' + (data.error || 'Respons server tidak valid.'));
       }
-    } catch {
-      setAiResult(sampleAIResults.pothole as any);
+    } catch (err) {
+      console.error("AI Classification exception:", err);
+      toast.error('Terjadi kesalahan saat menghubungi server AI.');
     } finally {
       clearInterval(classificationInterval);
       setTimeout(() => setIsClassifying(false), 500);
