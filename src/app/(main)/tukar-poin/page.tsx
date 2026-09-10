@@ -247,15 +247,15 @@ function TukarPoinContent() {
   const getCategoryBadgeColor = (cat: string) => {
     switch (cat) {
       case 'Apresiasi Digital':
-        return 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60';
+        return 'text-blue-700 dark:text-blue-300 bg-blue-50/90 dark:bg-blue-950/50 border-blue-200/80 dark:border-blue-800/50';
       case 'Titel & Badge':
-        return 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60';
+        return 'text-amber-700 dark:text-amber-300 bg-amber-50/90 dark:bg-amber-950/50 border-amber-200/80 dark:border-amber-800/50';
       case 'Dampak Sosial':
-        return 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60';
+        return 'text-emerald-700 dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-950/50 border-emerald-200/80 dark:border-emerald-800/50';
       case 'Layanan Publik':
-        return 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60';
+        return 'text-indigo-700 dark:text-indigo-300 bg-indigo-50/90 dark:bg-indigo-950/50 border-indigo-200/80 dark:border-indigo-800/50';
       default:
-        return 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800';
+        return 'text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/50';
     }
   };
 
@@ -387,62 +387,72 @@ function TukarPoinContent() {
               return (
                 <div
                   key={item.id}
-                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800/80 shadow-2xs hover:shadow-xs p-3.5 flex items-center gap-3.5 transition-all"
+                  className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 p-3.5 sm:p-4 transition-all duration-200"
                 >
-                  {/* Thumbnail Container */}
-                  <div className="w-[72px] h-[72px] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-200/50 dark:border-slate-700/50">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80';
-                      }}
-                      className="w-full h-full object-cover"
-                    />
-                    <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-slate-900/80 text-white backdrop-blur-xs">
-                      {item.stock > 0 ? `Sisa ${item.stock}` : 'Habis'}
-                    </span>
-                  </div>
-
-                  {/* Text Info */}
-                  <div className="flex-1 min-w-0 pr-1 space-y-0.5">
-                    <div className="flex items-center gap-1.5 text-[10px]">
-                      <span className={`font-semibold px-2 py-0.5 rounded-md ${getCategoryBadgeColor(item.category)}`}>
-                        {item.category}
-                      </span>
-                      <span className="text-slate-400 dark:text-slate-500 truncate">
-                        • {item.partnerName}
+                  <div className="flex gap-3.5 items-start">
+                    {/* Thumbnail Container */}
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-200/60 dark:border-slate-700/60">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80';
+                        }}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-950/75 text-white backdrop-blur-xs">
+                        {item.stock > 0 ? `Sisa ${item.stock}` : 'Habis'}
                       </span>
                     </div>
 
-                    <h3 className="line-clamp-2 leading-snug text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 pt-0.5">
-                      {item.title}
-                    </h3>
+                    {/* Content Container */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch">
+                      {/* Top Meta: Category + Partner */}
+                      <div>
+                        <div className="flex items-center gap-2 mb-1 min-w-0">
+                          <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md whitespace-nowrap shrink-0 border ${getCategoryBadgeColor(item.category)}`}>
+                            {item.category}
+                          </span>
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-medium">
+                            • {item.partnerName}
+                          </span>
+                        </div>
 
-                    <div className="flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 pt-0.5">
-                      <Coins className="w-3.5 h-3.5 fill-amber-500/20" />
-                      <span>{item.pointsCost} Poin</span>
+                        {/* Title */}
+                        <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-2 leading-snug">
+                          {item.title}
+                        </h3>
+                      </div>
+
+                      {/* Bottom Row: Price & Action CTA */}
+                      <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+                          <Coins className="w-3.5 h-3.5 fill-amber-500/20 text-amber-500" />
+                          <span className="text-sm font-extrabold">{item.pointsCost}</span>
+                          <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">Poin</span>
+                        </div>
+
+                        {/* Action CTA */}
+                        <div className="shrink-0">
+                          {item.stock <= 0 ? (
+                            <span className="px-3 py-1 text-center text-[11px] font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 block">
+                              Habis
+                            </span>
+                          ) : !canAfford ? (
+                            <span className="px-2.5 py-1 text-center text-[10px] sm:text-[11px] font-medium rounded-lg bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border border-slate-200/60 dark:border-slate-700/60 block whitespace-nowrap">
+                              Kurang {pointsNeeded} Pts
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setSelectedReward(item)}
+                              className="px-3.5 py-1.5 min-w-[70px] text-center text-xs font-bold rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 active:scale-95 text-white shadow-xs transition-all cursor-pointer"
+                            >
+                              Tukar
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Action CTA */}
-                  <div className="shrink-0">
-                    {item.stock <= 0 ? (
-                      <span className="px-3 py-1.5 text-center text-[11px] font-medium rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 block">
-                        Habis
-                      </span>
-                    ) : !canAfford ? (
-                      <span className="px-3 py-1.5 text-center text-[11px] font-semibold rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 block">
-                        Kurang {pointsNeeded} Pts
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => setSelectedReward(item)}
-                        className="px-4 py-2 min-w-[76px] text-center text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white shadow-xs transition-all cursor-pointer"
-                      >
-                        Tukar
-                      </button>
-                    )}
                   </div>
                 </div>
               );
@@ -505,11 +515,11 @@ function TukarPoinContent() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-0.5 min-w-0">
                       <div className="flex items-center gap-1.5 text-[10px]">
-                        <span className={`font-semibold px-2 py-0.5 rounded-md ${getCategoryBadgeColor(item.category || 'Reward')}`}>
+                        <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md whitespace-nowrap shrink-0 border ${getCategoryBadgeColor(item.category || 'Reward')}`}>
                           {item.category || 'Reward'}
                         </span>
-                        <span className="text-slate-400">
-                          Ditukar {item.date}
+                        <span className="text-slate-400 dark:text-slate-500 text-[11px] truncate">
+                          • Ditukar {item.date}
                         </span>
                       </div>
                       <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100 pt-0.5">
@@ -689,7 +699,7 @@ function TukarPoinContent() {
             {/* Info Kartu Reward */}
             <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
               <div className="flex items-center justify-between">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getCategoryBadgeColor(activeCodeDetail.category)}`}>
+                <span className={`inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md whitespace-nowrap shrink-0 border ${getCategoryBadgeColor(activeCodeDetail.category)}`}>
                   {activeCodeDetail.category}
                 </span>
                 <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
