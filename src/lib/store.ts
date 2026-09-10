@@ -301,9 +301,9 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
             })));
           }
         } else {
-          // If not logged in, maintain local demo user state (mockUserProfile) so existing local preview isn't reset
-          setProfile(mockUserProfile);
-          setQuests(mockQuests);
+          // If not logged in, maintain local demo user state so existing local preview isn't reset
+          setProfile(defaultProfile);
+          setQuests(freshQuestsTemplate);
         }
       } catch (err) {
         console.error("Failed to load from Supabase, using fresh initial fallback", err);
@@ -380,6 +380,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       category: newReport.category,
       severity: newReport.severity,
       address: newReport.address,
+      district: newReport.district || 'Kec. Wonokromo',
       lat: newReport.lat,
       lng: newReport.lng,
       photo_url: newReport.photoUrl,
