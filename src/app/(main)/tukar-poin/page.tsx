@@ -52,6 +52,7 @@ function TukarPoinContent() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [activeMainTab, setActiveMainTab] = useState<'katalog' | 'voucher'>('katalog');
 
   // Verification code input state
   const [inputCode, setInputCode] = useState<string>('');
@@ -85,6 +86,14 @@ function TukarPoinContent() {
       setBadgeActivated(isGold);
     }
   }, [profile.id, showHistoryModal, redeemSuccess]);
+
+  useEffect(() => {
+    if (codeParam) {
+      setInputCode(codeParam);
+      resolveCodeInfo(codeParam);
+      setActiveMainTab('voucher');
+    }
+  }, [codeParam]);
 
   // Helper to inspect and resolve any claim code
   const resolveCodeInfo = (codeToInspect: string) => {
@@ -238,15 +247,15 @@ function TukarPoinContent() {
   const getCategoryBadgeColor = (cat: string) => {
     switch (cat) {
       case 'Apresiasi Digital':
-        return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900/60';
+        return 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60';
       case 'Titel & Badge':
-        return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-900/60';
+        return 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60';
       case 'Dampak Sosial':
-        return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-900/60';
+        return 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60';
       case 'Layanan Publik':
-        return 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-900/60';
+        return 'text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60';
       default:
-        return 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
+        return 'text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800';
     }
   };
 
@@ -254,201 +263,409 @@ function TukarPoinContent() {
     <div className="mx-auto max-w-4xl space-y-4 pb-28 font-sans">
       <ConfettiOverlay show={showConfetti} />
 
-      {/* 1. Compact Balance Header Widget */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 mx-4 my-3 flex items-center justify-between shadow-sm">
-        {/* Sisi Kiri: Info Saldo */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center text-amber-600 shrink-0">
-            <Coins className="w-5 h-5 fill-amber-500/20 text-amber-600" />
-          </div>
-          <div>
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block">
-              Total Poin Kamu
-            </span>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-                {profile.points} Pts
+      {/* 1. Civic Points Wallet Hero Card (Clean Fintech Style) */}
+      <div className="mx-4 my-2 p-5 bg-gradient-to-br from-[#003B73] via-[#002B5E] to-[#001738] rounded-3xl text-white shadow-md relative overflow-hidden">
+        {/* Background ambient glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-400/15 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-blue-200 tracking-wider uppercase">
+                Poin Keaktifan
               </span>
-              <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-900/50">
+              <span className="text-[10px] font-bold bg-white/15 text-blue-100 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-xs">
                 {profile.level}
               </span>
             </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold tracking-tight text-white">
+                {profile.points}
+              </span>
+              <span className="text-xs font-semibold text-blue-200">
+                Pts Tersedia
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-amber-400 shadow-inner">
+              <Coins className="w-6 h-6 fill-amber-400/20" />
+            </div>
+            <span className="text-[10px] text-blue-200 font-medium">
+              {historyList.length} Voucher Aktif
+            </span>
           </div>
         </div>
-
-        {/* Sisi Kanan: Tombol Riwayat */}
-        <button
-          onClick={() => setShowHistoryModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 text-xs font-medium border border-slate-200 dark:border-slate-700 transition-colors shrink-0"
-        >
-          <History className="w-3.5 h-3.5" />
-          <span>Riwayat ({historyList.length})</span>
-        </button>
       </div>
 
       {redeemSuccess && (
-        <div className="mx-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 flex items-center justify-between gap-3 text-xs animate-in fade-in">
+        <div className="mx-4 p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-in fade-in">
           <div className="flex items-center gap-2 font-semibold text-emerald-800 dark:text-emerald-300">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>{redeemSuccess}</span>
           </div>
-          <button
-            onClick={() => setRedeemSuccess(null)}
-            className="text-slate-400 hover:text-slate-600 p-1"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              onClick={() => {
+                setActiveMainTab('voucher');
+                setRedeemSuccess(null);
+              }}
+              className="h-8 px-3 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs"
+            >
+              Lihat di Voucher Saya 👉
+            </Button>
+            <button
+              onClick={() => setRedeemSuccess(null)}
+              className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* 2. Interactive Code Usage & Verification Widget */}
-      <div className="mx-4 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/60 dark:from-slate-900 dark:via-slate-900/90 dark:to-indigo-950/30 rounded-2xl border border-blue-100 dark:border-slate-800 p-4 shadow-sm space-y-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-            <Ticket className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-              Gunakan / Cek Kode Reward
-            </h2>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Masukkan kode verifikasi (contoh: <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">LK-CERT-WLTRK</span>) untuk melihat petunjuk pemakaian & membuka dokumen resmi.
-            </p>
-          </div>
-        </div>
+      {/* 2. Apple / Linear Style Segmented Navigation */}
+      <div className="mx-4 p-1 bg-slate-200/70 dark:bg-slate-800/70 rounded-2xl flex gap-1 select-none">
+        <button
+          onClick={() => setActiveMainTab('katalog')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all text-center cursor-pointer ${
+            activeMainTab === 'katalog'
+              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          Katalog Hadiah
+        </button>
 
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={inputCode}
-              onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-              placeholder="Masukkan kode, misal: LK-CERT-WLTRK"
-              className="w-full h-10 px-3 py-2 text-xs font-mono font-semibold bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder:font-sans placeholder:text-slate-400"
-            />
-          </div>
-          <Button
-            size="sm"
-            onClick={() => resolveCodeInfo(inputCode)}
-            className="h-10 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm shrink-0"
-          >
-            <Search className="w-3.5 h-3.5 mr-1" />
-            Cek Kode
-          </Button>
-        </div>
-
-        {/* Quick chip for recently redeemed codes */}
-        {historyList.length > 0 && (
-          <div className="pt-1 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] text-slate-400 font-medium">Kode Milik Anda:</span>
-            {historyList.slice(0, 3).map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setInputCode(item.code);
-                  resolveCodeInfo(item.code);
-                }}
-                className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60 hover:bg-blue-100 transition-colors"
-              >
-                {item.code}
-              </button>
-            ))}
-          </div>
-        )}
+        <button
+          onClick={() => setActiveMainTab('voucher')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            activeMainTab === 'voucher'
+              ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <span>Voucher Saya</span>
+          {historyList.length > 0 && (
+            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-blue-600 text-white">
+              {historyList.length}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* 3. Horizontal Tab Filter */}
-      <div className="px-4 overflow-x-auto scrollbar-none pt-2">
-        <div className="flex items-center gap-2 pb-1 shrink-0 min-w-max">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 ${
-                selectedCategory === cat.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 border border-slate-200/60 dark:border-slate-700'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* ================= VIEW 1: KATALOG HADIAH ================= */}
+      {activeMainTab === 'katalog' && (
+        <div className="space-y-4">
+          {/* Horizontal Category Filters */}
+          <div className="px-4 overflow-x-auto scrollbar-none pt-1">
+            <div className="flex items-center gap-1.5 pb-1 shrink-0 min-w-max">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                    selectedCategory === cat.id
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs'
+                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 border border-slate-200/80 dark:border-slate-800'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* Reward Card List */}
-      <div className="flex flex-col gap-3 px-4 pb-28">
-        {filteredRewards.map((item) => {
-          const canAfford = profile.points >= item.pointsCost;
-          const pointsNeeded = item.pointsCost - profile.points;
+          {/* Reward Card List */}
+          <div className="flex flex-col gap-3 px-4 pb-28">
+            {filteredRewards.map((item) => {
+              const canAfford = profile.points >= item.pointsCost;
+              const pointsNeeded = item.pointsCost - profile.points;
 
-          return (
-            <div
-              key={item.id}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-3.5 flex items-center gap-3 transition-shadow hover:shadow-md"
-            >
-              {/* Sisi Kiri: Thumbnail Container */}
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-100 dark:border-slate-700/60">
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80';
-                  }}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-900/70 text-white backdrop-blur-xs">
-                  {item.stock > 0 ? `Sisa ${item.stock}` : 'Habis'}
-                </span>
-              </div>
+              return (
+                <div
+                  key={item.id}
+                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800/80 shadow-2xs hover:shadow-xs p-3.5 flex items-center gap-3.5 transition-all"
+                >
+                  {/* Thumbnail Container */}
+                  <div className="w-[72px] h-[72px] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative border border-slate-200/50 dark:border-slate-700/50">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80';
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-slate-900/80 text-white backdrop-blur-xs">
+                      {item.stock > 0 ? `Sisa ${item.stock}` : 'Habis'}
+                    </span>
+                  </div>
 
-              {/* Sisi Tengah: Text Info */}
-              <div className="flex-1 min-w-0 pr-2 space-y-0.5">
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${getCategoryBadgeColor(item.category)}`}>
-                    {item.category}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 line-clamp-1">
-                    • {item.partnerName}
-                  </span>
+                  {/* Text Info */}
+                  <div className="flex-1 min-w-0 pr-1 space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[10px]">
+                      <span className={`font-semibold px-2 py-0.5 rounded-md ${getCategoryBadgeColor(item.category)}`}>
+                        {item.category}
+                      </span>
+                      <span className="text-slate-400 dark:text-slate-500 truncate">
+                        • {item.partnerName}
+                      </span>
+                    </div>
+
+                    <h3 className="line-clamp-2 leading-snug text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 pt-0.5">
+                      {item.title}
+                    </h3>
+
+                    <div className="flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 pt-0.5">
+                      <Coins className="w-3.5 h-3.5 fill-amber-500/20" />
+                      <span>{item.pointsCost} Poin</span>
+                    </div>
+                  </div>
+
+                  {/* Action CTA */}
+                  <div className="shrink-0">
+                    {item.stock <= 0 ? (
+                      <span className="px-3 py-1.5 text-center text-[11px] font-medium rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 block">
+                        Habis
+                      </span>
+                    ) : !canAfford ? (
+                      <span className="px-3 py-1.5 text-center text-[11px] font-semibold rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60 block">
+                        Kurang {pointsNeeded} Pts
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setSelectedReward(item)}
+                        className="px-4 py-2 min-w-[76px] text-center text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white shadow-xs transition-all cursor-pointer"
+                      >
+                        Tukar
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <h3 className="line-clamp-2 leading-tight text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  {item.title}
-                </h3>
-                <Badge variant="outline" className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md mt-1 w-fit">
-                  {item.pointsCost} Poin
-                </Badge>
-              </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-              {/* Sisi Kanan: Action CTA */}
-              <div className="shrink-0">
-                {item.stock <= 0 ? (
-                  <button
-                    disabled
-                    className="px-2.5 py-1.5 min-w-[76px] text-center text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed"
-                  >
-                    Stok Habis
-                  </button>
-                ) : !canAfford ? (
-                  <button
-                    disabled
-                    className="px-2.5 py-1.5 min-w-[76px] text-center text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed"
-                  >
-                    Kurang {pointsNeeded}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setSelectedReward(item)}
-                    className="px-3.5 py-1.5 min-w-[76px] text-center text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm transition-all"
-                  >
-                    Tukar
-                  </button>
-                )}
+      {/* ================= VIEW 2: VOUCHER SAYA (HANYA KODE YANG SUDAH DITUKAR) ================= */}
+      {activeMainTab === 'voucher' && (
+        <div className="space-y-4 pb-28">
+          {/* Header Info */}
+          <div className="px-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                Voucher & Kode Reward Saya
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Hanya menampilkan reward resmi yang berhasil kamu tukar dengan poin.
+              </p>
+            </div>
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/50 shrink-0">
+              {historyList.length} Tersimpan
+            </span>
+          </div>
+
+          {/* Case 1: Belum Ada Kode yang Ditukar (Empty State) */}
+          {historyList.length === 0 ? (
+            <div className="mx-4 py-12 px-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 text-center space-y-3 shadow-2xs">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
+                <Ticket className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  Belum Ada Voucher Tersimpan
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
+                  Poin dari laporan yang kamu buat dapat ditukarkan dengan E-Sertifikat resmi, bibit pohon, atau voucher prioritas.
+                </p>
+              </div>
+              <div className="pt-2">
+                <Button
+                  size="sm"
+                  onClick={() => setActiveMainTab('katalog')}
+                  className="h-9 px-4 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs cursor-pointer"
+                >
+                  Jelajahi Katalog Hadiah
+                </Button>
               </div>
             </div>
-          );
-        })}
-      </div>
+          ) : (
+            /* Case 2: Daftar Kode Sah Milik Pengguna */
+            <div className="flex flex-col gap-3.5 px-4">
+              {historyList.map((item, idx) => (
+                <div
+                  key={item.id || item.code || idx}
+                  className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-2xs space-y-3 transition-all hover:border-blue-300 dark:hover:border-blue-700"
+                >
+                  {/* Header Kartu Voucher */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-1.5 text-[10px]">
+                        <span className={`font-semibold px-2 py-0.5 rounded-md ${getCategoryBadgeColor(item.category || 'Reward')}`}>
+                          {item.category || 'Reward'}
+                        </span>
+                        <span className="text-slate-400">
+                          Ditukar {item.date}
+                        </span>
+                      </div>
+                      <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-100 pt-0.5">
+                        {item.title}
+                      </h3>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Mitra: {item.partnerName || 'LaporKuy & Pemkot'}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md shrink-0">
+                      ✓ Aktif
+                    </span>
+                  </div>
+
+                  {/* Kotak Kode Verifikasi */}
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">
+                        NOMOR KODE RESMI
+                      </span>
+                      <span className="font-mono text-sm sm:text-base font-extrabold text-blue-700 dark:text-blue-400 tracking-wider select-all truncate block">
+                        {item.code}
+                      </span>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCopyCode(item.code)}
+                      className="h-8 px-3 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-2xs gap-1.5 shrink-0 cursor-pointer"
+                    >
+                      {copiedCode === item.code ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-600">Tersalin</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Salin</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Tombol Aksi Nyata */}
+                  <div className="pt-0.5">
+                    {item.code?.includes('CERT') ? (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setInputCode(item.code);
+                          resolveCodeInfo(item.code);
+                          setShowCertificateModal(true);
+                        }}
+                        className="w-full h-9 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Award className="w-4 h-4" />
+                        <span>Buka & Cetak E-Sertifikat Resmi</span>
+                      </Button>
+                    ) : item.code?.includes('TREE') ? (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setInputCode(item.code);
+                          resolveCodeInfo(item.code);
+                          setShowTreeCertificateModal(true);
+                        }}
+                        className="w-full h-9 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <TreePine className="w-4 h-4" />
+                        <span>Lihat Akta Adopsi Pohon Hijau</span>
+                      </Button>
+                    ) : item.code?.includes('FASTTRACK') ? (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setInputCode(item.code);
+                          resolveCodeInfo(item.code);
+                          setShowVipPassModal(true);
+                        }}
+                        className="w-full h-9 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Ticket className="w-4 h-4" />
+                        <span>Tampilkan Tiket VIP Loket Pelayanan</span>
+                      </Button>
+                    ) : item.code?.includes('BADGE') ? (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setInputCode(item.code);
+                          resolveCodeInfo(item.code);
+                          handleActivateGoldFrame();
+                        }}
+                        className="w-full h-9 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        <span>{badgeActivated ? '✓ Bingkai Emas Sudah Aktif di Profil' : 'Aktifkan ke Profil Akun'}</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setInputCode(item.code);
+                          resolveCodeInfo(item.code);
+                        }}
+                        className="w-full h-9 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>Buka Dokumen & Petunjuk Pemakaian</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Form Verifikasi / Input Kode Manual Tambahan */}
+          <div className="mx-4 bg-slate-50/80 dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-3.5 space-y-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <Ticket className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  Cek Kode Tambahan / Manual
+                </h3>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Masukkan nomor kode voucher fisik atau dari mitra instansi.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value.toUpperCase())}
+                  placeholder="Ketik kode voucher..."
+                  className="w-full h-9 px-3 text-xs font-mono font-semibold bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder:font-sans placeholder:text-slate-400"
+                />
+              </div>
+              <Button
+                size="sm"
+                onClick={() => resolveCodeInfo(inputCode)}
+                className="h-9 px-3.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs shrink-0 cursor-pointer"
+              >
+                <Search className="w-3.5 h-3.5 mr-1" />
+                Cek Kode
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL 1: Detail & Panduan Penggunaan Kode (Triggered by code param or input) */}
       {activeCodeDetail && (

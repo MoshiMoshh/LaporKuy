@@ -45,13 +45,15 @@ export default function HomePage() {
       <section className="relative w-full bg-gradient-to-b from-[#003B73] to-[#00143A] pt-24 pb-32 overflow-hidden">
         {/* Decorative Cityscape Silhouette */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[900px] h-[260px] bg-blue-400/10 rounded-full blur-[100px] pointer-events-none" />
           <Image 
-            src="/skyline-jakarta.png" 
+            src="/skyline-jakarta.svg" 
             alt="Jakarta Skyline" 
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200"
+            className="object-cover object-[center_bottom] opacity-60 select-none pointer-events-none"
           />
         </div>
 
@@ -205,9 +207,9 @@ export default function HomePage() {
                       <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
                       <span className="truncate">{report.address || report.district || 'Surabaya'}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0 bg-slate-100/90 px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-600">
+                    <div className="flex items-center gap-1.5 shrink-0 bg-slate-100/90 px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-600" suppressHydrationWarning>
                       <Clock className="w-3 h-3 text-slate-400" />
-                      {formatDate(report.createdAt)}
+                      <span suppressHydrationWarning>{formatDate(report.createdAt)}</span>
                     </div>
                   </div>
                 </div>

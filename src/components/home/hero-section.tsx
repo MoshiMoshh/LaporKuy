@@ -10,12 +10,12 @@ export function HeroSection() {
       {/* Decorative city silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
         <Image 
-          src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline"
+          src="/skyline-jakarta.svg" 
+          alt="Jakarta Skyline" 
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200" 
+          className="object-cover object-[center_bottom] opacity-60 select-none pointer-events-none" 
         />
       </div>
 

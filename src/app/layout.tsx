@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
@@ -14,10 +14,11 @@ export const viewport: Viewport = {
   ],
 };
 
-const interFont = Inter({
+const fontSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -55,8 +56,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${interFont.variable} h-full antialiased`} data-scroll-behavior="smooth">
-      <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-slate-950 dark:text-slate-50 font-sans">
+    <html 
+      lang="id" 
+      className={`${fontSans.variable} h-full antialiased font-sans`} 
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
+      <body 
+        className="min-h-full flex flex-col bg-background text-foreground dark:bg-slate-950 dark:text-slate-50 font-sans"
+        suppressHydrationWarning
+      >
         <Providers>
           {children}
         </Providers>

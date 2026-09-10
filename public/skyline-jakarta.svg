@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 480" width="100%" height="100%" preserveAspectRatio="xMidYEnd meet">
+  <defs>
+    <linearGradient id="skyline-glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.2" />
+    </linearGradient>
+    <linearGradient id="flame-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#FCD34D" stop-opacity="0.98" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="1" />
+    </linearGradient>
+    <linearGradient id="layer-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.20" />
+      <stop offset="70%" stop-color="#60A5FA" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.02" />
+    </linearGradient>
+    <linearGradient id="layer-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#BFDBFE" stop-opacity="0.42" />
+      <stop offset="60%" stop-color="#93C5FD" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#60A5FA" stop-opacity="0.10" />
+    </linearGradient>
+    <linearGradient id="layer-fg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#DBEAFE" stop-opacity="0.55" />
+      <stop offset="60%" stop-color="#BFDBFE" stop-opacity="0.38" />
+      <stop offset="100%" stop-color="#93C5FD" stop-opacity="0.18" />
+    </linearGradient>
+    <filter id="glow-flame" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: DISTANT METROPOLIS SILHOUETTES -->
+  <g fill="url(#layer-bg)">
+    <!-- Far Left cluster -->
+    <rect x="0" y="260" width="65" height="220" />
+    <polygon points="25,260 25,210 27,210 27,260" />
+    <rect x="75" y="200" width="70" height="280" rx="2" />
+    <rect x="155" y="180" width="55" height="300" />
+    <polygon points="182,180 182,140 183,140 183,180" />
+    <rect x="220" y="240" width="80" height="240" />
+
+    <!-- Left-mid background towers -->
+    <rect x="310" y="160" width="90" height="320" rx="3" />
+    <rect x="410" y="210" width="60" height="270" />
+    <polygon points="440,210 440,165 441,165 441,210" />
+    <rect x="480" y="190" width="85" height="290" />
+    <rect x="575" y="230" width="70" height="250" />
+    <rect x="655" y="170" width="95" height="310" rx="4" />
+    <polygon points="702,170 702,120 704,120 704,170" />
+    <rect x="760" y="220" width="60" height="260" />
+
+    <!-- Center background cluster (behind Monas) -->
+    <rect x="830" y="190" width="75" height="290" />
+    <rect x="915" y="240" width="90" height="240" />
+    <rect x="1015" y="200" width="80" height="280" />
+    <polygon points="1055,200 1055,150 1056,150 1056,200" />
+
+    <!-- Right-mid background -->
+    <rect x="1105" y="150" width="85" height="330" rx="3" />
+    <polygon points="1147,150 1147,95 1149,95 1149,150" />
+    <rect x="1200" y="180" width="90" height="300" />
+    <path d="M1270,480 L1270,180 L1310,110 L1350,170 L1350,480 Z" />
+    <rect x="1360" y="210" width="75" height="270" />
+    <polygon points="1397,210 1397,160 1398,160 1398,210" />
+    <rect x="1445" y="170" width="95" height="310" rx="2" />
+
+    <!-- Far Right background cluster -->
+    <rect x="1550" y="220" width="80" height="260" />
+    <rect x="1640" y="180" width="90" height="300" />
+    <polygon points="1685,180 1685,130 1687,130 1687,180" />
+    <rect x="1740" y="240" width="70" height="240" />
+    <rect x="1820" y="200" width="100" height="280" />
+  </g>
+
+  <!-- LAYER 2: MIDGROUND (ICONIC LANDMARKS & HIGH-RISES) -->
+  <g fill="url(#layer-mid)">
+    <!-- 1. BUNDARAN HI / PATUNG SELAMAT DATANG (X: 160-260) -->
+    <path d="M165,480 L165,395 Q205,385 245,395 L245,480 Z" />
+    <rect x="192" y="260" width="10" height="135" />
+    <rect x="212" y="260" width="10" height="135" />
+    <path d="M192,265 C192,250 222,250 222,265 Z" />
+    <rect x="189" y="248" width="36" height="10" rx="2" />
+    <!-- Welcoming Figures -->
+    <ellipse cx="202" cy="228" rx="4" ry="4.5" />
+    <path d="M198,233 L206,233 L205,248 L199,248 Z" />
+    <path d="M198,235 L190,222 L193,220 L200,233 Z" />
+    <ellipse cx="212" cy="230" rx="3.8" ry="4.2" />
+    <path d="M208,235 L216,235 L217,248 L207,248 Z" />
+    <path d="M214,235 L222,220 L225,223 L216,237 Z" />
+    <circle cx="224" cy="219" r="3" fill="#BFDBFE" />
+
+    <!-- 2. MASJID ISTIQLAL (X: 470-620) -->
+    <rect x="480" y="340" width="130" height="140" rx="2" />
+    <rect x="508" y="325" width="74" height="16" rx="2" />
+    <path d="M510,325 C510,270 580,270 580,325 Z" />
+    <line x1="545" y1="270" x2="545" y2="250" stroke="#BFDBFE" stroke-width="2.5" />
+    <circle cx="545" cy="248" r="3.5" />
+    <!-- Slender Minaret -->
+    <rect x="618" y="220" width="14" height="260" rx="1" />
+    <polygon points="618,220 625,160 632,220" />
+    <line x1="625" y1="160" x2="625" y2="135" stroke="#BFDBFE" stroke-width="2" />
+
+    <!-- 3. MONAS / MONUMEN NASIONAL (CENTER X: 900-1020) -->
+    <!-- Museum Outer Base -->
+    <polygon points="880,480 895,445 1025,445 1040,480" />
+    <!-- Cawan Monas (Saucer Cup Platform) -->
+    <path d="M915,445 L925,405 L995,405 L1005,445 Z" />
+    <path d="M920,405 Q960,414 1000,405 L996,396 Q960,402 924,396 Z" />
+    <rect x="943" y="382" width="34" height="15" rx="1" />
+    <!-- Obelisk Shaft -->
+    <polygon points="946,382 952,145 968,145 974,382" />
+    <!-- Observation Deck -->
+    <path d="M948,145 L944,136 L976,136 L972,145 Z" />
+    <rect x="942" y="133" width="36" height="3" rx="1" />
+    <rect x="954" y="122" width="12" height="11" rx="1" />
+    
+    <!-- 4. WISMA 46 / BNI TOWER (X: 1210-1310) -->
+    <rect x="1225" y="260" width="80" height="220" rx="2" />
+    <path d="M1225,260 L1225,180 Q1225,100 1265,75 Q1275,120 1305,170 L1305,260 Z" />
+    <line x1="1265" y1="75" x2="1265" y2="50" stroke="#BFDBFE" stroke-width="2.5" />
+
+    <!-- 5. PATUNG DIRGANTARA / PANCORAN (X: 1540-1720) -->
+    <path d="M1660,480 Q1675,320 1625,240 Q1590,195 1565,190 L1570,180 Q1605,185 1642,230 Q1700,310 1685,480 Z" />
+    <g transform="translate(1550, 150)">
+      <circle cx="18" cy="-5" r="5.5" />
+      <path d="M15,0 L32,3 L26,18 L10,14 Z" />
+      <path d="M28,2 L50,-14 L52,-10 L32,6 Z" />
+      <path d="M12,4 L-8,14 L-6,18 L14,10 Z" />
+      <path d="M15,16 L12,32 L20,33 L23,18 Z" />
+      <path d="M22,17 L28,34 L34,34 L27,18 Z" />
+    </g>
+
+    <!-- Additional Modern Towers -->
+    <path d="M70,480 L70,250 L110,210 L150,250 L150,480 Z" />
+    <rect x="265" y="260" width="65" height="220" rx="2" />
+    <polygon points="297,260 297,215 298,215 298,260" />
+    <rect x="350" y="290" width="75" height="190" rx="2" />
+    
+    <rect x="725" y="280" width="80" height="200" rx="2" />
+    <rect x="825" y="320" width="60" height="160" rx="2" />
+    <rect x="1045" y="290" width="75" height="190" rx="2" />
+    <path d="M1135,480 L1135,240 L1145,240 L1145,210 L1155,210 L1155,180 L1185,180 L1185,210 L1195,210 L1195,240 L1205,240 L1205,480 Z" />
+    <polygon points="1170,180 1170,135 1171,135 1171,180" />
+
+    <path d="M1380,480 L1380,240 L1420,200 L1460,240 L1460,480 Z" />
+    <rect x="1480" y="280" width="75" height="200" rx="2" />
+    <rect x="1730" y="260" width="80" height="220" rx="2" />
+    <polygon points="1770,260 1770,205 1772,205 1772,260" />
+    <rect x="1830" y="270" width="85" height="210" rx="3" />
+  </g>
+
+  <!-- MONAS GOLDEN FLAME OF INDEPENDENCE (SPECIAL VIBRANT GLOW) -->
+  <g filter="url(#glow-flame)">
+    <path d="M960,78 Q975,95 968,110 Q972,122 960,123 Q948,122 952,110 Q945,95 960,78 Z" fill="url(#flame-grad)" />
+    <path d="M960,86 Q968,98 964,108 Q966,117 960,118 Q954,117 956,108 Q952,98 960,86 Z" fill="#FFFBEB" opacity="0.9" />
+  </g>
+
+  <!-- LAYER 3: FOREGROUND URBAN DETAIL & ARCHITECTURE -->
+  <g fill="url(#layer-fg)">
+    <rect x="25" y="370" width="80" height="110" rx="2" />
+    <rect x="120" y="350" width="65" height="130" rx="2" />
+    <rect x="280" y="360" width="95" height="120" rx="2" />
+    <rect x="395" y="340" width="75" height="140" rx="2" />
+    
+    <path d="M630,480 L630,370 L720,370 L720,480 Z" />
+    <rect x="735" y="390" width="80" height="90" rx="2" />
+    <rect x="1030" y="380" width="90" height="100" rx="2" />
+    <rect x="1140" y="360" width="75" height="120" rx="2" />
+    <rect x="1320" y="350" width="85" height="130" rx="2" />
+    <rect x="1425" y="370" width="80" height="110" rx="2" />
+    <rect x="1705" y="360" width="70" height="120" rx="2" />
+    <rect x="1790" y="350" width="90" height="130" rx="2" />
+  </g>
+
+  <!-- MODERN CITY WINDOW LIGHTS (HIGH ACCENT AMBIENCE) -->
+  <g fill="#FFFFFF" opacity="0.75">
+    <rect x="325" y="190" width="4" height="4" rx="1" /><rect x="345" y="190" width="4" height="4" rx="1" /><rect x="365" y="190" width="4" height="4" rx="1" />
+    <rect x="325" y="210" width="4" height="4" rx="1" /><rect x="345" y="210" width="4" height="4" rx="1" /><rect x="365" y="210" width="4" height="4" rx="1" />
+    <rect x="325" y="230" width="4" height="4" rx="1" /><rect x="365" y="230" width="4" height="4" rx="1" />
+    <rect x="345" y="250" width="4" height="4" rx="1" />
+
+    <rect x="670" y="195" width="4" height="4" rx="1" /><rect x="690" y="195" width="4" height="4" rx="1" /><rect x="710" y="195" width="4" height="4" rx="1" />
+    <rect x="670" y="215" width="4" height="4" rx="1" /><rect x="690" y="215" width="4" height="4" rx="1" />
+    <rect x="690" y="235" width="4" height="4" rx="1" /><rect x="710" y="235" width="4" height="4" rx="1" />
+
+    <rect x="1245" y="285" width="4" height="4" rx="1" /><rect x="1265" y="285" width="4" height="4" rx="1" /><rect x="1285" y="285" width="4" height="4" rx="1" />
+    <rect x="1245" y="305" width="4" height="4" rx="1" /><rect x="1285" y="305" width="4" height="4" rx="1" />
+    <rect x="1265" y="325" width="4" height="4" rx="1" />
+
+    <rect x="1150" y="260" width="4" height="4" rx="1" /><rect x="1170" y="260" width="4" height="4" rx="1" /><rect x="1190" y="260" width="4" height="4" rx="1" />
+    <rect x="1150" y="280" width="4" height="4" rx="1" /><rect x="1190" y="280" width="4" height="4" rx="1" />
+    <rect x="1170" y="300" width="4" height="4" rx="1" />
+
+    <rect x="1845" y="300" width="4" height="4" rx="1" /><rect x="1865" y="300" width="4" height="4" rx="1" /><rect x="1885" y="300" width="4" height="4" rx="1" />
+    <rect x="1845" y="320" width="4" height="4" rx="1" /><rect x="1865" y="320" width="4" height="4" rx="1" />
+  </g>
+
+  <!-- Antenna warning beacons -->
+  <circle cx="182" cy="140" r="2.5" fill="#EF4444" opacity="0.95" />
+  <circle cx="703" cy="120" r="2.5" fill="#EF4444" opacity="0.95" />
+  <circle cx="1148" cy="95" r="2.5" fill="#EF4444" opacity="0.95" />
+  <circle cx="1265" cy="50" r="2.5" fill="#EF4444" opacity="0.95" />
+  <circle cx="1686" cy="130" r="2.5" fill="#EF4444" opacity="0.95" />
+</svg>
