@@ -100,12 +100,12 @@ export default function RegisterPage() {
       {/* Decorative Cityscape Silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
         <Image 
-          src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline" 
+          src="/city-bg.jpg" 
+          alt="City Background" 
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200"
+          className="object-cover object-[center_bottom] opacity-25 filter invert brightness-200 mix-blend-screen"
         />
       </div>
 

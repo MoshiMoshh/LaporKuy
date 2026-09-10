@@ -155,12 +155,12 @@ export default function ForgotPasswordPage() {
       {/* Background Decor */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
         <Image 
-          src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline" 
+          src="/city-bg.jpg" 
+          alt="City Background" 
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200"
+          className="object-cover object-[center_bottom] opacity-25 filter invert brightness-200 mix-blend-screen"
         />
       </div>
 
