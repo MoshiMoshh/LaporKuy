@@ -131,13 +131,6 @@ export default function HomePage() {
       <section className="px-5 py-14 md:py-24 max-w-6xl mx-auto">
         <div className="flex items-end justify-between mb-8 md:mb-12">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold mb-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-              REALTIME FEED
-            </div>
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
               Laporan terbaru warga
             </h2>
