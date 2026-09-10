@@ -144,14 +144,7 @@ export function MapView({
     );
   }
 
-  const getDeterministicOffset = (id: string, seed: number) => {
-    let hash = seed;
-    for (let i = 0; i < id.length; i++) {
-      hash = (hash << 5) - hash + id.charCodeAt(i);
-      hash |= 0;
-    }
-    return ((hash % 100) / 2000);
-  };
+
 
   return (
     <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
@@ -173,9 +166,11 @@ export function MapView({
           <MapController selectedPin={selectedPin} />
 
           {reports.map((report, idx) => {
-            // Generate deterministic coordinates near Surabaya center if missing
-            const lat = report.lat || -7.2575 + getDeterministicOffset(report.id || `rep-${idx}`, 7);
-            const lng = report.lng || 112.7521 + getDeterministicOffset(report.id || `rep-${idx}`, 13);
+            // Generate deterministic pseudo-random coordinates near Surabaya center if missing
+            const pseudoRandomX = (idx * 0.13) % 0.05;
+            const pseudoRandomY = (idx * 0.17) % 0.05;
+            const lat = report.lat || -7.2575 + pseudoRandomX - 0.025;
+            const lng = report.lng || 112.7521 + pseudoRandomY - 0.025;
             
             // Just update the object so it stays consistent on click
             if (!report.lat || !report.lng) {

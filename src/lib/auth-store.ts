@@ -1,75 +1,51 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
 
 const isBypassEnabled = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
 const supabase = createClient();
 
-let globalLoggedIn = isBypassEnabled;
-let globalInitialized = isBypassEnabled;
-let globalBooted = isBypassEnabled;
-const listeners = new Set<() => void>();
-
-function notify() {
-  listeners.forEach(l => l());
+interface AuthState {
+  isLoggedIn: boolean;
+  isInitialized: boolean;
+  _booted: boolean;
+  initializeAuth: () => void;
+  setLoggedIn: (val: boolean) => void;
 }
 
-export function initializeAuth() {
-  if (isBypassEnabled) {
-    globalLoggedIn = true;
-    globalInitialized = true;
-    globalBooted = true;
-    notify();
-    return;
-  }
+export const useAuthStore = create<AuthState>((set, get) => ({
+  isLoggedIn: isBypassEnabled,
+  isInitialized: isBypassEnabled,
+  _booted: isBypassEnabled,
 
-  if (globalBooted) return;
-  globalBooted = true;
-
-  (async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      globalLoggedIn = !!session;
-      globalInitialized = true;
-    } catch {
-      globalLoggedIn = false;
-      globalInitialized = true;
+  initializeAuth: () => {
+    if (isBypassEnabled) {
+      set({ isLoggedIn: true, isInitialized: true, _booted: true });
+      return;
     }
-    notify();
-  })();
 
-  supabase.auth.onAuthStateChange((_event, session) => {
-    globalLoggedIn = !!session;
-    notify();
-  });
-}
+    if (get()._booted) return;
+    set({ _booted: true });
 
-export function setLoggedIn(val: boolean) {
-  globalLoggedIn = val;
-  globalInitialized = true;
-  notify();
-}
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        set({ isLoggedIn: !!session, isInitialized: true });
+      } catch {
+        set({ isLoggedIn: false, isInitialized: true });
+      }
+    })();
 
-export function useAuthStore() {
-  const [state, setState] = useState({
-    isLoggedIn: globalLoggedIn,
-    isInitialized: globalInitialized,
-  });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      set({ isLoggedIn: !!session });
+    });
+  },
 
-  useEffect(() => {
-    const handler = () => {
-      setState({
-        isLoggedIn: globalLoggedIn,
-        isInitialized: globalInitialized,
-      });
-    };
-    listeners.add(handler);
-    return () => {
-      listeners.delete(handler);
-    };
-  }, []);
+  setLoggedIn: (val: boolean) => {
+    set({ isLoggedIn: val, isInitialized: true });
+  }
+}));
 
-  return state;
-}
-
+export const initializeAuth = () => useAuthStore.getState().initializeAuth();
+export const setLoggedIn = (val: boolean) => useAuthStore.getState().setLoggedIn(val);
