@@ -99,6 +99,8 @@ export default function MisiPage() {
   });
 
   const xpProgressPercent = Math.min(100, Math.round((profile.xp / profile.nextLevelXp) * 100));
+  const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || 'Warga')}&background=003B73&color=fff&size=128&bold=true`;
+  const avatarSrc = profile.avatar?.trim() || avatarFallback;
 
   const getQuestIcon = (questId: string) => {
     if (questId.includes('1')) return <FileText className="h-5 w-5 text-[#0057B8]" />;
@@ -169,13 +171,17 @@ export default function MisiPage() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <img
-                src={profile.avatar}
-                alt={profile.name}
+                src={avatarSrc}
+                alt={profile.name || 'Profil Pengguna'}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = avatarFallback;
+                }}
                 className="h-10 w-10 sm:h-11 sm:w-11 rounded-lg object-cover border-2 border-white/20 shrink-0"
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-sm sm:text-base text-white tracking-tight truncate">{profile.name}</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-white tracking-tight truncate">{profile.name || 'Warga'}</h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/15 text-blue-100 border border-white/20 shrink-0">
                     Lvl {profile.level === 'Pemula' ? '1' : profile.level === 'Warga Aktif' ? '2' : profile.level === 'Pahlawan Kota' ? '3' : '4'}
                   </span>

@@ -396,7 +396,7 @@ export default function ProfilPage() {
                         <div key={report.id} className="py-3 flex items-center justify-between gap-3 first:pt-0 last:pb-0">
                           <div className="flex items-center gap-3 min-w-0">
                             <img
-                              src={report.photoUrl}
+                              src={report.photoUrl || getReportImgFallback(report.title)}
                               alt={report.title}
                               className="w-11 h-11 rounded-xl object-cover border border-border shrink-0 bg-muted"
                               onError={(e) => {
@@ -465,7 +465,7 @@ export default function ProfilPage() {
                       <Card key={report.id} className="p-3.5 border-border/80 bg-card text-card-foreground rounded-2xl flex items-center justify-between shadow-2xs">
                         <div className="flex items-center gap-3 min-w-0">
                           <img
-                            src={report.photoUrl}
+                            src={report.photoUrl || getReportImgFallback(report.title)}
                             alt={report.title}
                             className="w-14 h-14 rounded-xl object-cover border border-border shrink-0"
                             onError={(e) => {

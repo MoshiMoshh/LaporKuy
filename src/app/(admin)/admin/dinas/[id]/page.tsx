@@ -62,7 +62,11 @@ export default function PortalDinasPage({ params }: { params: Promise<{ id: stri
           {assignedReports.map((r) => (
             <div key={r.id} className="p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-card">
               <div className="flex items-center gap-3">
-                <img src={r.photoUrl} className="h-12 w-12 rounded object-cover border" />
+                <img
+                  src={r.photoUrl || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80'}
+                  alt={r.title || 'Foto Laporan'}
+                  className="h-12 w-12 rounded object-cover border"
+                />
                 <div>
                   <h4 className="font-bold text-xs text-foreground">{r.title}</h4>
                   <p className="text-[11px] text-muted-foreground">📍 {r.address}</p>
