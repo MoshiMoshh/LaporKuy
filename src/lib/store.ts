@@ -86,6 +86,145 @@ const defaultRewardsTemplate: Reward[] = [
   }
 ];
 
+export const defaultMockReports: Report[] = [
+  {
+    id: 'REP-1001',
+    title: 'Lubang Jalan Besar Berbahaya di Jl. Raya Darmo',
+    category: 'Jalan Rusak',
+    severity: 9,
+    address: 'Jl. Raya Darmo No. 42, Wonokromo, Surabaya',
+    district: 'Kec. Wonokromo',
+    lat: -7.2891,
+    lng: 112.7385,
+    photoUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80',
+    description: 'Lubang sedalam 15cm di lajur kiri. Sangat membahayakan pengendara motor saat malam hari atau ketika tergenang air hujan.',
+    status: 'Diproses',
+    createdAt: '2026-08-27T09:30:00Z',
+    updatedAt: '2026-08-27T14:20:00Z',
+    userId: 'usr-001',
+    userName: 'Budi Santoso',
+    userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    upvotes: 42,
+    isUrgent: true,
+    aiAuthenticityScore: 98,
+    aiConfidence: 96,
+    assignedDinas: 'Dinas Bina Marga & Sumber Daya Air',
+    slaTargetDays: 3,
+    slaDaysRemaining: 1,
+    comments: [
+      { id: 'c-1', author: 'Siti Rahma', role: 'warga', content: 'Kemarin sepupu saya hampir jatuh di sini. Harap segera ditambal!', createdAt: '2026-08-27T10:15:00Z', isOfficial: false },
+      { id: 'c-2', author: 'Dinas Bina Marga Kota', role: 'dinas', content: 'Tim Unit Reaksi Cepat (URC) sudah dijadwalkan meluncur sore ini untuk penambalan darurat.', createdAt: '2026-08-27T14:20:00Z', isOfficial: true }
+    ]
+  },
+  {
+    id: 'REP-1002',
+    title: 'Lampu Penerangan Jalan Umum (PJU) Mati',
+    category: 'Lampu Mati',
+    severity: 6,
+    address: 'Jl. Ir. H. Soekarno (MERR), Rungkut, Surabaya',
+    district: 'Kec. Rungkut',
+    lat: -7.3195,
+    lng: 112.7820,
+    photoUrl: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&auto=format&fit=crop&q=80',
+    afterPhotoUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266010b?w=800&auto=format&fit=crop&q=80',
+    description: '3 tiang lampu PJU padam berturut-turut. Gelap gulita di persimpangan jalan.',
+    status: 'Selesai',
+    createdAt: '2026-08-25T19:00:00Z',
+    updatedAt: '2026-08-26T11:00:00Z',
+    userId: 'usr-002',
+    userName: 'Ahmad Fauzi',
+    userAvatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
+    upvotes: 28,
+    isUrgent: false,
+    aiAuthenticityScore: 99,
+    aiConfidence: 94,
+    assignedDinas: 'Dinas Perhubungan',
+    slaTargetDays: 2,
+    slaDaysRemaining: 0,
+    comments: [
+      { id: 'c-3', author: 'Dinas Perhubungan', role: 'dinas', content: 'Perbaikan bohlam LED dan jaringan kabel selesai dilaksanakan tgl 26 Aug.', createdAt: '2026-08-26T11:00:00Z', isOfficial: true }
+    ]
+  },
+  {
+    id: 'REP-1003',
+    title: 'Tumpukan Sampah Liar Menyumbat Selokan',
+    category: 'Sampah',
+    severity: 8,
+    address: 'Jl. Keputih Timur No. 12, Sukolilo, Surabaya',
+    district: 'Kec. Sukolilo',
+    lat: -7.2945,
+    lng: 112.7981,
+    photoUrl: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=800&auto=format&fit=crop&q=80',
+    description: 'Sampah plastik dan sisa bangunan dibuang sembarangan hingga saluran air tersumbat total.',
+    status: 'Terverifikasi',
+    createdAt: '2026-08-28T07:15:00Z',
+    updatedAt: '2026-08-28T08:00:00Z',
+    userId: 'usr-003',
+    userName: 'Dewi Lestari',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    upvotes: 19,
+    isUrgent: true,
+    aiAuthenticityScore: 97,
+    aiConfidence: 98,
+    assignedDinas: 'Dinas Lingkungan Hidup',
+    slaTargetDays: 2,
+    slaDaysRemaining: 2,
+    comments: []
+  },
+  {
+    id: 'REP-1004',
+    title: 'Genangan Air Akibat Drainase Tersumbat',
+    category: 'Banjir',
+    severity: 7,
+    address: 'Jl. Mayjen Sungkono, Dukuh Pakis, Surabaya',
+    district: 'Kec. Dukuh Pakis',
+    lat: -7.2912,
+    lng: 112.7150,
+    photoUrl: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?w=800&auto=format&fit=crop&q=80',
+    description: 'Air menggenang setinggi 30cm pasca hujan deras. Lalu lintas tersendat parah.',
+    status: 'Pending',
+    createdAt: '2026-08-28T12:00:00Z',
+    updatedAt: '2026-08-28T12:00:00Z',
+    userId: 'usr-004',
+    userName: 'Rian Hidayat',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    upvotes: 12,
+    isUrgent: true,
+    aiAuthenticityScore: 95,
+    aiConfidence: 92,
+    assignedDinas: 'Dinas Sumber Daya Air',
+    slaTargetDays: 1,
+    slaDaysRemaining: 0,
+    comments: []
+  },
+  {
+    id: 'REP-1005',
+    title: 'Ubin Trotoar Pemandu Difabel Rusak Parah',
+    category: 'Trotoar Rusak',
+    severity: 5,
+    address: 'Jl. Pemuda No. 15, Genteng, Surabaya',
+    district: 'Kec. Genteng',
+    lat: -7.2654,
+    lng: 112.7482,
+    photoUrl: 'https://images.unsplash.com/photo-1578991624414-276ef23a534f?w=800&auto=format&fit=crop&q=80',
+    description: 'Guiding block untuk tunanetra terlepas dan berlubang di dekat halte bus.',
+    status: 'Diproses',
+    createdAt: '2026-08-26T14:30:00Z',
+    updatedAt: '2026-08-27T08:00:00Z',
+    userId: 'usr-001',
+    userName: 'Budi Santoso',
+    userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    upvotes: 35,
+    isUrgent: false,
+    aiAuthenticityScore: 99,
+    aiConfidence: 97,
+    assignedDinas: 'Dinas Bina Marga & Sumber Daya Air',
+    slaTargetDays: 4,
+    slaDaysRemaining: 2,
+    comments: []
+  }
+];
+
 // ── Store return type ──
 interface LaporKuyStoreValue {
   reports: Report[];
@@ -140,12 +279,14 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            const parsedIds = new Set(parsed.map((r: any) => r.id));
+            const mergedDefaults = [...parsed, ...defaultMockReports.filter(m => !parsedIds.has(m.id))];
+            return mergedDefaults;
           }
         }
       } catch (e) {}
     }
-    return [];
+    return defaultMockReports;
   });
 
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
@@ -206,12 +347,14 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
             const remoteIds = new Set(mappedRemote.map((r: any) => r.id));
             const localOnly = prev.filter(r => !remoteIds.has(r.id));
             const merged = [...localOnly, ...mappedRemote];
+            const mergedIds = new Set(merged.map(r => r.id));
+            const finalMerged = [...merged, ...defaultMockReports.filter(m => !mergedIds.has(m.id))];
             if (typeof window !== 'undefined') {
               try {
-                localStorage.setItem('laporkuy_local_reports', JSON.stringify(merged.slice(0, 50)));
+                localStorage.setItem('laporkuy_local_reports', JSON.stringify(finalMerged.slice(0, 50)));
               } catch (e) {}
             }
-            return merged;
+            return finalMerged;
           });
         }
 
