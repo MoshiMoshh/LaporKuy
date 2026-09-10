@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useUserLocation, requestUserLocation } from '@/lib/location-store';
 import { MapPin, CheckCircle2, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
 
 export function LocationProvider({ children }: { children: React.ReactNode }) {
   const { location } = useUserLocation();
@@ -21,6 +22,39 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, [location.isGranted]);
+
+  // Sync detected location to Supabase Auth metadata and profiles table
+  useEffect(() => {
+    if (location.isGranted && location.fullLocation) {
+      const supabase = createClient();
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session?.user) {
+          try {
+            await supabase.auth.updateUser({
+              data: {
+                location: location.fullLocation,
+                city: location.city,
+                province: location.province,
+                lat: location.lat,
+                lng: location.lng,
+              }
+            });
+
+            await supabase.from('profiles').update({
+              location: location.fullLocation,
+              city: location.city,
+              district: location.city,
+              province: location.province,
+              lat: location.lat,
+              lng: location.lng,
+            }).eq('id', session.user.id);
+          } catch {
+            // Ignore background location sync errors
+          }
+        }
+      });
+    }
+  }, [location.isGranted, location.fullLocation, location.city, location.province, location.lat, location.lng]);
 
   const handleEnableLocation = () => {
     requestUserLocation();

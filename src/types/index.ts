@@ -77,6 +77,7 @@ export interface LeaderboardUser {
   id: string;
   name: string;
   avatar: string;
+  hasRealPhoto?: boolean;
   level: string;
   points: number;
   reportsCount: number;
