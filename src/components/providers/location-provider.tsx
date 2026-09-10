@@ -20,7 +20,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         setShowPrompt(true);
       }
     }
-  }, []);
+  }, [location.isGranted]);
 
   const handleEnableLocation = () => {
     requestUserLocation();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext, createElement, type ReactNode } from 'react';
 import { Report, UserProfile, Quest, Reward, NotificationItem, Comment } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
@@ -26,7 +26,60 @@ const defaultProfile: UserProfile = {
   badges: [],
 };
 
-export function useLaporKuyStore() {
+const freshQuestsTemplate: Quest[] = [
+  { id: 'q-1', title: 'Pelapor Harian', description: 'Buat 1 laporan masalah kota hari ini', rewardPoints: 15, progress: 0, target: 1, type: 'daily', isClaimed: false, expiresIn: '8 jam lagi' },
+  { id: 'q-2', title: 'Verifikator Komunitas', description: 'Berikan upvote pada 3 laporan warga lain', rewardPoints: 10, progress: 0, target: 3, type: 'daily', isClaimed: false, expiresIn: '8 jam lagi' },
+  { id: 'q-3', title: 'Penjelajah Kecamatan', description: 'Laporkan masalah di 2 kecamatan berbeda', rewardPoints: 50, progress: 0, target: 2, type: 'weekly', isClaimed: false, expiresIn: '4 hari lagi' },
+  { id: 'q-4', title: 'Bulan Bersih Sampah', description: 'Ikuti tantangan tematik pelaporan sampah liar', rewardPoints: 100, progress: 0, target: 5, type: 'seasonal', isClaimed: false, expiresIn: '12 hari lagi' },
+];
+
+// ── Store return type ──
+interface LaporKuyStoreValue {
+  reports: Report[];
+  profile: UserProfile;
+  quests: Quest[];
+  rewards: Reward[];
+  notifications: NotificationItem[];
+  isInitialized: boolean;
+  isLoggedIn: boolean;
+  addReport: (data: Omit<Report, 'id' | 'createdAt' | 'updatedAt' | 'upvotes' | 'comments'>) => Promise<Report>;
+  toggleUpvote: (reportId: string) => Promise<void>;
+  addComment: (reportId: string, content: string) => Promise<void>;
+  updateReportStatus: (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string) => Promise<void>;
+  claimQuest: (questId: string) => Promise<void>;
+  redeemReward: (rewardId: string) => Promise<boolean>;
+  markNotificationsRead: () => Promise<void>;
+  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  login: () => void;
+  logout: () => Promise<void>;
+}
+
+// ── React Context ──
+const LaporKuyContext = createContext<LaporKuyStoreValue | null>(null);
+
+/**
+ * Provider component — wrap your app/layout with this ONCE.
+ * All children share the same store state.
+ */
+export function LaporKuyStoreProvider({ children }: { children: ReactNode }) {
+  const store = useLaporKuyStoreInternal();
+  return createElement(LaporKuyContext.Provider, { value: store }, children);
+}
+
+/**
+ * Public hook — every component calls this to read/write store.
+ * Reads from context so every caller sees the SAME state.
+ */
+export function useLaporKuyStore(): LaporKuyStoreValue {
+  const ctx = useContext(LaporKuyContext);
+  if (!ctx) {
+    throw new Error('useLaporKuyStore must be used within <LaporKuyStoreProvider>');
+  }
+  return ctx;
+}
+
+// ── Internal implementation (called only once inside the Provider) ──
+function useLaporKuyStoreInternal(): LaporKuyStoreValue {
   const [reports, setReports] = useState<Report[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -41,6 +94,7 @@ export function useLaporKuyStore() {
     }
     return [];
   });
+
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [quests, setQuests] = useState<Quest[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
@@ -49,21 +103,26 @@ export function useLaporKuyStore() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Safety fallback: ensure loading screen ('MEMVERIFIKASI SESI...') never hangs indefinitely
+    const initTimer = setTimeout(() => {
+      if (isMounted) setIsInitialized(true);
+    }, 1200);
+
     async function loadData() {
       // Check auth session first
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id || null;
-      setIsLoggedIn(!!session);
+      if (isMounted) setIsLoggedIn(!!session);
 
       try {
         // Fetch public data
         const [
           { data: reportsData },
-          { data: questsData },
           { data: rewardsData }
         ] = await Promise.all([
           supabase.from('reports').select('*, comments(*)').order('created_at', { ascending: false }),
-          supabase.from('quests').select('*'),
           supabase.from('rewards').select('*')
         ]);
 
@@ -103,41 +162,6 @@ export function useLaporKuyStore() {
           });
         }
 
-        if (questsData && questsData.length > 0) {
-          let mergedQuests = questsData.map((q: any) => ({
-            ...q,
-            rewardPoints: q.reward_points,
-            isClaimed: q.is_claimed,
-            expiresIn: q.expires_in
-          }));
-
-          if (typeof window !== 'undefined') {
-            const savedQuests = localStorage.getItem('laporkuy_quests_v1');
-            if (savedQuests) {
-              try {
-                const parsed = JSON.parse(savedQuests);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                  mergedQuests = mergedQuests.map(mq => {
-                    const localMatch = parsed.find((p: any) => p.id === mq.id);
-                    return localMatch ? { ...mq, ...localMatch } : mq;
-                  });
-                }
-              } catch (e) {}
-            }
-          }
-          setQuests(mergedQuests);
-        } else if (typeof window !== 'undefined') {
-          const savedQuests = localStorage.getItem('laporkuy_quests_v1');
-          if (savedQuests) {
-            try {
-              const parsed = JSON.parse(savedQuests);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                setQuests(parsed);
-              }
-            } catch (e) {}
-          }
-        }
-
         if (rewardsData && rewardsData.length > 0) {
           setRewards(rewardsData.map((r: any) => ({
             ...r,
@@ -156,23 +180,32 @@ export function useLaporKuyStore() {
 
           let profileData = fetchedProfile;
           const meta = session?.user?.user_metadata || {};
-          const googleAvatar = meta.avatar_url || meta.picture || '';
+          const googleAvatar = meta.avatar_url || meta.picture || meta.avatar || '';
           const googleName = meta.full_name || meta.name || '';
 
-          // If no profile row in profiles table yet (common for Google OAuth sign-in)
+          const getInitialsAvatar = (nameStr: string) =>
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(nameStr || 'User')}&background=003B73&color=fff&bold=true`;
+
+          // If no profile row in profiles table yet (brand new registration / Google OAuth sign-in)
           if (!profileData && session?.user) {
+            const userName = googleName || session.user.email?.split('@')[0] || 'Pengguna LaporKuy';
             profileData = {
               id: userId,
-              name: googleName || session.user.email?.split('@')[0] || 'Pengguna LaporKuy',
+              name: userName,
               email: session.user.email || '',
               phone: meta.phone || session.user.phone || '',
-              avatar: googleAvatar,
-              points: 50,
-              xp: 150,
+              avatar: googleAvatar || getInitialsAvatar(userName),
+              points: 0,
+              xp: 0,
               level: 'Pemula',
+              streak_days: 0,
+              trust_score: 100,
+              total_reports: 0,
+              completed_reports: 0,
+              total_upvotes_received: 0,
             };
 
-            // Auto insert row into Supabase profiles table
+            // Auto insert fresh row into Supabase profiles table for brand new user
             try {
               await supabase.from('profiles').upsert({
                 id: userId,
@@ -180,21 +213,26 @@ export function useLaporKuyStore() {
                 email: profileData.email,
                 avatar: profileData.avatar,
                 phone: profileData.phone,
+                points: 0,
+                xp: 0,
+                level: 'Pemula',
               });
             } catch (e) {
               console.warn("Profiles auto-insert warning:", e);
             }
           } else if (profileData && session?.user) {
-            // Update profileData with Google avatar/name if present and missing in DB
-            if (!profileData.avatar && googleAvatar) {
+            if (googleAvatar && (!profileData.avatar || profileData.avatar.includes('/images/avatars/'))) {
               profileData.avatar = googleAvatar;
+            } else if (!profileData.avatar || profileData.avatar.includes('/images/avatars/')) {
+              profileData.avatar = getInitialsAvatar(profileData.name || googleName || 'User');
             }
+
             if ((!profileData.name || profileData.name === 'Pengguna LaporKuy') && googleName) {
               profileData.name = googleName;
             }
           }
 
-          // Check if there is a local profile override in localStorage for this user
+          // Check user-scoped profile override in localStorage
           if (profileData && typeof window !== 'undefined') {
             const localOverride = localStorage.getItem(`laporkuy_profile_override_${userId}`);
             if (localOverride) {
@@ -205,51 +243,54 @@ export function useLaporKuyStore() {
             }
           }
 
+          // User-scoped quest progress loading
+          let userQuests = freshQuestsTemplate;
+          if (typeof window !== 'undefined') {
+            const savedQuests = localStorage.getItem(`laporkuy_quests_${userId}`);
+            if (savedQuests) {
+              try {
+                const parsed = JSON.parse(savedQuests);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  userQuests = freshQuestsTemplate.map(fq => {
+                    const match = parsed.find((p: any) => p.id === fq.id);
+                    return match ? { ...fq, ...match } : fq;
+                  });
+                }
+              } catch (e) {}
+            }
+          }
+          setQuests(userQuests);
+
           if (profileData) {
-            let savedPoints = profileData.points || 0;
-            let savedXp = profileData.xp || 0;
+            let savedPoints = profileData.points !== undefined && profileData.points !== null ? profileData.points : 0;
+            let savedXp = profileData.xp !== undefined && profileData.xp !== null ? profileData.xp : 0;
 
             if (typeof window !== 'undefined') {
               const localSaved = localStorage.getItem(`laporkuy_points_v3_${profileData.id}`);
               if (localSaved) {
                 try {
                   const parsed = JSON.parse(localSaved);
-                  if (parsed.points > savedPoints) savedPoints = parsed.points;
-                  if (parsed.xp > savedXp) savedXp = parsed.xp;
+                  if (parsed.points !== undefined && parsed.points > savedPoints) savedPoints = parsed.points;
+                  if (parsed.xp !== undefined && parsed.xp > savedXp) savedXp = parsed.xp;
                 } catch (e) {}
               }
             }
 
-            // Sum points from any claimed quests
-            const currentQuests = questsData && questsData.length > 0 
-              ? questsData.map((q: any) => ({ ...q, rewardPoints: q.reward_points, isClaimed: q.is_claimed })) 
-              : quests;
-
-            const claimedPointsSum = currentQuests
-              .filter((q: any) => q.isClaimed)
-              .reduce((sum: number, q: any) => sum + (q.rewardPoints || 15), 0);
-
-            if (claimedPointsSum > savedPoints) {
-              savedPoints = claimedPointsSum;
-            }
-
-            let currentLevel = profileData.level || 'Pemula';
-            if (savedXp >= 2000) currentLevel = 'Legenda Kota';
-            else if (savedXp >= 1000) currentLevel = 'Pahlawan Kota';
-            else if (savedXp >= 300) currentLevel = 'Warga Aktif';
+            let currentLevel = profileData.level || (savedXp >= 2000 ? 'Legenda Kota' : savedXp >= 1000 ? 'Pahlawan Kota' : savedXp >= 300 ? 'Warga Aktif' : 'Pemula');
 
             setProfile({
               ...profileData,
               points: savedPoints,
               xp: savedXp,
               level: currentLevel,
-              nextLevelXp: profileData.next_level_xp || 2000,
-              streakDays: profileData.streak_days || 0,
-              trustScore: profileData.trust_score || 100,
-              impactCount: profileData.impact_count || 0,
-              totalReports: profileData.total_reports || 0,
-              completedReports: profileData.completed_reports || 0,
-              totalUpvotesReceived: profileData.total_upvotes_received || 0
+              nextLevelXp: profileData.next_level_xp || 300,
+              streakDays: profileData.streak_days ?? profileData.streakDays ?? 0,
+              trustScore: profileData.trust_score ?? profileData.trustScore ?? 100,
+              impactCount: profileData.impact_count ?? profileData.impactCount ?? 0,
+              totalReports: profileData.total_reports ?? profileData.totalReports ?? 0,
+              completedReports: profileData.completed_reports ?? profileData.completedReports ?? 0,
+              totalUpvotesReceived: profileData.total_upvotes_received ?? profileData.totalUpvotesReceived ?? 0,
+              badges: profileData.badges || []
             } as UserProfile);
           }
 
@@ -259,9 +300,13 @@ export function useLaporKuyStore() {
               isRead: n.is_read
             })));
           }
+        } else {
+          // If not logged in, maintain local demo user state (mockUserProfile) so existing local preview isn't reset
+          setProfile(mockUserProfile);
+          setQuests(mockQuests);
         }
       } catch (err) {
-        console.error("Failed to load from Supabase, using mock data fallback", err);
+        console.error("Failed to load from Supabase, using fresh initial fallback", err);
       }
 
       setIsInitialized(true);
@@ -276,18 +321,29 @@ export function useLaporKuyStore() {
       }
     });
 
-    // Setup realtime listener for reports (optional but cool)
-    // Using a unique channel name prevents errors during React StrictMode double-mounts
     const channelName = `public:reports:${Math.random().toString(36).substring(7)}`;
     const channel = supabase.channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => {
-         loadData(); // Re-fetch on any change
+         loadData();
       })
       .subscribe();
 
+    const handleSync = () => {
+      loadData();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('laporkuy_store_update', handleSync);
+    }
+
     return () => {
+      isMounted = false;
+      clearTimeout(initTimer);
       supabase.removeChannel(channel);
       authListener.subscription.unsubscribe();
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('laporkuy_store_update', handleSync);
+      }
     };
   }, []);
 
@@ -350,7 +406,7 @@ export function useLaporKuyStore() {
       completedReports: newCompleted
     }));
 
-    // Update quest progress dynamically & persist to localStorage
+    // Update quest progress dynamically & persist to user-scoped localStorage
     setQuests(prev => {
       const updated = prev.map(q => {
         if (q.id === 'q-1') {
@@ -390,7 +446,10 @@ export function useLaporKuyStore() {
       });
 
       if (typeof window !== 'undefined') {
-        localStorage.setItem('laporkuy_quests_v1', JSON.stringify(updated));
+        if (profile.id) {
+          localStorage.setItem(`laporkuy_quests_${profile.id}`, JSON.stringify(updated));
+        }
+        window.dispatchEvent(new Event('laporkuy_store_update'));
       }
       return updated;
     });
@@ -434,7 +493,10 @@ export function useLaporKuyStore() {
         });
 
         if (typeof window !== 'undefined') {
-          localStorage.setItem('laporkuy_quests_v1', JSON.stringify(updated));
+          if (profile.id) {
+            localStorage.setItem(`laporkuy_quests_${profile.id}`, JSON.stringify(updated));
+          }
+          window.dispatchEvent(new Event('laporkuy_store_update'));
         }
         return updated;
       });
@@ -473,7 +535,6 @@ export function useLaporKuyStore() {
   const updateReportStatus = async (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string) => {
     const now = new Date().toISOString();
     
-    // Update local state directly for fast UI updates
     setReports(prev => prev.map(r => {
       if (r.id === reportId) {
         const newComments = notes ? [...r.comments, {
@@ -519,8 +580,8 @@ export function useLaporKuyStore() {
     const updatedQuests = quests.map(q => q.id === questId ? { ...q, isClaimed: true, progress: q.target } : q);
     setQuests(updatedQuests);
     
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('laporkuy_quests_v1', JSON.stringify(updatedQuests));
+    if (typeof window !== 'undefined' && profile.id) {
+      localStorage.setItem(`laporkuy_quests_${profile.id}`, JSON.stringify(updatedQuests));
     }
 
     const newPoints = (profile.points || 0) + reward;
@@ -538,17 +599,22 @@ export function useLaporKuyStore() {
       level: currentLevel
     }));
 
+    toast.dismiss(`quest-completed-${questId}`);
+
     toast.success('Poin Berhasil Diklaim', {
       description: `+${reward} Poin telah ditambahkan ke akun Anda (Total: ${newPoints} Pts)`,
       id: `quest-claimed-${questId}`
     });
 
-    if (typeof window !== 'undefined' && profile.id) {
-      localStorage.setItem(`laporkuy_points_v3_${profile.id}`, JSON.stringify({
-        points: newPoints,
-        xp: newXp,
-        level: currentLevel
-      }));
+    if (typeof window !== 'undefined') {
+      if (profile.id) {
+        localStorage.setItem(`laporkuy_points_v3_${profile.id}`, JSON.stringify({
+          points: newPoints,
+          xp: newXp,
+          level: currentLevel
+        }));
+      }
+      window.dispatchEvent(new Event('laporkuy_store_update'));
     }
 
     try {
@@ -595,7 +661,6 @@ export function useLaporKuyStore() {
       return newProfile;
     });
 
-    // 1. Sync update with Supabase Auth User Metadata (crucial for Google/OAuth logins)
     try {
       await supabase.auth.updateUser({
         data: {
@@ -609,7 +674,6 @@ export function useLaporKuyStore() {
       console.warn("Supabase auth updateUser metadata warning:", e);
     }
 
-    // 2. Upsert into Supabase DB profiles table (works even if row did not exist prior)
     if (profile.id) {
       const dbUpdate: any = { id: profile.id };
       if (updatedData.name !== undefined) dbUpdate.name = updatedData.name;
@@ -626,10 +690,12 @@ export function useLaporKuyStore() {
   };
 
   const login = () => { /* Now handled by login page OAuth flow */ };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
     setProfile(defaultProfile);
+    setQuests([]);
   };
 
   return {

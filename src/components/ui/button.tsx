@@ -19,9 +19,9 @@ const buttonVariants = cva(
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
         "liquid-primary":
-          "bg-gradient-to-b from-orange-400 to-orange-500 text-white border-x border-t border-b-2 border-orange-300/50 border-b-orange-700/60 shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.4),0px_2px_4px_0px_rgba(249,115,22,0.4),0px_8px_24px_-4px_rgba(249,115,22,0.6)] hover:brightness-110 hover:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.5),0px_4px_8px_0px_rgba(249,115,22,0.5),0px_12px_32px_-4px_rgba(249,115,22,0.8)] active:shadow-none active:translate-y-0 hover:-translate-y-0.5 transition-all duration-300",
+          "bg-gradient-to-b from-[#FF7A00] via-[#FF6000] to-[#E65100] text-white font-bold border-t border-white/30 shadow-[0_6px_20px_rgba(255,96,0,0.4),inset_0_1px_0_rgba(255,255,255,0.4)] hover:brightness-110 active:scale-[0.98] transition-all duration-300",
         "liquid-glass":
-          "bg-white/5 backdrop-blur-xl border border-white/20 text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.15),0px_8px_24px_-4px_rgba(0,0,0,0.3)] hover:bg-white/10 hover:border-white/30 hover:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25),0px_12px_32px_-4px_rgba(0,0,0,0.4)] active:shadow-none active:translate-y-0 hover:-translate-y-0.5 transition-all duration-300",
+          "bg-white/10 backdrop-blur-md border border-white/20 text-white font-semibold shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:border-white/35 active:scale-[0.98] transition-all duration-300",
       },
       size: {
         default:

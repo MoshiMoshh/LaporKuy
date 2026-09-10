@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
 import { createClient } from '@/lib/supabase/client';
@@ -108,7 +108,7 @@ function BuatLaporanForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Real reverse geocoding via OpenStreetMap Nominatim
-  const reverseGeocode = async (lat: number, lng: number) => {
+  const reverseGeocode = useCallback(async (lat: number, lng: number) => {
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
         headers: { 'Accept-Language': 'id' }
@@ -142,9 +142,17 @@ function BuatLaporanForm() {
         lng: lng,
       });
     }
-  };
 
-  const detectGPSLocation = () => {
+    // Fallback if Nominatim request is blocked or offline
+    setLocation({
+      address: `Jl. Raya Wonokromo, Wonokromo, Surabaya (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+      district: 'Kec. Wonokromo',
+      lat: lat,
+      lng: lng,
+    });
+  }, []);
+
+  const detectGPSLocation = useCallback(() => {
     if (!navigator.geolocation) return;
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
@@ -161,7 +169,7 @@ function BuatLaporanForm() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  };
+  }, [reverseGeocode]);
 
   useEffect(() => {
     if (addressParam && districtParam) {
@@ -173,7 +181,7 @@ function BuatLaporanForm() {
     } else {
       detectGPSLocation();
     }
-  }, [searchParams, addressParam, districtParam]);
+  }, [searchParams, addressParam, districtParam, detectGPSLocation]);
 
   const [exifInfo, setExifInfo] = useState<{
     lat: number;

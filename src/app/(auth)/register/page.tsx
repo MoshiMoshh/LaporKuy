@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -72,10 +73,14 @@ export default function RegisterPage() {
 
   const handleGoogleRegister = async () => {
     setIsLoading(true);
+    const origin = typeof window !== 'undefined' 
+      ? window.location.origin.replace('0.0.0.0', 'localhost')
+      : 'http://localhost:3000';
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${origin}/auth/callback`,
       },
     });
     
@@ -94,15 +99,13 @@ export default function RegisterPage() {
       
       {/* Decorative Cityscape Silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
-        <img 
+        <Image 
           src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline Mobile" 
-          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1000%] grayscale"
-        />
-        <img 
-          src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline Desktop" 
-          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1000%] grayscale"
+          alt="Jakarta Skyline" 
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200"
         />
       </div>
 
@@ -145,12 +148,15 @@ export default function RegisterPage() {
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="relative">
+              <label htmlFor="register-name" className="sr-only">Nama Lengkap</label>
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-slate-400" />
               </div>
               <Input
+                id="register-name"
                 type="text"
                 placeholder="Nama Lengkap"
+                aria-label="Nama Lengkap"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
@@ -160,12 +166,15 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative">
+              <label htmlFor="register-email" className="sr-only">Email Aktif</label>
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail className="h-5 w-5 text-slate-400" />
               </div>
               <Input
+                id="register-email"
                 type="email"
                 placeholder="Email Aktif"
+                aria-label="Email Aktif"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
@@ -175,12 +184,15 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative">
+              <label htmlFor="register-phone" className="sr-only">Nomor WhatsApp (Opsional)</label>
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Phone className="h-5 w-5 text-slate-400" />
               </div>
               <Input
+                id="register-phone"
                 type="tel"
                 placeholder="Nomor WhatsApp (Opsional)"
+                aria-label="Nomor WhatsApp (Opsional)"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="pl-11 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
@@ -189,12 +201,15 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative">
+              <label htmlFor="register-password" className="sr-only">Kata Sandi</label>
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-slate-400" />
               </div>
               <Input
+                id="register-password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Kata Sandi (Min. 8 Karakter)"
+                aria-label="Kata Sandi"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-11 pr-12 h-13 bg-white/5 border-white/15 text-white placeholder:text-slate-400 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all touch-manipulation text-base sm:text-sm"
@@ -204,6 +219,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                 className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none min-h-[44px] min-w-[44px] justify-center touch-manipulation"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -232,6 +248,7 @@ export default function RegisterPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleRegister}
+            aria-label="Daftar dengan akun Google"
             className="w-full h-13 font-semibold mt-5 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border-white/15 rounded-2xl text-white transition-all text-sm touch-manipulation active:scale-[0.98]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">

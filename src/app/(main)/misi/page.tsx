@@ -27,6 +27,8 @@ import { ConfettiOverlay } from '@/components/ui/confetti-overlay';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { useUserLocation } from '@/lib/location-store';
+
 interface QuestGuide {
   purpose: string;
   steps: string[];
@@ -73,10 +75,18 @@ const questGuides: Record<string, QuestGuide> = {
 
 export default function MisiPage() {
   const router = useRouter();
-  const { quests, claimQuest, profile } = useLaporKuyStore();
+  const { quests, claimQuest, profile, reports } = useLaporKuyStore();
+  const { location: userLoc } = useUserLocation();
   const [showConfetti, setShowConfetti] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'daily' | 'weekly' | 'seasonal'>('all');
   const [selectedQuestForModal, setSelectedQuestForModal] = useState<any | null>(null);
+
+  const myReports = reports.filter((r) => {
+    if (r.userId && profile.id && r.userId === profile.id) return true;
+    if (r.userName && profile.name && r.userName.trim().toLowerCase() === profile.name.trim().toLowerCase()) return true;
+    if ((profile.id === 'usr-001' || !profile.id) && (r.userId === 'usr-me' || r.userId === 'usr-001')) return true;
+    return false;
+  });
 
   const handleClaim = (questId: string) => {
     claimQuest(questId);
@@ -171,7 +181,7 @@ export default function MisiPage() {
                   </span>
                 </div>
                 <p className="text-[11px] text-blue-100/80 truncate">
-                  {profile.level} • Surabaya Civic Index
+                  {profile.level} • {userLoc.city || 'LaporKuy'} Civic Index
                 </p>
               </div>
             </div>
@@ -211,8 +221,8 @@ export default function MisiPage() {
             <div className="flex items-center gap-1.5 text-slate-300">
               <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
               <div>
-                <span className="text-sm font-bold text-white block leading-none">{profile.completedReports} Laporan</span>
-                <span className="text-[11px] font-medium text-slate-300 tracking-normal">Selesai</span>
+                <span className="text-sm font-bold text-white block leading-none">{myReports.length} Laporan</span>
+                <span className="text-[11px] font-medium text-slate-300 tracking-normal">Terkirim</span>
               </div>
             </div>
             <div className="flex items-center gap-1.5 text-slate-300">
@@ -249,6 +259,21 @@ export default function MisiPage() {
           ))}
         </div>
       </div>
+
+      {/* Quests List Header & Alert */}
+      {quests.filter(q => q.progress >= q.target && !q.isClaimed).length > 0 && (
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center shrink-0">
+              <Gift className="h-5 w-5 text-emerald-600 dark:text-emerald-400 animate-bounce" />
+            </div>
+            <div>
+              <p className="text-xs font-bold">Ada {quests.filter(q => q.progress >= q.target && !q.isClaimed).length} Misi Selesai Siap Diklaim!</p>
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Klik tombol hijau "Klaim Poin" di bawah ini untuk mengambil hadiah Anda.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quests List */}
       <div className="space-y-3">

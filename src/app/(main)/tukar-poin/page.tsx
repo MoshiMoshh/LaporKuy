@@ -129,7 +129,7 @@ export default function TukarPoinPage() {
                   src={item.imageUrl}
                   alt={item.title}
                   onError={(e) => {
-                    e.currentTarget.src = '/images/reports/pothole.jpg';
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=500&auto=format&fit=crop&q=80';
                   }}
                   className="w-full h-full object-cover"
                 />

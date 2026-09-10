@@ -7,8 +7,6 @@ import { Toaster } from "sonner";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#0057B8" },
@@ -19,6 +17,7 @@ export const viewport: Viewport = {
 const interFont = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -57,8 +56,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" className={`${interFont.variable} h-full antialiased`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-slate-950 dark:text-slate-50 font-sans">
-        <Providers>{children}</Providers>
-          <Toaster position="top-center" richColors closeButton />
+        <Providers>
+          {children}
+        </Providers>
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );

@@ -1,16 +1,22 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { MapPin, Camera, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function HeroSection() {
   return (
     <section className="relative w-full bg-gradient-to-b from-[#001F5B] via-[#003082] to-[#001040] pt-24 pb-36 overflow-hidden">
       {/* Decorative city silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
-        <img src="/skyline-jakarta.png" alt="Jakarta Skyline"
-          className="block md:hidden w-full h-[60vh] object-cover object-[15%_bottom] opacity-20 mix-blend-multiply brightness-150 contrast-[1200%] grayscale" />
-        <img src="/skyline-jakarta.png" alt="Jakarta Skyline"
-          className="hidden md:block w-full h-[55vh] object-cover object-center opacity-20 mix-blend-multiply brightness-150 contrast-[1200%] grayscale" />
+        <Image 
+          src="/skyline-jakarta.png" 
+          alt="Jakarta Skyline"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200" 
+        />
       </div>
 
       {/* Radial glow */}
@@ -32,22 +38,18 @@ export function HeroSection() {
 
         {/* Side-by-Side Action Buttons — High-Affordance Civic-Tech */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md sm:max-w-lg mx-auto mt-8 select-none">
-          {/* Primary Action: Lapor Sekarang (Orange) */}
-          <Link
-            href="/buat-laporan"
-            className="w-full h-14 rounded-2xl bg-gradient-to-b from-amber-400 via-orange-500 to-orange-600 hover:brightness-105 active:brightness-95 active:scale-95 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
-          >
-            <Camera className="w-5 h-5 shrink-0 text-white" />
-            <span className="truncate">Lapor Sekarang</span>
+          <Link href="/buat-laporan" className="w-full">
+            <Button variant="liquid-primary" size="xl" className="w-full">
+              <Camera className="w-5 h-5 shrink-0 text-white drop-shadow-md" />
+              <span className="truncate drop-shadow-md">Lapor Sekarang</span>
+            </Button>
           </Link>
 
-          {/* Secondary Action: Buka Peta / Lihat Peta Laporan */}
-          <Link
-            href="/dashboard"
-            className="w-full h-14 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 text-slate-800 dark:text-slate-100 font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 px-3 sm:px-4 transition-all touch-manipulation select-none"
-          >
-            <MapPin className="w-5 h-5 shrink-0 text-[#0057B8] dark:text-blue-400" />
-            <span className="truncate">Lihat Peta Laporan</span>
+          <Link href="/dashboard" className="w-full">
+            <Button variant="liquid-glass" size="xl" className="w-full">
+              <MapPin className="w-5 h-5 shrink-0 text-amber-400 drop-shadow-md" />
+              <span className="truncate drop-shadow-md">Buka Peta</span>
+            </Button>
           </Link>
         </div>
       </motion.div>

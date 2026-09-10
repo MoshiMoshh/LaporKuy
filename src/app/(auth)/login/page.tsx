@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -59,10 +60,14 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
+    const origin = typeof window !== 'undefined' 
+      ? window.location.origin.replace('0.0.0.0', 'localhost')
+      : 'http://localhost:3000';
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${origin}/auth/callback`,
       },
     });
     
@@ -81,17 +86,13 @@ export default function LoginPage() {
       
       {/* Decorative Cityscape Silhouette */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
-        {/* Mobile View (Focus on Monas on the left) */}
-        <img 
+        <Image 
           src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline Mobile" 
-          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
-        />
-        {/* Desktop View (Centered Panorama) */}
-        <img 
-          src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline Desktop" 
-          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+          alt="Jakarta Skyline" 
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200"
         />
       </div>
 
@@ -116,36 +117,43 @@ export default function LoginPage() {
           <form onSubmit={handleEmailLogin} className="space-y-4">
             
             <div className="relative">
+              <label htmlFor="email-input" className="sr-only">Email atau Username</label>
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-slate-400" />
               </div>
               <Input
+                id="email-input"
                 type="text"
                 placeholder="Email atau Username"
+                aria-label="Email atau Username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                className="pl-11 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-400 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
                 required
                 disabled={isLoading}
               />
             </div>
 
             <div className="relative">
+              <label htmlFor="password-input" className="sr-only">Kata Sandi</label>
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-slate-400" />
               </div>
               <Input
+                id="password-input"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Kata Sandi"
+                aria-label="Kata Sandi"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-11 pr-12 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-500 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
+                className="pl-11 pr-12 h-14 bg-transparent border-slate-700/80 text-white placeholder:text-slate-400 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 transition-all"
                 required
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                 className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-300 focus:outline-none"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -164,7 +172,7 @@ export default function LoginPage() {
             <Button 
               type="submit" 
               disabled={isLoading} 
-              className="w-full h-14 font-bold text-[15px] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-xl shadow-sm transition-all"
+              className="w-full h-14 font-bold text-[15px] bg-blue-600 hover:bg-blue-500 border border-blue-400/30 text-white rounded-xl shadow-md transition-all"
             >
               {isLoading ? 'Memproses...' : 'Masuk'}
             </Button>
@@ -181,6 +189,7 @@ export default function LoginPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleLogin}
+            aria-label="Masuk dengan akun Google"
             className="w-full h-14 font-semibold mt-6 flex items-center justify-center gap-3 bg-transparent hover:bg-slate-800/50 border-slate-700 rounded-xl text-white transition-all text-[14px]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
@@ -202,4 +211,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+}

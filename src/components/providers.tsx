@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { LocationProvider } from "@/components/providers/location-provider";
+import { LaporKuyStoreProvider } from "@/lib/store";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -23,7 +24,9 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <LocationProvider>
-          {children}
+          <LaporKuyStoreProvider>
+            {children}
+          </LaporKuyStoreProvider>
         </LocationProvider>
       </AuthProvider>
     </QueryClientProvider>

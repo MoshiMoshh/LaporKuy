@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, ThumbsUp, Eye, Compass } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toast } from 'sonner';
 
 // Leaflet imports
@@ -125,8 +126,8 @@ export function MapView({
             <strong>Petunjuk Mengaktifkan Izin Lokasi:</strong>
             <ol className="list-decimal pl-4 mt-2 space-y-1">
               <li>Klik ikon gembok (🔒) atau informasi situs di sebelah kiri bilah URL browser Anda.</li>
-              <li>Pilih menu "Location" atau "Lokasi".</li>
-              <li>Ubah pengaturannya menjadi "Allow" atau "Izinkan".</li>
+              <li>Pilih menu &quot;Location&quot; atau &quot;Lokasi&quot;.</li>
+              <li>Ubah pengaturannya menjadi &quot;Allow&quot; atau &quot;Izinkan&quot;.</li>
               <li>Muat ulang (Refresh) halaman ini untuk melanjutkan.</li>
             </ol>
           </div>
@@ -142,6 +143,15 @@ export function MapView({
       </div>
     );
   }
+
+  const getDeterministicOffset = (id: string, seed: number) => {
+    let hash = seed;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash << 5) - hash + id.charCodeAt(i);
+      hash |= 0;
+    }
+    return ((hash % 100) / 2000);
+  };
 
   return (
     <div className={`relative w-full h-full min-h-[350px] overflow-hidden border-border bg-slate-950 text-slate-100 ${className}`}>
@@ -163,9 +173,9 @@ export function MapView({
           <MapController selectedPin={selectedPin} />
 
           {reports.map((report, idx) => {
-            // Generate some random coordinates near Surabaya center if missing
-            const lat = report.lat || -7.2575 + (Math.random() - 0.5) * 0.05;
-            const lng = report.lng || 112.7521 + (Math.random() - 0.5) * 0.05;
+            // Generate deterministic coordinates near Surabaya center if missing
+            const lat = report.lat || -7.2575 + getDeterministicOffset(report.id || `rep-${idx}`, 7);
+            const lng = report.lng || 112.7521 + getDeterministicOffset(report.id || `rep-${idx}`, 13);
             
             // Just update the object so it stays consistent on click
             if (!report.lat || !report.lng) {
@@ -221,9 +231,12 @@ export function MapView({
             <Card className="relative z-10 bg-slate-900/95 text-slate-100 border-slate-800 p-4 rounded-xl shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-3 duration-200">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={selectedPin.photoUrl}
                     alt={selectedPin.title}
+                    width={56}
+                    height={56}
+                    loading="lazy"
                     className="h-14 w-14 rounded-lg object-cover border border-slate-700 shrink-0"
                   />
                   <div>

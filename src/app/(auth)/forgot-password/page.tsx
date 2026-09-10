@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -152,16 +153,14 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-b from-[#003B73] to-[#00143A] p-5 relative overflow-hidden font-sans">
       {/* Background Decor */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-end justify-center">
-        <img 
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+        <Image 
           src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline Mobile" 
-          className="block md:hidden w-full h-[100vh] object-cover object-[15%_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
-        />
-        <img 
-          src="/skyline-jakarta.png" 
-          alt="Jakarta Skyline Desktop" 
-          className="hidden md:block w-full h-[75vh] object-cover object-[center_bottom] opacity-25 mix-blend-multiply brightness-[150%] contrast-[1000%] grayscale"
+          alt="Jakarta Skyline" 
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_bottom] opacity-20 filter invert brightness-200"
         />
       </div>
 

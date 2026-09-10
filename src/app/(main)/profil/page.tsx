@@ -34,6 +34,7 @@ import {
 
 import { useUserLocation } from '@/lib/location-store';
 import { sendTelegramLog } from '@/app/actions/telegram';
+import { toast } from 'sonner';
 
 export default function ProfilPage() {
   const router = useRouter();
@@ -70,9 +71,19 @@ export default function ProfilPage() {
       setPhone(profile.phone || '');
       setAvatar(profile.avatar || '');
     }
-  }, [profile.name, profile.email, profile.phone, profile.avatar]);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const meta = session?.user?.user_metadata;
+      const gAvatar = meta?.avatar_url || meta?.picture || meta?.avatar;
+      if (gAvatar && (!profile?.avatar || profile?.avatar.includes('/images/avatars/'))) {
+        setAvatar(gAvatar);
+        if (profile && profile.avatar !== gAvatar) {
+          updateProfile({ avatar: gAvatar });
+        }
+      }
+    });
+  }, [profile]);
 
-  const [statusFilter, setStatusFilter] = useState<'Semua' | 'Selesai' | 'Diproses' | 'Pending'>('Semua');
+  const [statusFilter, setStatusFilter] = useState<'Semua' | 'Terverifikasi' | 'Diproses' | 'Selesai' | 'Pending'>('Semua');
 
   const filteredReports = myReports.filter((report) => {
     if (statusFilter === 'Semua') return true;
@@ -93,6 +104,28 @@ export default function ProfilPage() {
       });
     } catch {
       return 'Baru saja';
+    }
+  };
+
+  const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Ukuran foto terlalu besar', {
+          description: 'Maksimal ukuran foto adalah 5MB.',
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newAvatar = event.target?.result as string;
+        if (newAvatar) {
+          setAvatar(newAvatar);
+          updateProfile({ avatar: newAvatar });
+          toast.success('Foto profil berhasil diperbarui!');
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -147,17 +180,29 @@ export default function ProfilPage() {
       <section className="relative w-full bg-gradient-to-b from-primary/15 via-primary/5 to-background border-b border-border/60 pt-8 pb-12">
         <div className="max-w-2xl mx-auto px-4 text-center flex flex-col items-center">
           
-          {/* Avatar with Ring & Status Indicator */}
-          <div className="relative mb-3">
-            <img
-              src={avatarSrc}
-              alt={name || profile.name}
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-background shadow-md ring-4 ring-primary/20 bg-card"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
-              }}
-            />
-            <div className="absolute bottom-1 right-1 bg-emerald-500 text-white rounded-full p-1 border-2 border-background shadow-sm">
+          {/* Avatar with Ring & Status Indicator & Instant Upload */}
+          <div className="relative mb-3 group cursor-pointer">
+            <label htmlFor="header-avatar-upload" className="cursor-pointer block relative">
+              <img
+                src={avatarSrc}
+                alt={name || profile.name}
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-background shadow-md ring-4 ring-primary/20 bg-card group-hover:brightness-90 transition-all"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
+                }}
+              />
+              <div className="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <Camera className="w-6 h-6 text-white drop-shadow-md" />
+              </div>
+              <input
+                id="header-avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarFileSelect}
+              />
+            </label>
+            <div className="absolute bottom-1 right-1 bg-emerald-500 text-white rounded-full p-1 border-2 border-background shadow-sm pointer-events-none">
               <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -239,7 +284,7 @@ export default function ProfilPage() {
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-muted/30 border border-border/40">
               <span className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-                {myReports.length || profile.totalReports || 0}
+                {myReports.length}
               </span>
               <span className="text-xs font-medium text-muted-foreground mt-0.5">
                 Total Laporan
@@ -379,7 +424,7 @@ export default function ProfilPage() {
             {activeTab === 'laporan' && (
               <div className="space-y-3">
                 <div className="bg-card rounded-2xl border border-border/80 p-1.5 flex items-center gap-1 overflow-x-auto shadow-2xs">
-                  {(['Semua', 'Selesai', 'Diproses', 'Pending'] as const).map((f) => (
+                  {(['Semua', 'Terverifikasi', 'Diproses', 'Selesai', 'Pending'] as const).map((f) => (
                     <button
                       key={f}
                       onClick={() => setStatusFilter(f)}
@@ -468,16 +513,7 @@ export default function ProfilPage() {
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                setAvatar(event.target?.result as string);
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
+                          onChange={handleAvatarFileSelect}
                         />
                       </label>
                       <p className="text-[10px] text-muted-foreground mt-1 font-medium">Format JPG/PNG, maks 5MB.</p>
@@ -547,7 +583,7 @@ export default function ProfilPage() {
               const email = user?.email || profile?.email || 'Unknown Email';
               await sendTelegramLog(`<b>👋 Logout Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
               await supabase.auth.signOut();
-              window.location.href = '/login';
+              router.push('/login');
             }}
             className="w-full flex items-center justify-center gap-2 h-11 text-xs font-bold text-destructive hover:bg-destructive/10 border-destructive/30 rounded-xl transition-colors shadow-2xs mt-4"
           >

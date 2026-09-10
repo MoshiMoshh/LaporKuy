@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useLaporKuyStore } from '@/lib/store';
 import dynamic from 'next/dynamic';
@@ -25,7 +26,6 @@ import {
   LightbulbOff,
   Trash2,
 } from 'lucide-react';
-import gsap from 'gsap';
 
 function DashboardContent() {
   const { reports } = useLaporKuyStore();
@@ -52,22 +52,8 @@ function DashboardContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Initial set via GSAP
-  useEffect(() => {
-    if (isMobile && sheetRef.current) {
-      gsap.set(sheetRef.current, { height: `${sheetHeight}%` });
-    }
-  }, [isMobile]);
-
   const animateToHeight = (target: number) => {
     setSheetHeight(target);
-    if (sheetRef.current) {
-      gsap.to(sheetRef.current, { 
-        height: `${target}%`, 
-        duration: 0.6, 
-        ease: 'power3.out' 
-      });
-    }
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -88,9 +74,6 @@ function DashboardContent() {
     if (newHeight > 95) newHeight = 95;
 
     setSheetHeight(newHeight);
-    if (sheetRef.current) {
-      gsap.set(sheetRef.current, { height: `${newHeight}%` });
-    }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -143,15 +126,18 @@ function DashboardContent() {
       <div className="md:hidden absolute top-4 inset-x-4 z-30 pointer-events-auto">
         <div className="flex gap-2">
           <div className="relative flex-1">
+            <label htmlFor="mobile-dashboard-search" className="sr-only">Cari aduan atau lokasi</label>
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
+              id="mobile-dashboard-search"
               placeholder="Cari aduan atau lokasi..."
+              aria-label="Cari aduan atau lokasi"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-10 w-full rounded-xl border border-slate-200 bg-white text-base sm:text-xs font-medium focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md"
             />
           </div>
-          <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md">
+          <Button variant="outline" size="icon" aria-label="Filter aduan" className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md">
             <Filter className="h-4 w-4" />
           </Button>
         </div>
@@ -168,8 +154,12 @@ function DashboardContent() {
           rounded-t-2xl md:rounded-none
           flex flex-col z-20 shadow-xl md:shadow-none 
           min-h-0 order-last md:order-first
+          transition-[height] duration-200 ease-out
         "
-        style={{ maxHeight: isMobile ? '95%' : 'auto' }}
+        style={{ 
+          height: isMobile ? `${sheetHeight}%` : '100%',
+          maxHeight: isMobile ? '95%' : 'auto' 
+        }}
       >
         <div 
           className="md:hidden w-full flex justify-center pt-2.5 pb-2 shrink-0 cursor-grab active:cursor-grabbing touch-none group"
@@ -177,6 +167,7 @@ function DashboardContent() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          aria-label="Tarik untuk memperluas peta aduan"
         >
           <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full group-hover:bg-slate-400 transition-colors" />
         </div>
@@ -231,6 +222,7 @@ function DashboardContent() {
               <button 
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
+                aria-label={`Filter kategori ${cat.label}`}
                 className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 whitespace-nowrap border ${
                   isActive 
                     ? 'bg-[#003B73] text-white border-[#003B73] shadow-sm' 
@@ -252,15 +244,18 @@ function DashboardContent() {
           
           <div className="flex gap-2">
             <div className="relative flex-1">
+              <label htmlFor="desktop-dashboard-search" className="sr-only">Cari aduan atau lokasi</label>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
+                id="desktop-dashboard-search"
                 placeholder="Cari aduan atau lokasi..."
+                aria-label="Cari aduan atau lokasi"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 h-10 w-full rounded-md border-[#D9DEE5] text-sm focus-visible:ring-[#0057B8]"
               />
             </div>
-            <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 rounded-md border-[#D9DEE5] text-slate-600 hover:text-[#0057B8]">
+            <Button variant="outline" size="icon" aria-label="Filter aduan" className="h-10 w-10 shrink-0 rounded-md border-[#D9DEE5] text-slate-600 hover:text-[#0057B8]">
               <Filter className="h-4 w-4" />
             </Button>
           </div>
@@ -272,9 +267,12 @@ function DashboardContent() {
             <Link key={report.id} href={`/laporan/${report.id}`} className="block">
               <Card className="p-3.5 hover:shadow-md transition-all border-slate-200/80 rounded-xl group bg-white">
                 <div className="flex items-start gap-3">
-                  <img
+                  <Image
                     src={report.photoUrl}
                     alt={report.title}
+                    width={64}
+                    height={64}
+                    loading="lazy"
                     className="h-16 w-16 rounded-lg object-cover border border-slate-100 shrink-0"
                   />
                   <div className="flex-1 min-w-0">
@@ -325,3 +323,4 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
+
