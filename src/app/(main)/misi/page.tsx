@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLaporKuyStore } from '@/lib/store';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -80,6 +80,14 @@ export default function MisiPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'daily' | 'weekly' | 'seasonal'>('all');
   const [selectedQuestForModal, setSelectedQuestForModal] = useState<any | null>(null);
+  const [hasGoldFrame, setHasGoldFrame] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && profile.id) {
+      const isGold = localStorage.getItem(`laporkuy_gold_frame_${profile.id}`) === 'true';
+      setHasGoldFrame(isGold);
+    }
+  }, [profile.id]);
 
   const myReports = reports.filter((r) => {
     if (r.userId && profile.id && r.userId === profile.id) return true;
@@ -177,7 +185,11 @@ export default function MisiPage() {
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = avatarFallback;
                 }}
-                className="h-10 w-10 sm:h-11 sm:w-11 rounded-lg object-cover border-2 border-white/20 shrink-0"
+                className={`h-10 w-10 sm:h-11 sm:w-11 rounded-lg object-cover shrink-0 transition-all ${
+                  hasGoldFrame
+                    ? 'ring-2 ring-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.6)] border border-amber-200'
+                    : 'border-2 border-white/20'
+                }`}
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -185,6 +197,11 @@ export default function MisiPage() {
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/15 text-blue-100 border border-white/20 shrink-0">
                     Lvl {profile.level === 'Pemula' ? '1' : profile.level === 'Warga Aktif' ? '2' : profile.level === 'Pahlawan Kota' ? '3' : '4'}
                   </span>
+                  {hasGoldFrame && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/30 text-amber-200 border border-amber-400/50 shrink-0 flex items-center gap-1">
+                      ✨ Warga Peduli
+                    </span>
+                  )}
                 </div>
                 <p className="text-[11px] text-blue-100/80 truncate">
                   {profile.level} • {userLoc.city || 'LaporKuy'} Civic Index
