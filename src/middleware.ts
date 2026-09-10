@@ -6,7 +6,8 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.searchParams.has('clear_cookies') || request.nextUrl.searchParams.has('clear')) {
     const url = new URL(request.nextUrl.pathname, request.url);
     const response = NextResponse.redirect(url);
-    response.headers.set('Clear-Site-Data', '"cookies", "storage"');
+    // Remove "storage" from Clear-Site-Data because it clears Next.js 16 Segment Cache (Cache API) and breaks PPR fetch
+    response.headers.set('Clear-Site-Data', '"cookies"');
     return response;
   }
 
