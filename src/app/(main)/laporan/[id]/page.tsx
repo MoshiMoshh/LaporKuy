@@ -3,7 +3,7 @@
 import { use, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useLaporKuyStore } from '@/lib/store';
+import { useLaporKuyStore, defaultMockReports } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -46,8 +46,8 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
     } catch (e) {}
   }
 
-  if (!report && reports.length > 0) {
-    report = reports[0];
+  if (!report) {
+    report = defaultMockReports.find((r) => r.id === resolvedParams.id);
   }
   const [commentInput, setCommentInput] = useState('');
   const [isFollowing, setIsFollowing] = useState(report?.hasFollowed || false);
@@ -110,15 +110,20 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
 
         <div className="flex items-center gap-2">
           <Badge
-            className={`px-3 py-1 text-xs ${
+            className={`px-3 py-1 text-xs font-bold ${
               report.status === 'Selesai'
-                ? 'bg-emerald-500 text-white'
+                ? 'bg-emerald-600 text-white'
                 : report.status === 'Diproses'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-blue-600 text-white'
+                : report.status === 'Terverifikasi'
+                ? 'bg-purple-600 text-white'
                 : 'bg-amber-500 text-white'
             }`}
           >
-            {report.status}
+            {report.status === 'Selesai' && '✓ Selesai'}
+            {report.status === 'Diproses' && '⚡ Diproses Dinas'}
+            {report.status === 'Terverifikasi' && '🛡️ Terverifikasi'}
+            {report.status === 'Pending' && '⏳ Menunggu Verifikasi'}
           </Badge>
         </div>
       </div>
@@ -246,17 +251,17 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
                   <div
                     key={c.id}
                     className={`p-3.5 rounded-xl border ${
-                      c.isOfficial
-                        ? 'bg-blue-500/10 border-blue-500/30'
+                      c.isOfficial || c.role === 'admin' || c.role === 'dinas'
+                        ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
                         : 'bg-muted/30 border-border/50'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-foreground">{c.author}</span>
-                        {c.isOfficial && (
-                          <Badge className="bg-blue-600 text-white text-[9px] gap-1">
-                            <Building2 className="h-2.5 w-2.5" /> Resmi Dinas
+                        {(c.isOfficial || c.role === 'admin' || c.role === 'dinas') && (
+                          <Badge className="bg-blue-600 text-white text-[9px] gap-1 px-2 py-0.5">
+                            <Building2 className="h-2.5 w-2.5" /> Resmi Admin / Dinas
                           </Badge>
                         )}
                       </div>
@@ -264,7 +269,7 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
                         {new Date(c.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <p className="text-xs text-foreground/90">{c.content}</p>
+                    <p className="text-xs text-foreground/90 font-medium">{c.content}</p>
                   </div>
                 ))
               )}
@@ -289,57 +294,142 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
             <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-primary" /> Target SLA Perbaikan
             </h3>
-            
-            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-xs space-y-1">
-              <span className="text-muted-foreground block text-[10px]">Target Waktu Selesai:</span>
-              <span className="font-bold text-primary block text-sm">3 Hari Kerja</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold block text-[11px]">
-                ⏳ Sisa waktu: 1 Hari lagi
-              </span>
-            </div>
+            {/* Dynamic SLA Card */}
+            {report.status === 'Selesai' ? (
+              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-1">
+                <span className="text-emerald-700 dark:text-emerald-300 font-bold block text-sm flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  Pekerjaan Telah Selesai
+                </span>
+                <span className="text-slate-600 dark:text-slate-300 block text-[11px]">
+                  Ditangani oleh: <strong>{report.assignedDinas || 'Dinas Terkait'}</strong>
+                </span>
+                {report.afterPhotoUrl && (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold block text-[10px]">
+                    ✓ Bukti foto hasil perbaikan tersedia di atas
+                  </span>
+                )}
+              </div>
+            ) : report.status === 'Diproses' ? (
+              <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs space-y-1">
+                <span className="text-muted-foreground block text-[10px]">Target SLA Lapangan:</span>
+                <span className="font-bold text-blue-600 dark:text-blue-400 block text-sm">
+                  {report.slaTargetDays || 3} Hari Kerja
+                </span>
+                <span className={`font-semibold block text-[11px] ${(report.slaDaysRemaining ?? 1) <= 1 ? 'text-rose-600 dark:text-rose-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                  ⏳ Sisa waktu: {report.slaDaysRemaining ?? 1} Hari lagi
+                </span>
+                <span className="text-slate-500 dark:text-slate-400 block text-[10px] pt-0.5">
+                  Dinas Pelaksana: <strong>{report.assignedDinas || 'Dinas Bina Marga'}</strong>
+                </span>
+              </div>
+            ) : report.status === 'Terverifikasi' ? (
+              <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs space-y-1">
+                <span className="text-purple-700 dark:text-purple-300 font-bold block text-sm flex items-center gap-1">
+                  <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
+                  Terverifikasi Valid
+                </span>
+                <span className="text-slate-600 dark:text-slate-300 block text-[11px]">
+                  Ditugaskan ke: <strong>{report.assignedDinas || 'Dinas Terkait'}</strong>
+                </span>
+                <span className="text-purple-600 dark:text-purple-400 font-medium block text-[10px]">
+                  Menunggu pengerahan armada URC lapangan
+                </span>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs space-y-1">
+                <span className="text-amber-800 dark:text-amber-300 font-bold block text-sm flex items-center gap-1">
+                  <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                  Antrean Verifikasi
+                </span>
+                <span className="text-slate-600 dark:text-slate-300 block text-[11px]">
+                  Admin sedang memverifikasi laporan & bukti foto kerusakan.
+                </span>
+              </div>
+            )}
 
-            {/* Status Timeline */}
-            <div className="space-y-4 pt-2 border-t">
+            {/* Dynamic Status Timeline Stepper */}
+            <div className="space-y-4 pt-3 border-t">
+              {/* Step 1: Laporan Dikirim */}
               <div className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</div>
+                  <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">✓</div>
                   <div className="w-0.5 h-10 bg-emerald-500" />
                 </div>
                 <div>
                   <span className="text-xs font-bold text-foreground">Laporan Terkirim</span>
-                  <span className="text-[10px] text-muted-foreground block">Foto + Koordinat GPS masuk</span>
+                  <span className="text-[10px] text-muted-foreground block">
+                    Foto & koordinat GPS dicatat ({new Date(report.createdAt).toLocaleDateString('id-ID')})
+                  </span>
                 </div>
               </div>
 
+              {/* Step 2: Verifikasi AI & Admin */}
               <div className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">✓</div>
-                  <div className="w-0.5 h-10 bg-emerald-500" />
+                  {report.status === 'Pending' ? (
+                    <div className="h-6 w-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold animate-pulse shadow-xs">⏳</div>
+                  ) : (
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">✓</div>
+                  )}
+                  <div className={`w-0.5 h-10 ${report.status === 'Pending' ? 'bg-border' : 'bg-emerald-500'}`} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-foreground">Verifikasi AI & Komunitas</span>
-                  <span className="text-[10px] text-muted-foreground block">Skor AI 98% Asli</span>
+                  <span className={`text-xs font-bold ${report.status === 'Pending' ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}`}>
+                    Verifikasi AI & Admin
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">
+                    {report.status === 'Pending'
+                      ? 'Sedang ditinjau oleh tim verifikator kota'
+                      : `Skor AI: ${report.aiAuthenticityScore || 98}% Valid`}
+                  </span>
                 </div>
               </div>
 
+              {/* Step 3: Pengerjaan Tim URC Dinas */}
               <div className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="h-6 w-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">●</div>
-                  <div className="w-0.5 h-10 bg-border" />
+                  {report.status === 'Diproses' ? (
+                    <div className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold ring-4 ring-blue-200 dark:ring-blue-900 shadow-xs animate-pulse">●</div>
+                  ) : report.status === 'Selesai' ? (
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">✓</div>
+                  ) : (
+                    <div className="h-6 w-6 rounded-full bg-border text-muted-foreground flex items-center justify-center text-xs font-bold">○</div>
+                  )}
+                  <div className={`w-0.5 h-10 ${report.status === 'Selesai' ? 'bg-emerald-500' : 'bg-border'}`} />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-foreground">Diproses Tim URC Dinas</span>
-                  <span className="text-[10px] text-muted-foreground block">Armada dikirim ke lokasi</span>
+                  <span className={`text-xs font-bold ${report.status === 'Diproses' ? 'text-blue-600 dark:text-blue-400 font-extrabold' : report.status === 'Pending' ? 'text-muted-foreground' : 'text-foreground'}`}>
+                    Pengerjaan Tim URC Dinas
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">
+                    {report.status === 'Diproses'
+                      ? `Sedang dikerjakan oleh ${report.assignedDinas || 'Dinas Lapangan'}`
+                      : report.status === 'Selesai'
+                      ? `Telah tuntas oleh ${report.assignedDinas || 'Dinas Terkait'}`
+                      : `Siap ditugaskan ke ${report.assignedDinas || 'Dinas Terkait'}`}
+                  </span>
                 </div>
               </div>
 
+              {/* Step 4: Selesai & Validasi Bukti */}
               <div className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="h-6 w-6 rounded-full bg-border text-muted-foreground flex items-center justify-center text-xs font-bold">○</div>
+                  {report.status === 'Selesai' ? (
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">✓</div>
+                  ) : (
+                    <div className="h-6 w-6 rounded-full bg-border text-muted-foreground flex items-center justify-center text-xs font-bold">○</div>
+                  )}
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-muted-foreground">Selesai Ditangani</span>
-                  <span className="text-[10px] text-muted-foreground block">Upload foto sesudah</span>
+                  <span className={`text-xs font-bold ${report.status === 'Selesai' ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>
+                    Selesai Ditangani
+                  </span>
+                  <span className="text-[10px] text-muted-foreground block">
+                    {report.status === 'Selesai'
+                      ? 'Perbaikan tuntas dengan bukti foto lapangan'
+                      : 'Menunggu perbaikan dan verifikasi fisik'}
+                  </span>
                 </div>
               </div>
             </div>

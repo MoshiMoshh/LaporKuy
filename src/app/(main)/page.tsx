@@ -156,8 +156,9 @@ export default function HomePage() {
               : '/images/reports/pothole.jpg';
 
             const getStatusBadge = (status: string) => {
-              if (status === 'Selesai') return 'bg-emerald-500 text-white';
+              if (status === 'Selesai') return 'bg-emerald-600 text-white';
               if (status === 'Diproses') return 'bg-blue-600 text-white';
+              if (status === 'Terverifikasi') return 'bg-purple-600 text-white';
               return 'bg-amber-500 text-white';
             };
 

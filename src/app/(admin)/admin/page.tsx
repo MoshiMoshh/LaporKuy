@@ -136,7 +136,8 @@ export default function AdminPage() {
         selectedReport.id,
         newStatus,
         statusNotes,
-        afterPhotoInput || selectedReport.afterPhotoUrl || ''
+        afterPhotoInput || selectedReport.afterPhotoUrl || '',
+        assignedDinasInput || selectedReport.assignedDinas
       );
 
       toast.success(`Laporan #${selectedReport.id} berhasil diperbarui!`, {

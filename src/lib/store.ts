@@ -237,7 +237,7 @@ interface LaporKuyStoreValue {
   addReport: (data: Omit<Report, 'id' | 'createdAt' | 'updatedAt' | 'upvotes' | 'comments'>) => Promise<Report>;
   toggleUpvote: (reportId: string) => Promise<void>;
   addComment: (reportId: string, content: string) => Promise<void>;
-  updateReportStatus: (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string) => Promise<void>;
+  updateReportStatus: (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string, assignedDinas?: string) => Promise<void>;
   claimQuest: (questId: string) => Promise<void>;
   redeemReward: (rewardId: string) => Promise<boolean>;
   markNotificationsRead: () => Promise<void>;
@@ -528,8 +528,23 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       loadData();
     };
 
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'laporkuy_local_reports' || e.key === 'laporkuy_store_sync') {
+        try {
+          const saved = localStorage.getItem('laporkuy_local_reports');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setReports(parsed);
+            }
+          }
+        } catch (e) {}
+      }
+    };
+
     if (typeof window !== 'undefined') {
       window.addEventListener('laporkuy_store_update', handleSync);
+      window.addEventListener('storage', handleStorage);
     }
 
     return () => {
@@ -539,6 +554,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       authListener.subscription.unsubscribe();
       if (typeof window !== 'undefined') {
         window.removeEventListener('laporkuy_store_update', handleSync);
+        window.removeEventListener('storage', handleStorage);
       }
     };
   }, []);
@@ -565,10 +581,16 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       if (typeof window !== 'undefined') {
         try {
           localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
+          localStorage.setItem('laporkuy_store_sync', Date.now().toString());
+          window.dispatchEvent(new Event('laporkuy_store_update'));
         } catch (e) {}
       }
       return updated;
     });
+
+    // Check if profile.id is a valid UUID for Supabase foreign key
+    const isValidUuid = profile?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profile.id);
+    const validUserId = isValidUuid ? profile.id : null;
 
     await supabase.from('reports').insert({
       id: newReport.id,
@@ -582,7 +604,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       photo_url: newReport.photoUrl,
       description: newReport.description,
       status: newReport.status,
-      user_id: profile.id,
+      user_id: validUserId,
       user_name: profile.name,
       user_avatar: profile.avatar,
       upvotes: 1,
@@ -729,41 +751,113 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     });
   };
 
-  const updateReportStatus = async (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string) => {
+  const updateReportStatus = async (
+    reportId: string, 
+    newStatus: Report['status'], 
+    notes?: string, 
+    afterPhotoUrl?: string,
+    assignedDinas?: string
+  ) => {
     const now = new Date().toISOString();
+    let targetReport: Report | undefined;
     
-    setReports(prev => prev.map(r => {
-      if (r.id === reportId) {
-        const newComments = notes ? [...r.comments, {
-          id: `c-admin-${Date.now()}`,
-          author: 'Admin LaporKuy',
-          role: 'admin' as const,
-          content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
-          createdAt: now,
-          isOfficial: true
-        }] : r.comments;
+    setReports(prev => {
+      const updated = prev.map(r => {
+        if (r.id === reportId) {
+          const newComments = notes ? [...r.comments, {
+            id: `c-admin-${Date.now()}`,
+            author: 'Admin LaporKuy',
+            role: 'admin' as const,
+            content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
+            createdAt: now,
+            isOfficial: true
+          }] : r.comments;
 
-        return { ...r, status: newStatus, updatedAt: now, afterPhotoUrl: afterPhotoUrl || r.afterPhotoUrl, comments: newComments };
-      }
-      return r;
-    }));
-    
-    await supabase.from('reports').update({
-       status: newStatus,
-       updated_at: now,
-       after_photo_url: afterPhotoUrl || null
-    }).eq('id', reportId);
-
-    if (notes) {
-      await supabase.from('comments').insert({
-        id: `c-admin-${Date.now()}`,
-        report_id: reportId,
-        author: 'Admin LaporKuy',
-        role: 'admin',
-        content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
-        created_at: now,
-        is_official: true
+          const updatedItem: Report = { 
+            ...r, 
+            status: newStatus, 
+            updatedAt: now, 
+            assignedDinas: assignedDinas || r.assignedDinas,
+            afterPhotoUrl: afterPhotoUrl || r.afterPhotoUrl, 
+            slaDaysRemaining: newStatus === 'Selesai' ? 0 : r.slaDaysRemaining,
+            comments: newComments 
+          };
+          targetReport = updatedItem;
+          return updatedItem;
+        }
+        return r;
       });
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
+          localStorage.setItem('laporkuy_store_sync', Date.now().toString());
+          window.dispatchEvent(new Event('laporkuy_store_update'));
+        } catch (e) {}
+      }
+
+      return updated;
+    });
+    
+    try {
+      const updatePayload: any = {
+        status: newStatus,
+        updated_at: now
+      };
+      if (afterPhotoUrl) updatePayload.after_photo_url = afterPhotoUrl;
+      if (assignedDinas) updatePayload.assigned_dinas = assignedDinas;
+      if (newStatus === 'Selesai') updatePayload.sla_days_remaining = 0;
+
+      const { data: updatedRows, error: updateError } = await supabase
+        .from('reports')
+        .update(updatePayload)
+        .eq('id', reportId)
+        .select();
+
+      // If report was not in Supabase yet, upsert it
+      if (!updateError && (!updatedRows || updatedRows.length === 0) && targetReport) {
+        const isValidUuid = targetReport.userId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetReport.userId);
+        await supabase.from('reports').upsert({
+          id: targetReport.id,
+          title: targetReport.title,
+          category: targetReport.category,
+          severity: targetReport.severity,
+          address: targetReport.address,
+          district: targetReport.district || 'Surabaya',
+          lat: targetReport.lat,
+          lng: targetReport.lng,
+          photo_url: targetReport.photoUrl,
+          after_photo_url: afterPhotoUrl || targetReport.afterPhotoUrl || null,
+          description: targetReport.description,
+          status: newStatus,
+          user_id: isValidUuid ? targetReport.userId : null,
+          user_name: targetReport.userName,
+          user_avatar: targetReport.userAvatar,
+          upvotes: targetReport.upvotes,
+          is_urgent: targetReport.isUrgent || false,
+          ai_authenticity_score: targetReport.aiAuthenticityScore || 98,
+          ai_confidence: targetReport.aiConfidence || 95,
+          assigned_dinas: assignedDinas || targetReport.assignedDinas,
+          sla_target_days: targetReport.slaTargetDays || 3,
+          sla_days_remaining: newStatus === 'Selesai' ? 0 : targetReport.slaDaysRemaining,
+          created_at: targetReport.createdAt,
+          updated_at: now
+        });
+      }
+
+      if (notes) {
+        await supabase.from('comments').insert({
+          id: `c-admin-${Date.now()}`,
+          report_id: reportId,
+          author: 'Admin LaporKuy',
+          role: 'admin',
+          content: `Status diubah menjadi "${newStatus}". Catatan: ${notes}`,
+          created_at: now,
+          is_official: true
+        });
+      }
+    } catch (err) {
+      console.warn('Supabase status sync error:', err);
     }
   };
 
