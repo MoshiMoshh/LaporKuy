@@ -28,10 +28,9 @@ function isRealUserPhoto(avatar?: string | null): boolean {
   return trimmed.startsWith('http://') || trimmed.startsWith('https://');
 }
 
-// Avatar component that displays real photo if available, or a clean silhouette icon if no PP
+// Avatar component that displays real photo with no-referrer policy, or crisp initial avatar if none
 function LeaderboardAvatar({
   avatar,
-  hasRealPhoto,
   name,
   className,
   fallbackClassName,
@@ -41,23 +40,23 @@ function LeaderboardAvatar({
   hasRealPhoto?: boolean;
   name: string;
   className: string;
-  fallbackClassName: string;
-  iconClassName: string;
+  fallbackClassName?: string;
+  iconClassName?: string;
 }) {
   const [loadError, setLoadError] = useState(false);
 
-  if (!hasRealPhoto || !avatar || loadError) {
-    return (
-      <div className={cn('flex items-center justify-center select-none shrink-0', fallbackClassName)}>
-        <User className={iconClassName} />
-      </div>
-    );
-  }
+  useEffect(() => {
+    setLoadError(false);
+  }, [avatar]);
+
+  const initialsFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=003B73&color=fff&size=128&bold=true`;
+  const effectiveSrc = (avatar && !loadError) ? avatar : initialsFallback;
 
   return (
     <img
-      src={avatar}
+      src={effectiveSrc}
       alt={name}
+      referrerPolicy="no-referrer"
       onError={() => setLoadError(true)}
       className={cn('object-cover select-none shrink-0', className)}
     />
@@ -196,8 +195,9 @@ export default function LeaderboardPage() {
       // Authentic Avatar Resolution:
       // Priority: use currentProfile.avatar for current user if available, otherwise p.avatar
       const userRawAvatar = isCurrentUser && currentProfile?.avatar ? currentProfile.avatar : p.avatar;
-      const hasRealPhoto = isRealUserPhoto(userRawAvatar);
-      const avatar = hasRealPhoto ? (userRawAvatar as string) : '';
+      const initialsAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name || 'User')}&background=003B73&color=fff&size=128&bold=true`;
+      const avatar = userRawAvatar || initialsAvatar;
+      const hasRealPhoto = Boolean(userRawAvatar && !userRawAvatar.includes('ui-avatars.com'));
 
       return {
         id: p.id,

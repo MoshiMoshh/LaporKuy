@@ -33,6 +33,59 @@ const freshQuestsTemplate: Quest[] = [
   { id: 'q-4', title: 'Bulan Bersih Sampah', description: 'Ikuti tantangan tematik pelaporan sampah liar', rewardPoints: 100, progress: 0, target: 5, type: 'seasonal', isClaimed: false, expiresIn: '12 hari lagi' },
 ];
 
+const defaultRewardsTemplate: Reward[] = [
+  {
+    id: 'r-cert',
+    title: 'E-Sertifikat Kontributor Fasilitas Publik',
+    category: 'Apresiasi Digital',
+    pointsCost: 100,
+    stock: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80',
+    partnerName: 'Pemerintah Kota & LaporKuy',
+    description: 'Sertifikat digital resmi ber-QR verifikasi atas partisipasi aktif mengawal perbaikan fasilitas publik kota.'
+  },
+  {
+    id: 'r-badge',
+    title: 'Bingkai Emas Profil & Titel Warga Peduli',
+    category: 'Titel & Badge',
+    pointsCost: 120,
+    stock: 100,
+    imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
+    partnerName: 'Komunitas Warga LaporKuy',
+    description: 'Membuka lencana kehormatan dan bingkai emas di profil akun Anda sebagai pelapor aktif fasilitas kota.'
+  },
+  {
+    id: 'r-tree',
+    title: 'Adopsi 1 Bibit Pohon Penghijauan Kota',
+    category: 'Dampak Sosial',
+    pointsCost: 180,
+    stock: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&auto=format&fit=crop&q=80',
+    partnerName: 'Dinas Lingkungan Hidup & Aksi Hijau',
+    description: 'Satu bibit pohon produktif akan ditanam dan dirawat atas nama Anda dalam program penghijauan kota.'
+  },
+  {
+    id: 'r-fasttrack',
+    title: 'Voucher Jalur Prioritas Layanan Publik',
+    category: 'Layanan Publik',
+    pointsCost: 250,
+    stock: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&auto=format&fit=crop&q=80',
+    partnerName: 'Mall Pelayanan Publik & Pemda',
+    description: 'Akses antrean prioritas jalur cepat pengurusan administrasi kependudukan di loket pelayanan terpadu.'
+  },
+  {
+    id: 'r-rec',
+    title: 'Surat Pengakuan Kontribusi Warga Aktif',
+    category: 'Apresiasi Digital',
+    pointsCost: 350,
+    stock: 15,
+    imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=400&auto=format&fit=crop&q=80',
+    partnerName: 'Pusat Aspirasi & Partisipasi Publik',
+    description: 'Dokumen pengesahan rekam jejak kepedulian sipil yang dapat dilampirkan untuk portofolio & beasiswa.'
+  }
+];
+
 // ── Store return type ──
 interface LaporKuyStoreValue {
   reports: Report[];
@@ -97,7 +150,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
 
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [quests, setQuests] = useState<Quest[]>([]);
-  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>(defaultRewardsTemplate);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -630,12 +683,67 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     const reward = rewards.find(r => r.id === rewardId);
     if (!reward || reward.stock <= 0 || profile.points < reward.pointsCost) return false;
 
-    setRewards(prev => prev.map(r => r.id === rewardId ? { ...r, stock: r.stock - 1 } : r));
+    const newStock = Math.max(0, reward.stock - 1);
+    setRewards(prev => prev.map(r => r.id === rewardId ? { ...r, stock: newStock } : r));
     const newPoints = profile.points - reward.pointsCost;
     setProfile(prev => ({ ...prev, points: newPoints }));
 
-    await supabase.from('rewards').update({ stock: reward.stock - 1 }).eq('id', rewardId);
-    await supabase.from('profiles').update({ points: newPoints }).eq('id', profile.id);
+    const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const claimCode = `LK-${rewardId.replace('r-', '').toUpperCase()}-${randomSuffix}`;
+
+    if (typeof window !== 'undefined' && profile.id) {
+      localStorage.setItem(`laporkuy_points_v3_${profile.id}`, JSON.stringify({
+        points: newPoints,
+        xp: profile.xp,
+        level: profile.level
+      }));
+
+      try {
+        const historyKey = `laporkuy_reward_history_${profile.id}`;
+        const existing = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        const newRecord = {
+          id: `red-${Date.now()}`,
+          rewardId: reward.id,
+          title: reward.title,
+          category: reward.category,
+          pointsCost: reward.pointsCost,
+          partnerName: reward.partnerName,
+          code: claimCode,
+          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        };
+        localStorage.setItem(historyKey, JSON.stringify([newRecord, ...existing]));
+      } catch (e) {}
+
+      window.dispatchEvent(new Event('laporkuy_store_update'));
+    }
+
+    const notifItem: NotificationItem = {
+      id: `notif-${Date.now()}`,
+      title: `Penukaran Berhasil: ${reward.title}`,
+      message: `Selamat! Anda menukar ${reward.pointsCost} Pts. Kode verifikasi Anda: ${claimCode}. Klik notifikasi ini untuk membuka petunjuk cara pakai dan melihat sertifikat/manfaat resmi Anda.`,
+      timestamp: new Date().toISOString(),
+      type: 'reward',
+      link: `/tukar-poin?code=${claimCode}`,
+      isRead: false,
+    };
+    setNotifications(prev => [notifItem, ...prev]);
+
+    try {
+      await Promise.all([
+        supabase.from('rewards').update({ stock: newStock }).eq('id', rewardId),
+        supabase.from('profiles').update({ points: newPoints }).eq('id', profile.id),
+        supabase.from('notifications').insert({
+          user_id: profile.id,
+          title: notifItem.title,
+          message: notifItem.message,
+          type: notifItem.type,
+          link: notifItem.link,
+          is_read: false
+        })
+      ]);
+    } catch (e) {
+      console.error("Error updating redemption in supabase:", e);
+    }
     
     return true;
   };

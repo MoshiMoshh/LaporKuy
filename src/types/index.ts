@@ -110,7 +110,7 @@ export interface Quest {
 export interface Reward {
   id: string;
   title: string;
-  category: 'Voucher' | 'Pulsa/E-wallet' | 'Merchandise' | 'Layanan Prioritas';
+  category: 'Apresiasi Digital' | 'Titel & Badge' | 'Dampak Sosial' | 'Layanan Publik' | string;
   pointsCost: number;
   stock: number;
   imageUrl: string;

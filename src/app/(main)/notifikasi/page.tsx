@@ -109,50 +109,88 @@ export default function NotifikasiPage() {
       </div>
 
       {/* Notifications List */}
-      <Card className="divide-y border-border/60">
+      <Card className="divide-y border-border/60 overflow-hidden">
         {filteredNotifs.length === 0 ? (
           <div className="py-12 text-center text-xs text-muted-foreground">
             Belum ada notifikasi di kategori ini.
           </div>
         ) : (
-          filteredNotifs.map((item) => (
-            <div
-              key={item.id}
-              className={`p-4 flex items-start justify-between gap-3 transition-colors ${
-                !item.isRead ? 'bg-primary/5 font-medium' : 'hover:bg-muted/20'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-xl bg-muted shrink-0 mt-0.5">
-                  {getIcon(item.type)}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xs sm:text-sm font-bold text-foreground">{item.title}</h3>
-                    {!item.isRead && (
-                      <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">{item.message}</p>
-                  <span 
-                    className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1"
-                    title={formatExact(item.timestamp)}
-                  >
-                    <Clock className="w-3 h-3" />
-                    {formatTimeAgo(item.timestamp)}
-                  </span>
-                </div>
-              </div>
+          filteredNotifs.map((item) => {
+            let targetLink = item.link;
+            if (!targetLink) {
+              if (item.type === 'reward' || item.title?.toLowerCase().includes('penukaran') || item.title?.toLowerCase().includes('tukar')) {
+                const codeMatch = item.message?.match(/LK-[A-Z0-9-]+/);
+                targetLink = codeMatch ? `/tukar-poin?code=${codeMatch[0]}` : '/tukar-poin';
+              } else if (item.type === 'status') {
+                targetLink = '/dashboard';
+              }
+            }
 
-              {item.link && (
-                <Link href={item.link} className="shrink-0 pt-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+            const innerContent = (
+              <>
+                <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <div className="p-2 rounded-xl bg-muted shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
+                    {getIcon(item.type)}
+                  </div>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                        {item.title}
+                      </h3>
+                      {!item.isRead && (
+                        <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {item.message}
+                    </p>
+                    
+                    <div className="flex items-center gap-3 pt-1 flex-wrap">
+                      <span 
+                        className="text-[10px] text-muted-foreground flex items-center gap-1"
+                        title={formatExact(item.timestamp)}
+                      >
+                        <Clock className="w-3 h-3" />
+                        {formatTimeAgo(item.timestamp)}
+                      </span>
+
+                      {targetLink && (
+                        <span className="text-[11px] font-semibold text-primary inline-flex items-center gap-0.5 group-hover:underline">
+                          Buka Petunjuk & Gunakan Kode →
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {targetLink && (
+                  <div className="shrink-0 pt-1 text-muted-foreground group-hover:text-primary transition-colors">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 pointer-events-none">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </>
+            );
+
+            const cardClasses = `p-4 flex items-start justify-between gap-3 transition-colors group ${
+              !item.isRead ? 'bg-primary/5 font-medium' : 'hover:bg-muted/20'
+            } ${targetLink ? 'cursor-pointer hover:bg-muted/30' : ''}`;
+
+            if (targetLink) {
+              return (
+                <Link key={item.id} href={targetLink} className={cardClasses}>
+                  {innerContent}
                 </Link>
-              )}
-            </div>
-          ))
+              );
+            }
+
+            return (
+              <div key={item.id} className={cardClasses}>
+                {innerContent}
+              </div>
+            );
+          })
         )}
       </Card>
     </div>

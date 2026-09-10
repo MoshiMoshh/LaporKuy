@@ -29,7 +29,8 @@ import {
   Trophy,
   Copy,
   Check,
-  Edit3
+  Edit3,
+  Sparkles
 } from 'lucide-react';
 
 import { useUserLocation } from '@/lib/location-store';
@@ -84,6 +85,14 @@ export default function ProfilPage() {
   }, [profile]);
 
   const [statusFilter, setStatusFilter] = useState<'Semua' | 'Terverifikasi' | 'Diproses' | 'Selesai' | 'Pending'>('Semua');
+  const [hasGoldFrame, setHasGoldFrame] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && profile.id) {
+      const isGold = localStorage.getItem(`laporkuy_gold_frame_${profile.id}`) === 'true';
+      setHasGoldFrame(isGold);
+    }
+  }, [profile.id]);
 
   const filteredReports = myReports.filter((report) => {
     if (statusFilter === 'Semua') return true;
@@ -186,7 +195,12 @@ export default function ProfilPage() {
               <img
                 src={avatarSrc}
                 alt={name || profile.name}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-background shadow-md ring-4 ring-primary/20 bg-card group-hover:brightness-90 transition-all"
+                referrerPolicy="no-referrer"
+                className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-background shadow-md ${
+                  hasGoldFrame
+                    ? 'ring-4 ring-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.5)] scale-105'
+                    : 'ring-4 ring-primary/20'
+                } bg-card group-hover:brightness-90 transition-all`}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
                 }}
@@ -216,6 +230,12 @@ export default function ProfilPage() {
               <Trophy className="w-3 h-3 mr-1 text-primary shrink-0" />
               {profile.level || "Pemula"}
             </Badge>
+            {hasGoldFrame && (
+              <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-amber-300 text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-200" />
+                Warga Peduli
+              </Badge>
+            )}
           </div>
 
           {/* Location & Human Readable ID */}

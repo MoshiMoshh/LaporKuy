@@ -135,6 +135,7 @@ export function Navbar() {
                       width={28}
                       height={28}
                       unoptimized
+                      referrerPolicy="no-referrer"
                       className="h-7 w-7 rounded-full object-cover ring-2 ring-blue-500/30"
                     />
                     <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-1 ring-white" />

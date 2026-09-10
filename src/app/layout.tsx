@@ -21,6 +21,7 @@ const interFont = Inter({
 });
 
 export const metadata: Metadata = {
+  referrer: 'no-referrer',
   title: {
     default: "LaporKuy — Platform Pelaporan Infrastruktur Kota Berbasis AI",
     template: "%s | LaporKuy",
