@@ -41,14 +41,6 @@ const dinasOptions = [
   'BPBD & Penanggulangan Bencana'
 ];
 
-const getFallbackImg = (category: string) => {
-  if (category.includes('Lampu')) return '/images/reports/streetlight.jpg';
-  if (category.includes('Banjir')) return '/images/reports/flood.jpg';
-  if (category.includes('Sampah')) return '/images/reports/trash.jpg';
-  if (category.includes('Trotoar')) return '/images/reports/trotoar.jpg';
-  if (category.includes('Fasilitas')) return '/images/reports/rusak3.jpg';
-  return '/images/reports/pothole.jpg';
-};
 
 const getCategoryBadgeClass = (category: string) => {
   if (category.includes('Lampu')) return 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60';
@@ -409,8 +401,6 @@ export default function AdminPage() {
           </div>
         ) : (
           filteredReports.map((report) => {
-            const fallbackImg = getFallbackImg(report.category);
-
             return (
               <div
                 key={report.id}
@@ -434,15 +424,16 @@ export default function AdminPage() {
 
                 {/* Body: Thumbnail + Info */}
                 <div className="flex items-start gap-3">
-                  <div className="w-18 h-18 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-700 relative">
-                    <img
-                      src={report.photoUrl || fallbackImg}
-                      alt={report.title}
-                      onError={(e) => {
-                        e.currentTarget.src = fallbackImg;
-                      }}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-18 h-18 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-700 relative flex items-center justify-center">
+                    {report.photoUrl ? (
+                      <img
+                        src={report.photoUrl}
+                        alt={report.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <FileText className="w-8 h-8 text-slate-400" />
+                    )}
                     {report.afterPhotoUrl && (
                       <span className="absolute bottom-1 right-1 px-1 py-0.2 rounded text-[8px] font-bold bg-emerald-600 text-white">
                         ✓ Bukti Ada
@@ -541,22 +532,21 @@ export default function AdminPage() {
                   </tr>
                 ) : (
                   filteredReports.map((report) => {
-                    const fallbackImg = getFallbackImg(report.category);
-
                     return (
                       <tr key={report.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
                         {/* ID & Photo */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0 relative">
-                              <img
-                                src={report.photoUrl || fallbackImg}
-                                alt={report.title}
-                                onError={(e) => {
-                                  e.currentTarget.src = fallbackImg;
-                                }}
-                                className="w-full h-full object-cover"
-                              />
+                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0 relative flex items-center justify-center">
+                              {report.photoUrl ? (
+                                <img
+                                  src={report.photoUrl}
+                                  alt={report.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <FileText className="w-5 h-5 text-slate-400" />
+                              )}
                             </div>
                             <div>
                               <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 block">
@@ -863,11 +853,17 @@ export default function AdminPage() {
             </div>
 
             <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3">
-              <img
-                src={reportToDelete.photoUrl || getFallbackImg(reportToDelete.category)}
-                alt={reportToDelete.title}
-                className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
-              />
+              {reportToDelete.photoUrl ? (
+                <img
+                  src={reportToDelete.photoUrl}
+                  alt={reportToDelete.title}
+                  className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-slate-400" />
+                </div>
+              )}
               <div className="min-w-0 text-xs">
                 <h4 className="font-bold text-slate-900 dark:text-slate-100 truncate">
                   {reportToDelete.title}
