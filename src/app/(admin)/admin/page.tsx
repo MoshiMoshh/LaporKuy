@@ -172,7 +172,7 @@ export default function AdminPage() {
             Pusat Verifikasi & Dispatch Kota
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 max-w-2xl">
-            Kelola aduan warga Surabaya, validasi bukti AI Vision, dan tugaskan armada dinas lapangan dengan pemantauan SLA ketat.
+            Kelola aduan warga kota, validasi bukti AI Vision, dan tugaskan armada dinas lapangan dengan pemantauan SLA ketat.
           </p>
         </div>
 

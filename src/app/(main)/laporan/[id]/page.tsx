@@ -442,13 +442,13 @@ export default function DetailLaporanPage({ params }: { params: Promise<{ id: st
                 <MapPin className="h-4 w-4 text-rose-500" /> Titik Lokasi
               </h3>
               <Badge variant="outline" className="text-[10px]">
-                {report.lat ? `${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}` : 'Surabaya'}
+                {report.lat ? `${report.lat.toFixed(4)}, ${report.lng.toFixed(4)}` : (report.district || 'Titik Koordinat')}
               </Badge>
             </div>
             
             <SingleLocationMap
-              lat={report.lat || -7.2575}
-              lng={report.lng || 112.7521}
+              lat={report.lat || -6.5246}
+              lng={report.lng || 106.8432}
               address={report.address}
               title={report.title}
               category={report.category}

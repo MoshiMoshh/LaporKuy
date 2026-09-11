@@ -108,8 +108,10 @@ export function MapView({
     });
   };
 
-  // Center of Surabaya
-  const centerPosition: [number, number] = [-7.2575, 112.7521];
+  // Dynamic Center based on actual user location or available reports from Supabase
+  const defaultLat = reports[0]?.lat || -6.5246;
+  const defaultLng = reports[0]?.lng || 106.8432;
+  const centerPosition: [number, number] = userLocation || [defaultLat, defaultLng];
 
   if (locationDenied) {
     return (
@@ -166,11 +168,11 @@ export function MapView({
           <MapController selectedPin={selectedPin} />
 
           {reports.map((report, idx) => {
-            // Generate deterministic pseudo-random coordinates near Surabaya center if missing
+            // Generate deterministic pseudo-random coordinates near default center if missing
             const pseudoRandomX = (idx * 0.13) % 0.05;
             const pseudoRandomY = (idx * 0.17) % 0.05;
-            const lat = report.lat || -7.2575 + pseudoRandomX - 0.025;
-            const lng = report.lng || 112.7521 + pseudoRandomY - 0.025;
+            const lat = report.lat || defaultLat + pseudoRandomX - 0.025;
+            const lng = report.lng || defaultLng + pseudoRandomY - 0.025;
             
             // Just update the object so it stays consistent on click
             if (!report.lat || !report.lng) {
@@ -206,7 +208,7 @@ export function MapView({
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="bg-slate-800 text-slate-300 border-slate-700 flex items-center gap-1">
               <Compass className="w-3.5 h-3.5 text-cyan-400" />
-              Peta Interaktif Surabaya
+              Peta Sebaran Laporan Warga
             </Badge>
             <span className="text-xs text-slate-400 font-medium">
               {reports.length} Laporan Terdaftar
