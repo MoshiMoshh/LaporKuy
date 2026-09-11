@@ -22,10 +22,10 @@ BEGIN
     total_upvotes_received
   )
   VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', 'Warga ' || split_part(NEW.email, '@', 1)),
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture', 'https://ui-avatars.com/api/?name=' || NEW.email),
+    NEW.id::text,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', 'Warga ' || split_part(COALESCE(NEW.email, ''), '@', 1)),
+    COALESCE(NEW.email, ''),
+    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture', 'https://ui-avatars.com/api/?name=' || COALESCE(NEW.email, 'User')),
     0,
     'Pemula',
     0,
