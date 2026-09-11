@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, LayoutDashboard, LogOut, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, LayoutDashboard, LogOut, ArrowLeft, BarChart3, Map } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { sendTelegramLog } from '@/app/actions/telegram';
 
@@ -13,58 +13,55 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100">
         {/* Admin Navbar */}
-        <header className="bg-gradient-to-r from-[#002B5B] via-[#003B7A] to-[#004B9B] text-white sticky top-0 z-50 border-b border-blue-900/60 shadow-sm">
+        <header className="bg-white dark:bg-slate-950 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
             {/* Brand */}
             <div className="flex items-center gap-3 shrink-0">
               <Link href="/admin" className="flex items-center gap-2 group">
-                <div className="w-8 h-8 rounded-lg bg-white/15 border border-white/20 flex items-center justify-center text-blue-200 group-hover:bg-white/25 transition-all">
-                  <ShieldCheck className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-md bg-blue-600 text-white flex items-center justify-center group-hover:bg-blue-700 transition-colors">
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div className="leading-tight">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-extrabold tracking-tight text-white">LaporKuy</span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-400 text-slate-950">
-                      Admin
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-blue-200/70 hidden sm:block">Sistem Dispatch & Verifikasi Kota</span>
+                  <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">LaporKuy Admin</span>
                 </div>
               </Link>
             </div>
 
             {/* Nav links */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-6">
               <Link
                 href="/admin"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg transition-colors border border-white/10"
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
               >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                Dispatch Dashboard
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
               </Link>
               <Link
                 href="/transparansi"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
               >
-                Pantau SLA Kota
+                <BarChart3 className="w-4 h-4" />
+                Pantau SLA
               </Link>
               <Link
                 href="/embed/map"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
               >
+                <Map className="w-4 h-4" />
                 Peta Persebaran
               </Link>
             </nav>
 
             {/* Right: Back to site + logout */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/80 hover:text-white bg-white/10 hover:bg-white/15 border border-white/15 rounded-lg px-2.5 py-1.5 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
               >
-                <ArrowLeft className="w-3 h-3" />
+                <ArrowLeft className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Web Publik</span>
               </Link>
+              <div className="w-px h-4 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
               <button
                 onClick={async () => {
                   const { data: { user } } = await supabase.auth.getUser();
@@ -72,9 +69,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   await sendTelegramLog(`<b>👋 Logout Admin Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
                   await supabase.auth.signOut();
                 }}
-                className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-200 hover:text-white hover:bg-rose-600/30 transition-colors border border-rose-400/20 rounded-lg px-2.5 py-1.5 cursor-pointer"
+                className="flex items-center gap-1.5 text-xs font-medium text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition-colors cursor-pointer"
               >
-                <LogOut className="w-3 h-3" />
+                <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Keluar</span>
               </button>
             </div>
@@ -87,8 +84,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
 
         {/* Admin footer */}
-        <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-3.5 px-6 text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-          LaporKuy Command & Dispatch Hub — Pemerintah Kota & Partisipasi Publik
+        <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-4 px-6 text-center text-xs text-slate-500 dark:text-slate-400">
+          LaporKuy Admin Dashboard
         </footer>
       </div>
   );
