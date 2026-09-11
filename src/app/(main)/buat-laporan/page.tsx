@@ -32,10 +32,12 @@ import {
   ShieldAlert,
   PlusCircle,
   Compass,
-  MapPinned
+  MapPinned,
+  Globe
 } from 'lucide-react';
 import { sendTelegramLog } from '@/app/actions/telegram';
 import { INDONESIA_REGIONS } from '@/lib/indonesia-locations';
+import { CustomSelect } from '@/components/ui/custom-select';
 
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string; assignedDinas: string }> = {
   pothole: { category: 'Jalan Rusak', severity: 9, confidence: 97, authenticity: 99, recommendation: 'Rekomendasi URC: Penambalan aspal dingin / hotmix darurat.', assignedDinas: 'Dinas Bina Marga & Sumber Daya Air' },
@@ -492,18 +494,17 @@ function BuatLaporanForm() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
                   1. Pulau / Wilayah Besar <span className="text-red-500">*</span>
                 </label>
-                <select
+                <CustomSelect
+                  id="select-island"
                   value={selectedIslandId}
-                  onChange={(e) => handleIslandChange(e.target.value)}
-                  className="w-full text-xs sm:text-sm font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0057B8] dark:focus:ring-blue-500 cursor-pointer shadow-sm transition-all"
-                >
-                  <option value="">-- Pilih Pulau / Wilayah --</option>
-                  {INDONESIA_REGIONS.map((island) => (
-                    <option key={island.id} value={island.id}>
-                      {island.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={handleIslandChange}
+                  options={INDONESIA_REGIONS.map((island) => ({
+                    id: island.id,
+                    name: island.name,
+                  }))}
+                  placeholder="-- Pilih Pulau / Wilayah --"
+                  icon={Compass}
+                />
               </div>
 
               {/* 2. Provinsi */}
@@ -511,23 +512,19 @@ function BuatLaporanForm() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
                   2. Provinsi <span className="text-red-500">*</span>
                 </label>
-                <select
+                <CustomSelect
+                  id="select-province"
                   value={selectedProvinceId}
                   disabled={!selectedIslandId}
-                  onChange={(e) => handleProvinceChange(e.target.value)}
-                  className={`w-full text-xs sm:text-sm font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0057B8] dark:focus:ring-blue-500 shadow-sm transition-all ${
-                    !selectedIslandId ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-850' : 'cursor-pointer'
-                  }`}
-                >
-                  <option value="">
-                    {selectedIslandId ? '-- Pilih Provinsi --' : '-- Pilih Pulau Terlebih Dahulu --'}
-                  </option>
-                  {availableProvinces.map((prov) => (
-                    <option key={prov.id} value={prov.id}>
-                      {prov.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={handleProvinceChange}
+                  options={availableProvinces.map((prov) => ({
+                    id: prov.id,
+                    name: prov.name,
+                  }))}
+                  placeholder="-- Pilih Provinsi --"
+                  disabledPlaceholder="-- Pilih Pulau Terlebih Dahulu --"
+                  icon={MapPinned}
+                />
               </div>
 
               {/* 3. Kota / Kabupaten */}
@@ -535,23 +532,19 @@ function BuatLaporanForm() {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
                   3. Kota / Kabupaten <span className="text-red-500">*</span>
                 </label>
-                <select
+                <CustomSelect
+                  id="select-city"
                   value={selectedCityId}
                   disabled={!selectedProvinceId}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                  className={`w-full text-xs sm:text-sm font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0057B8] dark:focus:ring-blue-500 shadow-sm transition-all ${
-                    !selectedProvinceId ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-850' : 'cursor-pointer'
-                  }`}
-                >
-                  <option value="">
-                    {selectedProvinceId ? '-- Pilih Kota / Kabupaten --' : '-- Pilih Provinsi Terlebih Dahulu --'}
-                  </option>
-                  {availableCities.map((city) => (
-                    <option key={city.id} value={city.id}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={handleCityChange}
+                  options={availableCities.map((city) => ({
+                    id: city.id,
+                    name: city.name,
+                  }))}
+                  placeholder="-- Pilih Kota / Kabupaten --"
+                  disabledPlaceholder="-- Pilih Provinsi Terlebih Dahulu --"
+                  icon={Building2}
+                />
               </div>
 
               {/* 4. Kecamatan */}
@@ -560,31 +553,30 @@ function BuatLaporanForm() {
                   4. Kecamatan <span className="text-red-500">*</span>
                 </label>
                 {!isCustomDistrict ? (
-                  <select
+                  <CustomSelect
+                    id="select-district"
                     value={selectedDistrict}
                     disabled={!selectedCityId}
-                    onChange={(e) => {
-                      if (e.target.value === '__custom__') {
-                        setIsCustomDistrict(true);
-                        setSelectedDistrict('');
-                      } else {
-                        setSelectedDistrict(e.target.value);
-                      }
-                    }}
-                    className={`w-full text-xs sm:text-sm font-semibold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0057B8] dark:focus:ring-blue-500 shadow-sm transition-all ${
-                      !selectedCityId ? 'opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-850' : 'cursor-pointer'
-                    }`}
-                  >
-                    <option value="">
-                      {selectedCityId ? '-- Pilih Kecamatan --' : '-- Pilih Kota Terlebih Dahulu --'}
-                    </option>
-                    {availableDistricts.map((dist) => (
-                      <option key={dist} value={dist}>
-                        Kec. {dist}
-                      </option>
-                    ))}
-                    {selectedCityId && <option value="__custom__">+ Tulis Nama Kecamatan Lainnya...</option>}
-                  </select>
+                    onChange={setSelectedDistrict}
+                    options={availableDistricts.map((dist) => ({
+                      id: dist,
+                      name: `Kec. ${dist}`,
+                    }))}
+                    placeholder="-- Pilih Kecamatan --"
+                    disabledPlaceholder="-- Pilih Kota Terlebih Dahulu --"
+                    icon={MapPin}
+                    customAction={
+                      selectedCityId
+                        ? {
+                            label: '+ Tulis Nama Kecamatan Lainnya...',
+                            onClick: () => {
+                              setIsCustomDistrict(true);
+                              setSelectedDistrict('');
+                            },
+                          }
+                        : undefined
+                    }
+                  />
                 ) : (
                   <div className="flex items-center gap-2">
                     <Input
@@ -609,6 +601,7 @@ function BuatLaporanForm() {
                   </div>
                 )}
               </div>
+
 
               {/* 5. Detail Alamat / Nama Jalan */}
               <div className="sm:col-span-2 space-y-1.5 pt-1">

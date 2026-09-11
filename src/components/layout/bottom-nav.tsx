@@ -15,7 +15,7 @@ export function BottomNav() {
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/buat-laporan', label: 'Lapor', icon: PlusCircle, isPrimary: true },
     { href: '/notifikasi', label: 'Notifikasi', icon: Bell, badge: unreadCount },
-    { href: '/profil', label: 'Profil', icon: User },
+    { href: '/profil', label: 'Profile', icon: User },
   ];
 
   return (
