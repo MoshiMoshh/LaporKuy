@@ -30,6 +30,7 @@ export function BottomNav() {
               <Link
                 key={link.href}
                 href={link.href}
+                aria-label="Buat Laporan"
                 className="flex flex-col items-center justify-center -mt-10 relative z-10 group px-2"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-blue-500/30 active:scale-95 transition-all border-4 border-background">
@@ -50,7 +51,7 @@ export function BottomNav() {
               }`}
             >
               <link.icon className={`h-6 w-6 mb-1 transition-transform ${isActive ? 'scale-110' : ''}`} />
-              <span className={isActive ? 'opacity-100' : 'opacity-70'}>{link.label}</span>
+              <span className={isActive ? 'font-bold text-primary' : 'font-medium'}>{link.label}</span>
 
               {link.badge && link.badge > 0 ? (
                 <span className="absolute top-0.5 right-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white shadow-sm">

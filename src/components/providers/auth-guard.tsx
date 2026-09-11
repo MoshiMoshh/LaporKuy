@@ -21,7 +21,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         !pathname.startsWith('/login') && 
         !pathname.startsWith('/register') && 
         !pathname.startsWith('/forgot-password') &&
-        !pathname.startsWith('/admin')
+        !pathname.startsWith('/admin') &&
+        pathname !== '/'
       ) {
         router.replace('/login');
       } else {
@@ -37,7 +38,19 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isInitialized, isLoggedIn, pathname, router]);
 
+  const isPublicRoute = 
+    pathname.startsWith('/login') || 
+    pathname.startsWith('/register') || 
+    pathname.startsWith('/forgot-password') ||
+    pathname.startsWith('/admin') ||
+    pathname === '/';
+
   if (!isReady || !isInitialized) {
+    // Do not block rendering for public routes, allows SSR to work and fixes LCP
+    if (isPublicRoute) {
+      return <>{children}</>;
+    }
+    
     // Show a sleek loading screen while checking auth
     return (
       <div className="min-h-screen bg-[#F5F7FA] flex flex-col items-center justify-center">

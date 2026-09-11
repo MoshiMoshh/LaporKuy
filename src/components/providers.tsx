@@ -3,8 +3,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { LocationProvider } from "@/components/providers/location-provider";
 import { LaporKuyStoreProvider } from "@/lib/store";
+import dynamic from "next/dynamic";
+
+const LocationProvider = dynamic(
+  () => import("@/components/providers/location-provider").then(mod => mod.LocationProvider),
+  { ssr: false }
+);
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -23,11 +28,11 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <LocationProvider>
-          <LaporKuyStoreProvider>
+        <LaporKuyStoreProvider>
+          <LocationProvider>
             {children}
-          </LaporKuyStoreProvider>
-        </LocationProvider>
+          </LocationProvider>
+        </LaporKuyStoreProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -93,7 +93,7 @@ export function Logo({ variant = 'full', size = 40, theme = 'light', layout = 'h
   const fontSize = 28 * textScale;
 
   const laporColor = theme === 'dark' ? 'text-white' : 'text-blue-700';
-  const kuyColor = theme === 'dark' ? 'text-orange-400' : 'text-orange-500';
+  const kuyColor = theme === 'dark' ? 'text-orange-400' : 'text-orange-600';
   
   const layoutClasses = layout === 'vertical' ? 'flex-col justify-center items-center' : 'flex-row items-center gap-2';
   

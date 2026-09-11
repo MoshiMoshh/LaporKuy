@@ -181,7 +181,7 @@ export default function LoginPage() {
 
           <div className="mt-8 flex items-center justify-center gap-4">
             <div className="h-[1px] flex-1 bg-slate-800" />
-            <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">atau</span>
+            <span className="text-[13px] font-medium text-slate-400">atau</span>
             <div className="h-[1px] flex-1 bg-slate-800" />
           </div>
 
