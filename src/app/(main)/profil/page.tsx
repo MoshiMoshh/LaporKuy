@@ -30,7 +30,12 @@ import {
   Copy,
   Check,
   Edit3,
-  Sparkles
+  Sparkles,
+  Pencil,
+  X,
+  Lock,
+  UserRoundPen,
+  Loader2
 } from 'lucide-react';
 
 import { useUserLocation } from '@/lib/location-store';
@@ -64,6 +69,8 @@ export default function ProfilPage() {
   const [phone, setPhone] = useState('');
   const [avatar, setAvatar] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -101,9 +108,15 @@ export default function ProfilPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
     updateProfile({ name, email, phone, avatar });
     setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    toast.success('Profil berhasil diperbarui!');
+    setTimeout(() => {
+      setIsSaving(false);
+      setSaveSuccess(false);
+      setIsEditModalOpen(false);
+    }, 500);
   };
 
   const formatDate = (isoString: string) => {
@@ -190,8 +203,14 @@ export default function ProfilPage() {
         <div className="max-w-2xl mx-auto px-4 text-center flex flex-col items-center">
           
           {/* Avatar with Ring & Status Indicator & Instant Upload */}
-          <div className="relative mb-3 group cursor-pointer">
-            <label htmlFor="header-avatar-upload" className="cursor-pointer block relative">
+          <div 
+            className="relative mb-3 group cursor-pointer"
+            onClick={() => setIsEditModalOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && setIsEditModalOpen(true)}
+          >
+            <div className="relative block">
               <img
                 src={avatarSrc}
                 alt={name || profile.name}
@@ -208,16 +227,12 @@ export default function ProfilPage() {
               <div className="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                 <Camera className="w-6 h-6 text-white drop-shadow-md" />
               </div>
-              <input
-                id="header-avatar-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarFileSelect}
-              />
-            </label>
-            <div className="absolute bottom-1 right-1 bg-emerald-500 text-white rounded-full p-1 border-2 border-background shadow-sm pointer-events-none">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
+            <div 
+              className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1.5 border-2 border-background shadow-xs hover:scale-110 transition-transform flex items-center justify-center"
+              title="Ubah Foto Profil"
+            >
+              <Camera className="w-3 h-3" />
             </div>
           </div>
 
@@ -272,24 +287,29 @@ export default function ProfilPage() {
           </Card>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center justify-center gap-2.5 flex-wrap">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleTabChange('pengaturan')}
-              className="text-xs font-bold rounded-xl gap-1.5 h-9 px-4 border-border"
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsEditModalOpen(true)}
+              className="group relative inline-flex items-center justify-center gap-2 h-9.5 px-4.5 rounded-xl bg-card/95 hover:bg-card text-foreground border border-border/80 hover:border-primary/50 shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all duration-200 text-xs font-semibold cursor-pointer"
             >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Ubah Profile</span>
-            </Button>
+              <div className="w-5 h-5 rounded-md bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
+                <Pencil className="w-3 h-3" />
+              </div>
+              <span className="font-semibold text-foreground tracking-tight">Ubah Profile</span>
+            </button>
+
             <Link href="/tukar-poin">
-              <Button
-                size="sm"
-                className="text-xs font-bold rounded-xl gap-1.5 h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+              <button
+                type="button"
+                className="group relative inline-flex items-center justify-center gap-2 h-9.5 px-4.5 rounded-xl bg-gradient-to-r from-primary to-blue-600 hover:from-primary/95 hover:to-blue-600/95 text-primary-foreground shadow-2xs hover:shadow-xs active:scale-[0.98] transition-all duration-200 text-xs font-semibold cursor-pointer"
               >
-                <Award className="w-3.5 h-3.5 text-amber-300" />
-                <span>Tukar Poin ({profile.points || 0})</span>
-              </Button>
+                <Award className="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform duration-200 shrink-0" />
+                <span className="tracking-tight">Tukar Poin</span>
+                <span className="bg-white/20 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-0.5">
+                  {profile.points || 0}
+                </span>
+              </button>
             </Link>
           </div>
 
@@ -504,30 +524,45 @@ export default function ProfilPage() {
             {/* TAB 3: UBAH DATA PRIBADI */}
             {activeTab === 'pengaturan' && (
               <Card className="p-5 sm:p-6 border-border/80 bg-card text-card-foreground rounded-2xl shadow-xs">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">
-                  Ubah Data Pribadi
-                </h3>
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-border/60">
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                      <UserRoundPen className="w-4 h-4 text-primary" />
+                      Ubah Data Pribadi
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Kelola identitas dan informasi kontak akun LaporKuy Anda
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-mono font-bold text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-lg border border-border/50">
+                    {humanReadableId}
+                  </span>
+                </div>
 
                 {saveSuccess && (
-                  <div className="mb-4 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2">
+                  <div className="mb-4 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     Perubahan data berhasil disimpan!
                   </div>
                 )}
 
                 <form onSubmit={handleSave} className="space-y-4">
-                  <div className="flex items-center gap-4 pb-4 border-b border-border/60">
-                    <img
-                      src={avatarSrc}
-                      alt="Avatar"
-                      className="w-14 h-14 rounded-full object-cover border-2 border-border shadow-xs block"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
-                      }}
-                    />
+                  <div className="flex items-center gap-4 p-3.5 rounded-xl bg-muted/20 border border-border/50">
+                    <div className="relative">
+                      <img
+                        src={avatarSrc}
+                        alt="Avatar"
+                        className={`w-14 h-14 rounded-full object-cover border-2 border-background shadow-xs ${
+                          hasGoldFrame ? 'ring-2 ring-amber-400' : 'ring-1 ring-border'
+                        }`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
+                        }}
+                      />
+                    </div>
                     <div>
-                      <label className="inline-flex items-center gap-2 text-xs font-bold text-foreground bg-muted hover:bg-muted/80 border border-border rounded-xl px-3.5 py-2 cursor-pointer transition-colors shadow-2xs">
-                        <Camera className="w-3.5 h-3.5 text-muted-foreground" />
+                      <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/90 bg-primary/10 hover:bg-primary/15 border border-primary/20 rounded-xl px-3 py-1.5 cursor-pointer transition-colors">
+                        <Camera className="w-3.5 h-3.5" />
                         <span>Ganti Foto</span>
                         <input
                           type="file"
@@ -536,13 +571,14 @@ export default function ProfilPage() {
                           onChange={handleAvatarFileSelect}
                         />
                       </label>
-                      <p className="text-[10px] text-muted-foreground mt-1 font-medium">Format JPG/PNG, maks 5MB.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1 font-medium">Format JPG, PNG, atau WEBP, maks 5MB.</p>
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="fullName" className="block text-xs font-bold text-foreground mb-1.5">
-                      Nama Lengkap
+                    <label htmlFor="fullName" className="block text-xs font-semibold text-foreground mb-1.5 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-primary" />
+                      <span>Nama Lengkap</span>
                     </label>
                     <input
                       id="fullName"
@@ -550,26 +586,39 @@ export default function ProfilPage() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full h-11 px-3.5 bg-background border border-border rounded-xl text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Nama lengkap Anda"
+                      className="w-full h-11 px-3.5 bg-background border border-border rounded-xl text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="emailAddress" className="block text-xs font-bold text-foreground mb-1.5">
-                      Alamat Email
-                    </label>
-                    <input
-                      id="emailAddress"
-                      type="email"
-                      readOnly
-                      value={email}
-                      className="w-full h-11 px-3.5 bg-muted/60 border border-border rounded-xl text-xs font-medium text-muted-foreground cursor-not-allowed"
-                    />
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label htmlFor="emailAddress" className="block text-xs font-semibold text-foreground flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>Alamat Email</span>
+                      </label>
+                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Check className="w-2.5 h-2.5" />
+                        Terverifikasi
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        id="emailAddress"
+                        type="email"
+                        readOnly
+                        value={email}
+                        className="w-full h-11 pl-3.5 pr-9 bg-muted/50 border border-border/70 rounded-xl text-xs font-medium text-muted-foreground cursor-not-allowed"
+                      />
+                      <Lock className="w-3.5 h-3.5 text-muted-foreground/60 absolute right-3 top-1/2 -translate-y-1/2" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">Email tidak dapat diubah karena terhubung dengan akun login Anda.</p>
                   </div>
 
                   <div>
-                    <label htmlFor="phoneNumber" className="block text-xs font-bold text-foreground mb-1.5">
-                      Nomor Telepon
+                    <label htmlFor="phoneNumber" className="block text-xs font-semibold text-foreground mb-1.5 flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-primary" />
+                      <span>Nomor Telepon</span>
                     </label>
                     <input
                       id="phoneNumber"
@@ -577,16 +626,28 @@ export default function ProfilPage() {
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full h-11 px-3.5 bg-background border border-border rounded-xl text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="08123456789"
+                      className="w-full h-11 px-3.5 bg-background border border-border rounded-xl text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                   </div>
 
                   <div className="pt-2 flex justify-end">
                     <Button
                       type="submit"
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold h-11 px-6 rounded-xl shadow-xs"
+                      disabled={isSaving}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold h-11 px-6 rounded-xl shadow-xs hover:shadow-sm active:scale-[0.98] transition-all flex items-center gap-1.5"
                     >
-                      Simpan Perubahan
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Menyimpan...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Simpan Perubahan</span>
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -612,6 +673,210 @@ export default function ProfilPage() {
           </Button>
 
       </main>
+
+      {/* ── 3. MODAL DIALOG UBAH PROFILE ── */}
+      {isEditModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setIsEditModalOpen(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-card text-card-foreground rounded-3xl border border-border/80 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-6 pt-6 pb-4 border-b border-border/60 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <UserRoundPen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-foreground">Ubah Profile</h2>
+                  <p className="text-xs text-muted-foreground">Perbarui informasi dan foto akun Anda</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content Form (Scrollable) */}
+            <form onSubmit={handleSave} className="overflow-y-auto px-6 py-5 space-y-5">
+              {saveSuccess && (
+                <div className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  Perubahan data berhasil disimpan!
+                </div>
+              )}
+
+              {/* Avatar Studio */}
+              <div className="flex flex-col items-center justify-center text-center p-4 rounded-2xl bg-muted/30 border border-border/50">
+                <div className="relative mb-3 group">
+                  <img
+                    src={avatarSrc}
+                    alt={name || profile.name}
+                    referrerPolicy="no-referrer"
+                    className={`w-20 h-20 rounded-full object-cover border-4 border-background shadow-md ${
+                      hasGoldFrame
+                        ? 'ring-4 ring-amber-400 shadow-[0_0_16px_rgba(245,158,11,0.4)]'
+                        : 'ring-2 ring-primary/20'
+                    }`}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getAvatarFallback(name || profile.name);
+                    }}
+                  />
+                  <label
+                    htmlFor="modal-avatar-file"
+                    className="absolute bottom-0 right-0 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-1.5 border-2 border-background shadow-sm cursor-pointer transition-transform hover:scale-110"
+                    title="Ganti Foto"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <input
+                      id="modal-avatar-file"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarFileSelect}
+                    />
+                  </label>
+                </div>
+
+                <label
+                  htmlFor="modal-avatar-file-btn"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/90 bg-primary/10 hover:bg-primary/15 border border-primary/20 rounded-xl px-3 py-1.5 cursor-pointer transition-colors"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Pilih Foto Baru</span>
+                  <input
+                    id="modal-avatar-file-btn"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarFileSelect}
+                  />
+                </label>
+                <span className="text-[10px] text-muted-foreground mt-1.5 font-medium">Mendukung format JPG, PNG, atau WEBP (maks. 5MB)</span>
+              </div>
+
+              {/* Fields */}
+              <div className="space-y-3.5">
+                <div>
+                  <label htmlFor="modal-fullname" className="block text-xs font-semibold text-foreground mb-1.5 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-primary" />
+                    <span>Nama Lengkap</span>
+                  </label>
+                  <input
+                    id="modal-fullname"
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Masukkan nama lengkap Anda"
+                    className="w-full h-10.5 px-3.5 bg-background border border-border rounded-xl text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="modal-phone" className="block text-xs font-semibold text-foreground mb-1.5 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-primary" />
+                    <span>Nomor Telepon</span>
+                  </label>
+                  <input
+                    id="modal-phone"
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Contoh: 08123456789"
+                    className="w-full h-10.5 px-3.5 bg-background border border-border rounded-xl text-xs font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label htmlFor="modal-email" className="block text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>Alamat Email</span>
+                    </label>
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check className="w-2.5 h-2.5" />
+                      Terverifikasi
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="modal-email"
+                      type="email"
+                      readOnly
+                      value={email}
+                      className="w-full h-10.5 pl-3.5 pr-8 bg-muted/50 border border-border/70 rounded-xl text-xs font-medium text-muted-foreground cursor-not-allowed"
+                    />
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground/60 absolute right-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">Email terikat dengan autentikasi akun dan tidak dapat diubah.</p>
+                </div>
+              </div>
+
+              {/* ID Card info */}
+              <div className="p-3 rounded-xl bg-muted/20 border border-border/40 flex items-center justify-between">
+                <div className="text-left">
+                  <span className="text-[10px] text-muted-foreground font-medium block">ID Pengguna</span>
+                  <span className="text-xs font-bold text-foreground font-mono">{humanReadableId}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={copyToClipboard}
+                  className="px-2.5 py-1 text-xs font-medium rounded-lg bg-background border border-border hover:bg-muted text-foreground flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3 h-3 text-emerald-600" />
+                      <span className="text-[11px] text-emerald-600 font-semibold">Tersalin</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[11px]">Salin</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-border/60">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="h-10 px-4 rounded-xl border border-border text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="h-10 px-5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-xs hover:shadow-sm active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Simpan Perubahan</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
