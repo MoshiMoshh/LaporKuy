@@ -18,8 +18,10 @@ import {
   FileText,
   ExternalLink,
   X,
-  CheckCircle2,
-  Loader2
+  Sparkles,
+  RefreshCw,
+  Coins,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -33,6 +35,15 @@ const dinasOptions = [
   'Dinas Perumahan Rakyat & Kawasan Permukiman',
   'BPBD & Penanggulangan Bencana'
 ];
+
+const getFallbackImg = (category: string) => {
+  if (category.includes('Lampu')) return '/images/reports/streetlight.jpg';
+  if (category.includes('Banjir')) return '/images/reports/flood.jpg';
+  if (category.includes('Sampah')) return '/images/reports/trash.jpg';
+  if (category.includes('Trotoar')) return '/images/reports/trotoar.jpg';
+  if (category.includes('Fasilitas')) return '/images/reports/rusak3.jpg';
+  return '/images/reports/pothole.jpg';
+};
 
 const getCategoryBadgeClass = (category: string) => {
   if (category.includes('Lampu')) return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
@@ -60,13 +71,17 @@ const getStatusBadgeClass = (status: Report['status']) => {
 };
 
 export default function AdminPage() {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { reports, updateReportStatus, deleteReport, refreshReports } = useLaporKuyStore();
 
   const [activeTab, setActiveTab] = useState<'all' | 'dinas'>('all');
   const [selectedDinasFilter, setSelectedDinasFilter] = useState<string>('Semua Dinas');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('Semua');
   const [search, setSearch] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Delete modal state
+  const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Update Status Modal
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
@@ -235,6 +250,33 @@ export default function AdminPage() {
     );
   }
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshReports();
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast.success('Data laporan berhasil disegarkan dari Supabase!');
+    }, 400);
+  };
+
+  const handleDeleteReport = async () => {
+    if (!reportToDelete) return;
+    setIsDeleting(true);
+    try {
+      const ok = await deleteReport(reportToDelete.id);
+      if (ok) {
+        toast.success(`Laporan #${reportToDelete.id} berhasil dihapus dari sistem.`);
+        setReportToDelete(null);
+      } else {
+        toast.error('Gagal menghapus laporan dari Supabase.');
+      }
+    } catch (e) {
+      toast.error('Terjadi kesalahan saat menghapus laporan.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8 font-sans">
       {/* ── 1. HEADER SECTION ── */}
@@ -368,19 +410,50 @@ export default function AdminPage() {
             </select>
           )}
 
-          {/* Status Filter Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {['Semua', 'Pending', 'Terverifikasi', 'Diproses', 'Selesai'].map((st) => (
-              <Badge
-                key={st}
-                variant={selectedStatusFilter === st ? 'default' : 'secondary'}
-                className="cursor-pointer font-medium px-3 py-1.5 whitespace-nowrap rounded-md"
-                onClick={() => setSelectedStatusFilter(st)}
-              >
-                {st}
-              </Badge>
+        {/* Refresh button from Supabase */}
+        <Button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          variant="outline"
+          size="sm"
+          className="h-10 px-3.5 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold gap-2 shrink-0 cursor-pointer shadow-2xs"
+          title="Sinkronisasi data terbaru langsung dari database Supabase"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-blue-600 dark:text-blue-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span className="hidden sm:inline">{isRefreshing ? 'Menyinkron...' : 'Segarkan Data'}</span>
+        </Button>
+
+        {/* Dinas Filter (if in dinas tab) */}
+        {activeTab === 'dinas' && (
+          <select
+            value={selectedDinasFilter}
+            onChange={(e) => setSelectedDinasFilter(e.target.value)}
+            className="h-10 px-3 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shrink-0"
+          >
+            <option value="Semua Dinas">Semua Dinas Lapangan</option>
+            {dinasOptions.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
-          </div>
+          </select>
+        )}
+
+        {/* Status Filter Chips */}
+        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-1 sm:pb-0 shrink-0">
+          {['Semua', 'Pending', 'Terverifikasi', 'Diproses', 'Selesai', 'Ditolak'].map((st) => (
+            <button
+              key={st}
+              onClick={() => setSelectedStatusFilter(st)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                selectedStatusFilter === st
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100/70 dark:bg-slate-800/60'
+              }`}
+            >
+              {st}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -394,13 +467,7 @@ export default function AdminPage() {
           </div>
         ) : (
           filteredReports.map((report) => {
-            const fallbackImg = report.category.includes('Lampu')
-              ? '/images/reports/streetlight.jpg'
-              : report.category.includes('Banjir')
-              ? '/images/reports/flood.jpg'
-              : report.category.includes('Sampah')
-              ? '/images/reports/trash.jpg'
-              : '/images/reports/pothole.jpg';
+            const fallbackImg = getFallbackImg(report.category);
 
             return (
               <Card key={report.id} className="overflow-hidden shadow-sm">
@@ -453,7 +520,36 @@ export default function AdminPage() {
                     </Button>
                   </div>
                 </div>
-              </Card>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 pt-1">
+                  <Button
+                    onClick={() => handleOpenModal(report)}
+                    className="flex-1 h-9 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs cursor-pointer"
+                  >
+                    Eksekusi & Update Status
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReportToDelete(report)}
+                    className="h-9 w-9 p-0 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 dark:border-rose-900/60 dark:hover:bg-rose-950/40 cursor-pointer"
+                    title="Hapus Laporan Ini"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                  <Link href={`/laporan/${report.id}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 px-3 text-xs font-semibold rounded-xl border-slate-200 dark:border-slate-800"
+                      title="Lihat Halaman Publik"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             );
           })
         )}
@@ -483,6 +579,8 @@ export default function AdminPage() {
                   </tr>
                 ) : (
                   filteredReports.map((report) => {
+                    const fallbackImg = getFallbackImg(report.category);
+
                     return (
                       <tr key={report.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                         <td className="py-3 px-4 align-top">
@@ -522,9 +620,25 @@ export default function AdminPage() {
                             >
                               Update Status
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 cursor-pointer" asChild>
-                              <Link href={`/laporan/${report.id}`}><ExternalLink className="w-4 h-4" /></Link>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setReportToDelete(report)}
+                              className="h-8 w-8 p-0 rounded-lg border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 dark:border-rose-900/60 dark:hover:bg-rose-950/40 cursor-pointer"
+                              title="Hapus Laporan Ini"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
+                            <Link href={`/laporan/${report.id}`}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 w-8 p-0 rounded-lg border-slate-200 dark:border-slate-800"
+                                title="Lihat Tampilan Publik"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </Button>
+                            </Link>
                           </div>
                         </td>
                       </tr>
@@ -599,15 +713,70 @@ export default function AdminPage() {
                     <label className="text-sm font-medium text-slate-900 dark:text-slate-100 block">
                       Foto Hasil Perbaikan
                     </label>
-                    {afterPhotoInput ? (
-                      <div className="relative w-full h-40 rounded-md overflow-hidden border border-slate-200 dark:border-slate-800">
-                        <img src={afterPhotoInput} className="w-full h-full object-cover" alt="After Photo" />
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                      Tampil di Slider Warga
+                    </span>
+                  </div>
+
+                  {afterPhotoInput ? (
+                    <div className="relative w-full h-36 rounded-xl overflow-hidden border border-emerald-300 dark:border-emerald-800 group">
+                      <img src={afterPhotoInput} className="w-full h-full object-cover" alt="After Photo" />
+                      <button
+                        type="button"
+                        onClick={() => setAfterPhotoInput('')}
+                        className="absolute top-2 right-2 bg-rose-600 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md hover:bg-rose-700 cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-emerald-300 dark:border-emerald-700/60 rounded-xl cursor-pointer bg-white dark:bg-slate-900 hover:bg-emerald-50/50 transition-colors">
+                        <Upload className="h-5 w-5 text-emerald-600 mb-1" />
+                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                          Pilih Foto Kamera / Galeri
+                        </span>
+                        <span className="text-[10px] text-slate-400">Format JPG, PNG (Maks 5MB)</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                setAfterPhotoInput(ev.target?.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+
+                      {/* Quick Presets for Demo / Instant Fix */}
+                      <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                        <span className="text-[10px] text-slate-400 font-medium">Contoh Cepat:</span>
                         <button
                           type="button"
-                          onClick={() => setAfterPhotoInput('')}
-                          className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 cursor-pointer"
+                          onClick={() => handleApplyPresetPhoto('/images/reports/repair.jpg')}
+                          className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:border-emerald-400 cursor-pointer"
                         >
-                          <X className="w-4 h-4" />
+                          Aspal Ditambal Rata
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPresetPhoto('https://images.unsplash.com/photo-1517649763962-0c623266010b?w=800&auto=format&fit=crop&q=80')}
+                          className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:border-emerald-400 cursor-pointer"
+                        >
+                          Lampu Menyala
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPresetPhoto('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80')}
+                          className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:border-emerald-400 cursor-pointer"
+                        >
+                          Bebas Sampah
                         </button>
                       </div>
                     ) : (
@@ -676,6 +845,63 @@ export default function AdminPage() {
                 className="cursor-pointer"
               >
                 {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── 6. DELETE CONFIRMATION MODAL ── */}
+      {reportToDelete && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xl border border-slate-200/80 dark:border-slate-800 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                  Hapus Laporan #{reportToDelete.id}?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Tindakan ini permanen dan akan menghapus laporan dari database Supabase serta tampilan warga.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+              <img
+                src={reportToDelete.photoUrl || getFallbackImg(reportToDelete.category)}
+                alt={reportToDelete.title}
+                className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+              />
+              <div className="min-w-0 text-xs">
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 truncate">
+                  {reportToDelete.title}
+                </h4>
+                <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                  📍 {reportToDelete.address}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <Button
+                variant="outline"
+                type="button"
+                size="sm"
+                onClick={() => setReportToDelete(null)}
+                className="h-9 px-4 rounded-xl border-slate-200 dark:border-slate-800 cursor-pointer"
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={isDeleting}
+                onClick={handleDeleteReport}
+                className="h-9 px-5 font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs cursor-pointer"
+              >
+                {isDeleting ? 'Menghapus...' : 'Ya, Hapus Laporan'}
               </Button>
             </div>
           </div>

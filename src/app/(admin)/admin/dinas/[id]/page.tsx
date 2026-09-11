@@ -280,67 +280,35 @@ export default function PortalDinasPage({ params }: { params: Promise<{ id: stri
           </span>
         </div>
 
-        {assignedReports.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-            Tidak ada laporan yang ditugaskan ke dinas ini.
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {assignedReports.map((r) => {
-              const fallbackImg = r.category.includes('Lampu')
-                ? '/images/reports/streetlight.jpg'
-                : r.category.includes('Banjir')
-                ? '/images/reports/flood.jpg'
-                : r.category.includes('Sampah')
-                ? '/images/reports/trash.jpg'
-                : '/images/reports/pothole.jpg';
-
-              return (
-                <Card key={r.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-start gap-4 min-w-0 w-full sm:w-auto">
-                      <div className="w-16 h-16 rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-800 relative">
-                        <img
-                          src={r.photoUrl || fallbackImg}
-                          alt={r.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="space-y-1.5 min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">
-                            {r.id}
-                          </span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${getCategoryBadgeClass(r.category)}`}>
-                            {r.category}
-                          </span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusBadgeClass(r.status)}`}>
-                            {r.status}
-                          </span>
-                        </div>
-                        <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100 line-clamp-1">
-                          {r.title}
-                        </h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1.5">
-                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span>{r.address}</span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-end">
-                      <div className="text-right hidden sm:block">
-                        <div className={`text-xs font-semibold ${r.slaDaysRemaining != null && r.slaDaysRemaining <= 1 ? 'text-rose-600' : 'text-slate-500'}`}>
-                          SLA: {r.slaDaysRemaining ?? 3} Hari
-                        </div>
-                      </div>
-                      <Button onClick={() => handleOpenModal(r)} size="sm" className="text-xs h-9 cursor-pointer flex-1 sm:flex-none">
-                        Update Status
-                      </Button>
-                      <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 cursor-pointer" asChild>
-                        <Link href={`/laporan/${r.id}`}><ExternalLink className="w-4 h-4" /></Link>
-                      </Button>
-                    </div>
+        <div className="space-y-3">
+          {fallbackReports.map((r) => (
+            <div
+              key={r.id}
+              className="p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs hover:shadow-xs transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+            >
+              <div className="flex items-start gap-3.5 min-w-0">
+                <img
+                  src={r.photoUrl || (
+                    r.category.includes('Lampu') ? '/images/reports/streetlight.jpg' :
+                    r.category.includes('Banjir') ? '/images/reports/flood.jpg' :
+                    r.category.includes('Sampah') ? '/images/reports/trash.jpg' :
+                    r.category.includes('Trotoar') ? '/images/reports/trotoar.jpg' :
+                    '/images/reports/pothole.jpg'
+                  )}
+                  alt={r.title || 'Foto Laporan'}
+                  className="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                />
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
+                      {r.id}
+                    </span>
+                    <span className="text-[10px] font-semibold px-2 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      {r.category}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.2 rounded ${r.status === 'Selesai' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {r.status}
+                    </span>
                   </div>
                 </Card>
               );

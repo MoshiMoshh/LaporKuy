@@ -44,6 +44,7 @@ export function RecentReportsSection({ reports }: RecentReportsSectionProps) {
           const fallbackPhotoUrl = report.category.includes('Lampu') ? '/images/reports/streetlight.jpg'
             : report.category.includes('Banjir') ? '/images/reports/flood.jpg'
             : report.category.includes('Sampah') ? '/images/reports/trash.jpg'
+            : report.category.includes('Trotoar') ? '/images/reports/trotoar.jpg'
             : '/images/reports/pothole.jpg';
 
           return (
