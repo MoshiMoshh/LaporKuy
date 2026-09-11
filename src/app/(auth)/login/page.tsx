@@ -91,6 +91,7 @@ export default function LoginPage() {
           alt="City Background" 
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover object-[center_bottom] opacity-25 filter invert brightness-200 mix-blend-screen"
         />
@@ -180,7 +181,7 @@ export default function LoginPage() {
 
           <div className="mt-8 flex items-center justify-center gap-4">
             <div className="h-[1px] flex-1 bg-slate-800" />
-            <span className="text-[13px] font-medium text-slate-500">atau</span>
+            <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">atau</span>
             <div className="h-[1px] flex-1 bg-slate-800" />
           </div>
 
@@ -189,7 +190,7 @@ export default function LoginPage() {
             variant="outline" 
             disabled={isLoading} 
             onClick={handleGoogleLogin}
-            aria-label="Masuk dengan akun Google"
+            aria-label="Masuk dengan Google"
             className="w-full h-14 font-semibold mt-6 flex items-center justify-center gap-3 bg-transparent hover:bg-slate-800/50 border-slate-700 rounded-xl text-white transition-all text-[14px]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">

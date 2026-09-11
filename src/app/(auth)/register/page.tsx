@@ -104,6 +104,7 @@ export default function RegisterPage() {
           alt="City Background" 
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover object-[center_bottom] opacity-25 filter invert brightness-200 mix-blend-screen"
         />

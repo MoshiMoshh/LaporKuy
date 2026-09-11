@@ -7,9 +7,9 @@ export default function AuthLayout({
 }) {
   return (
     <AuthGuard>
-      <div className="min-h-screen w-full flex flex-col">
+      <main className="min-h-screen w-full flex flex-col">
         {children}
-      </div>
+      </main>
     </AuthGuard>
   );
 }

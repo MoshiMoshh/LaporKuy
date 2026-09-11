@@ -52,6 +52,7 @@ export default function HomePage() {
             alt="Jakarta Skyline" 
             fill
             priority
+            fetchPriority="high"
             sizes="100vw"
             className="object-cover object-[center_bottom] opacity-60 select-none pointer-events-none"
           />
