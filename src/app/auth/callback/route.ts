@@ -16,8 +16,17 @@ export async function GET(request: Request) {
     if (!error) {
       // Fetch user info to log
       const { data: { user } } = await supabase.auth.getUser()
-      const email = user?.email || 'Unknown Email'
-      await sendTelegramLog(`<b>✅ OAuth Login/Register Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`)
+      const email = user?.email || 'Email tidak diketahui'
+      const meta = user?.user_metadata || {}
+      const name = meta.full_name || meta.name || 'Nama tidak tersedia'
+      const provider = user?.app_metadata?.provider || 'oauth'
+      const createdAt = user?.created_at ? new Date(user.created_at) : null
+      const now = new Date()
+      // If the account was created within the last 60 seconds, it's a new registration
+      const isNewUser = createdAt && (now.getTime() - createdAt.getTime()) < 60_000
+      const statusLabel = isNewUser ? '🆕 Registrasi Baru via OAuth' : '✅ Login via OAuth'
+
+      await sendTelegramLog(`<b>${statusLabel}</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>Provider:</b> ${provider.charAt(0).toUpperCase() + provider.slice(1)}\n<b>User ID:</b> <code>${user?.id || '-'}</code>\n<b>Waktu:</b> ${now.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`)
 
       const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'

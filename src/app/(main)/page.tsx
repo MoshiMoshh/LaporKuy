@@ -59,10 +59,10 @@ export default function HomePage() {
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto px-5">
           <h1 className="text-[2.5rem] leading-[1.05] font-extrabold tracking-tighter sm:text-6xl md:text-7xl text-white drop-shadow-md">
-            Fasilitas rusak<br/>di sekitar lo?
+            Ada fasilitas rusak<br/>di sekitar Anda?
           </h1>
           <p className="text-[1.05rem] sm:text-lg text-blue-100/90 leading-relaxed mt-5 max-w-sm font-medium">
-            Kirim foto, biar yang urus bagian yang nindaklanjuti. Laporan diverifikasi instan.
+            Sampaikan laporan Anda melalui foto. Tim berwenang akan menindaklanjutinya dengan verifikasi instan.
           </p>
 
           <div className="flex flex-col sm:flex-row w-full justify-center gap-4 mt-10">

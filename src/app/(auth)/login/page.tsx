@@ -53,7 +53,7 @@ export default function LoginPage() {
       });
       setIsLoading(false);
     } else {
-      await sendTelegramLog(`<b>🔐 Login Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
+      await sendTelegramLog(`<b>🔐 Login Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
       router.push('/');
     }
   };
@@ -77,7 +77,7 @@ export default function LoginPage() {
       });
       setIsLoading(false);
     } else {
-      await sendTelegramLog(`<b>🔐 Login Google Dimulai</b>\n\n<b>User mencoba login dengan Google.</b>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
+      await sendTelegramLog(`<b>🔄 OAuth Login Dimulai</b>\n\n<b>Provider:</b> Google\n<b>Alur:</b> Login (dari halaman masuk)\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
     }
   };
 

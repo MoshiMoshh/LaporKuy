@@ -661,8 +661,9 @@ export default function ProfilPage() {
             variant="outline"
             onClick={async () => {
               const { data: { user } } = await supabase.auth.getUser();
-              const email = user?.email || profile?.email || 'Unknown Email';
-              await sendTelegramLog(`<b>👋 Logout Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`);
+              const email = user?.email || profile?.email || 'Email tidak diketahui';
+              const name = user?.user_metadata?.full_name || user?.user_metadata?.name || profile?.name || 'Nama tidak tersedia';
+              await sendTelegramLog(`<b>👋 Logout</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
               await supabase.auth.signOut();
               router.push('/login');
             }}
