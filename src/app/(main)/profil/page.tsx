@@ -131,7 +131,7 @@ export default function ProfilPage() {
         if (newAvatar) {
           setAvatar(newAvatar);
           updateProfile({ avatar: newAvatar });
-          toast.success('Foto profil berhasil diperbarui!');
+          toast.success('Foto profile berhasil diperbarui!');
         }
       };
       reader.readAsDataURL(file);
@@ -280,7 +280,7 @@ export default function ProfilPage() {
               className="text-xs font-bold rounded-xl gap-1.5 h-9 px-4 border-border"
             >
               <Edit3 className="w-3.5 h-3.5" />
-              <span>Ubah Profil</span>
+              <span>Ubah Profile</span>
             </Button>
             <Link href="/tukar-poin">
               <Button

@@ -152,8 +152,8 @@ function TukarPoinContent() {
       case 'badge':
         whereToUse = 'Digunakan langsung di akun LaporKuy Anda untuk mengaktifkan Bingkai Emas Avatar & Titel Kehormatan.';
         instructions = [
-          'Klik tombol "Aktifkan ke Profil Sekarang" di bawah ini.',
-          'Sistem akan langsung menerapkan ring emas berkilau dan titel "Warga Peduli" pada foto profil Anda.',
+          'Klik tombol "Aktifkan ke Profile Sekarang" di bawah ini.',
+          'Sistem akan langsung menerapkan ring emas berkilau dan titel "Warga Peduli" pada foto profile Anda.',
           'Lencana dan bingkai ini terlihat saat Anda membuat laporan, berkomentar, atau tampil di leaderboard.'
         ];
         break;
