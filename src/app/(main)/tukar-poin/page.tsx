@@ -192,6 +192,7 @@ function TukarPoinContent() {
       resolveCodeInfo(codeParam);
       setActiveMainTab('voucher');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeParam, historyList]);
 
   const categories = [
