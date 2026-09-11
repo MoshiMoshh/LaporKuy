@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, LayoutDashboard, LogOut, ArrowLeft } from 'lucide-react';
-import { AuthGuard } from "@/components/providers/auth-guard";
 import { createClient } from '@/lib/supabase/client';
 import { sendTelegramLog } from '@/app/actions/telegram';
 
@@ -12,8 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const supabase = createClient();
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100">
         {/* Admin Navbar */}
         <header className="bg-gradient-to-r from-[#002B5B] via-[#003B7A] to-[#004B9B] text-white sticky top-0 z-50 border-b border-blue-900/60 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -93,6 +91,5 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           LaporKuy Command & Dispatch Hub — Pemerintah Kota & Partisipasi Publik
         </footer>
       </div>
-    </AuthGuard>
   );
 }
