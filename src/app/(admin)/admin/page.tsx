@@ -57,7 +57,7 @@ const getStatusBadgeClass = (status: Report['status']) => {
 };
 
 export default function AdminPage() {
-  const { reports, updateReportStatus, deleteReport, refreshReports } = useLaporKuyStore();
+  const { reports, updateReportStatus, deleteReport, deleteAllReports, refreshReports } = useLaporKuyStore();
 
   const [activeTab, setActiveTab] = useState<'all' | 'dinas'>('all');
   const [selectedDinasFilter, setSelectedDinasFilter] = useState<string>('Semua Dinas');
@@ -68,6 +68,10 @@ export default function AdminPage() {
   // Delete modal state
   const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Clear all modal state
+  const [showClearAllModal, setShowClearAllModal] = useState(false);
+  const [isClearingAll, setIsClearingAll] = useState(false);
 
   // Update Status Modal
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
@@ -172,6 +176,19 @@ export default function AdminPage() {
       toast.error('Terjadi kesalahan saat menghapus laporan.');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleClearAllReports = async () => {
+    setIsClearingAll(true);
+    try {
+      await deleteAllReports();
+      toast.success('Semua laporan di Supabase dan lokal berhasil dihapus.');
+      setShowClearAllModal(false);
+    } catch {
+      toast.error('Gagal mengosongkan data laporan.');
+    } finally {
+      setIsClearingAll(false);
     }
   };
 
@@ -316,6 +333,19 @@ export default function AdminPage() {
                   </option>
                 ))}
               </select>
+            )}
+
+            {reports.length > 0 && (
+              <Button
+                onClick={() => setShowClearAllModal(true)}
+                variant="outline"
+                size="sm"
+                className="h-9 px-3 rounded-lg border-rose-200 dark:border-rose-900/60 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-medium gap-1.5 cursor-pointer"
+                title="Hapus semua laporan di database Supabase"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Hapus Semua</span>
+              </Button>
             )}
 
             <Button
@@ -851,6 +881,52 @@ export default function AdminPage() {
                 className="h-8 px-4 font-medium bg-rose-600 hover:bg-rose-500 text-white rounded-lg cursor-pointer text-xs"
               >
                 {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 8. CLEAR ALL REPORTS MODAL ── */}
+      {showClearAllModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Hapus Semua Data Laporan?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Tindakan ini akan mengosongkan seluruh laporan di database Supabase dan penyimpanan lokal secara permanen.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-rose-50/50 dark:bg-rose-950/30 rounded-xl border border-rose-200/60 dark:border-rose-900/40 text-xs text-rose-800 dark:text-rose-300">
+              Perhatian: Sebanyak <strong>{reports.length} laporan</strong> akan dihapus permanen dan tidak dapat dipulihkan kembali.
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <Button
+                variant="outline"
+                type="button"
+                size="sm"
+                onClick={() => setShowClearAllModal(false)}
+                className="h-8 px-3 rounded-lg border-slate-200 dark:border-slate-800 cursor-pointer text-xs"
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={isClearingAll}
+                onClick={handleClearAllReports}
+                className="h-8 px-4 font-medium bg-rose-600 hover:bg-rose-500 text-white rounded-lg cursor-pointer text-xs"
+              >
+                {isClearingAll ? 'Menghapus Semua...' : 'Ya, Kosongkan Semua'}
               </Button>
             </div>
           </div>

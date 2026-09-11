@@ -46,6 +46,7 @@ interface LaporKuyStoreValue {
   addComment: (reportId: string, content: string) => Promise<void>;
   updateReportStatus: (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string, assignedDinas?: string) => Promise<void>;
   deleteReport: (reportId: string) => Promise<boolean>;
+  deleteAllReports: () => Promise<boolean>;
   refreshReports: () => Promise<void>;
   claimQuest: (questId: string) => Promise<void>;
   redeemReward: (rewardId: string) => Promise<boolean>;
@@ -127,7 +128,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
           supabase.from('rewards').select('*')
         ]);
 
-        if (reportsData && reportsData.length > 0) {
+        if (reportsData !== null && reportsData !== undefined) {
           const mappedRemote = reportsData.map((r: any) => ({
             ...r,
             photoUrl: r.photo_url,
@@ -150,17 +151,14 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
             }))
           }));
 
-          setReports(prev => {
-            const remoteIds = new Set(mappedRemote.map((r: any) => r.id));
-            const localOnly = prev.filter(r => !remoteIds.has(r.id) && r.id.startsWith('REP-'));
-            const finalMerged = [...localOnly, ...mappedRemote];
-            if (typeof window !== 'undefined') {
-              try {
-                localStorage.setItem('laporkuy_local_reports', JSON.stringify(finalMerged.slice(0, 50)));
-              } catch (e) {}
-            }
-            return finalMerged;
-          });
+          setReports(mappedRemote);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('laporkuy_local_reports', JSON.stringify(mappedRemote));
+              localStorage.setItem('laporkuy_store_sync', Date.now().toString());
+              window.dispatchEvent(new Event('laporkuy_store_update'));
+            } catch (e) {}
+          }
         }
 
         if (rewardsData && rewardsData.length > 0) {
@@ -718,6 +716,27 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     }
   };
 
+  const deleteAllReports = async (): Promise<boolean> => {
+    try {
+      await Promise.all([
+        supabase.from('comments').delete().neq('id', '0'),
+        supabase.from('reports').delete().neq('id', '0')
+      ]);
+    } catch (err) {
+      console.error('Error deleting all reports in Supabase:', err);
+    }
+
+    setReports([]);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('laporkuy_local_reports');
+        localStorage.setItem('laporkuy_store_sync', Date.now().toString());
+        window.dispatchEvent(new Event('laporkuy_store_update'));
+      } catch (e) {}
+    }
+    return true;
+  };
+
   const refreshReports = async () => {
     try {
       const { data: reportsData } = await supabase
@@ -725,7 +744,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
         .select('*, comments(*)')
         .order('created_at', { ascending: false });
 
-      if (reportsData && reportsData.length > 0) {
+      if (reportsData !== null && reportsData !== undefined) {
         const mappedRemote = reportsData.map((r: any) => ({
           ...r,
           photoUrl: r.photo_url,
@@ -751,7 +770,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
         setReports(mappedRemote);
         if (typeof window !== 'undefined') {
           try {
-            localStorage.setItem('laporkuy_local_reports', JSON.stringify(mappedRemote.slice(0, 50)));
+            localStorage.setItem('laporkuy_local_reports', JSON.stringify(mappedRemote));
             localStorage.setItem('laporkuy_store_sync', Date.now().toString());
             window.dispatchEvent(new Event('laporkuy_store_update'));
           } catch (e) {}
@@ -958,6 +977,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     addComment,
     updateReportStatus,
     deleteReport,
+    deleteAllReports,
     refreshReports,
     claimQuest,
     redeemReward,
