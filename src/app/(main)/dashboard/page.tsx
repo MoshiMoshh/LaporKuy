@@ -263,55 +263,65 @@ function DashboardContent() {
 
         {/* Reports List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {filteredReports.map((report) => (
-            <Link key={report.id} href={`/laporan/${report.id}`} className="block">
-              <Card className="p-3.5 hover:shadow-md transition-all border-slate-200/80 rounded-xl group bg-white">
-                <div className="flex items-start gap-3">
-                  <Image
-                    src={report.photoUrl}
-                    alt={report.title}
-                    width={64}
-                    height={64}
-                    loading="lazy"
-                    className="h-16 w-16 rounded-lg object-cover border border-slate-100 shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <Badge variant="outline" className="text-[10px] font-semibold text-[#0057B8] border-blue-200 bg-blue-50/50">
-                        {report.category}
-                      </Badge>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        {report.createdAt.split('T')[0]}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-[#0057B8] transition-colors">
-                      {report.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 line-clamp-1 mt-0.5 flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
-                      <span>{report.address}</span>
-                    </p>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
-                      <span className="text-slate-500 flex items-center gap-1 font-medium">
-                        <ThumbsUp className="h-3.5 w-3.5 text-blue-500" /> {report.upvotes} Dukungan
-                      </span>
-                      <span className={`font-semibold px-2 py-0.5 rounded text-[10px] border ${
-                        report.status === 'Selesai'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
-                          : report.status === 'Diproses'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'
-                          : report.status === 'Terverifikasi'
-                          ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800'
-                          : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
-                      }`}>
-                        {report.status}
-                      </span>
+          {filteredReports.length === 0 ? (
+            <div className="py-16 text-center text-slate-500">
+              <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Belum Ada Aduan</p>
+              <p className="text-xs text-slate-400 mt-1 max-w-[220px] mx-auto">Semua aduan telah dibersihkan atau belum ada laporan yang masuk.</p>
+            </div>
+          ) : (
+            filteredReports.map((report) => (
+              <Link key={report.id} href={`/laporan/${report.id}`} className="block">
+                <Card className="p-3.5 hover:shadow-md transition-all border-slate-200/80 rounded-xl group bg-white">
+                  <div className="flex items-start gap-3">
+                    <Image
+                      src={report.photoUrl}
+                      alt={report.title}
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      className="h-16 w-16 rounded-lg object-cover border border-slate-100 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <Badge variant="outline" className="text-[10px] font-semibold text-[#0057B8] border-blue-200 bg-blue-50/50">
+                          {report.category}
+                        </Badge>
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {report.createdAt.split('T')[0]}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold text-slate-900 line-clamp-1 group-hover:text-[#0057B8] transition-colors">
+                        {report.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 line-clamp-1 mt-0.5 flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span>{report.address}</span>
+                      </p>
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
+                        <span className="text-slate-500 flex items-center gap-1 font-medium">
+                          <ThumbsUp className="h-3.5 w-3.5 text-blue-500" /> {report.upvotes} Dukungan
+                        </span>
+                        <span className={`font-semibold px-2 py-0.5 rounded text-[10px] border ${
+                          report.status === 'Selesai'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                            : report.status === 'Diproses'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'
+                            : report.status === 'Terverifikasi'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800'
+                            : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
+                        }`}>
+                          {report.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
+                </Card>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -82,20 +82,7 @@ export function useLaporKuyStore(): LaporKuyStoreValue {
 
 // ── Internal implementation (called only once inside the Provider) ──
 function useLaporKuyStoreInternal(): LaporKuyStoreValue {
-  const [reports, setReports] = useState<Report[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('laporkuy_local_reports');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
-          }
-        }
-      } catch (e) {}
-    }
-    return defaultMockReports;
-  });
+  const [reports, setReports] = useState<Report[]>([]);
 
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [quests, setQuests] = useState<Quest[]>([]);
@@ -106,6 +93,13 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
 
   useEffect(() => {
     let isMounted = true;
+
+    // Purge any stale local reports cache on client startup to guarantee strict Supabase sync
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('laporkuy_local_reports');
+      } catch (e) {}
+    }
 
     // Safety fallback: ensure loading screen ('MEMVERIFIKASI SESI...') never hangs indefinitely
     const initTimer = setTimeout(() => {
@@ -154,9 +148,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
           setReports(mappedRemote);
           if (typeof window !== 'undefined') {
             try {
-              localStorage.setItem('laporkuy_local_reports', JSON.stringify(mappedRemote));
-              localStorage.setItem('laporkuy_store_sync', Date.now().toString());
-              window.dispatchEvent(new Event('laporkuy_store_update'));
+              localStorage.removeItem('laporkuy_local_reports');
             } catch (e) {}
           }
         }
@@ -331,23 +323,8 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       loadData();
     };
 
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'laporkuy_local_reports' || e.key === 'laporkuy_store_sync') {
-        try {
-          const saved = localStorage.getItem('laporkuy_local_reports');
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setReports(parsed);
-            }
-          }
-        } catch (e) {}
-      }
-    };
-
     if (typeof window !== 'undefined') {
       window.addEventListener('laporkuy_store_update', handleSync);
-      window.addEventListener('storage', handleStorage);
     }
 
     return () => {
@@ -357,7 +334,6 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       authListener.subscription.unsubscribe();
       if (typeof window !== 'undefined') {
         window.removeEventListener('laporkuy_store_update', handleSync);
-        window.removeEventListener('storage', handleStorage);
       }
     };
   }, []);
@@ -379,17 +355,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       assignedDinas: newReportData.assignedDinas || 'Dinas Bina Marga & Sumber Daya Air'
     };
 
-    setReports(prev => {
-      const updated = [newReport, ...prev.filter(r => r.id !== newReport.id)];
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
-          localStorage.setItem('laporkuy_store_sync', Date.now().toString());
-          window.dispatchEvent(new Event('laporkuy_store_update'));
-        } catch (e) {}
-      }
-      return updated;
-    });
+    setReports(prev => [newReport, ...prev.filter(r => r.id !== newReport.id)]);
 
     // Check if profile.id is a valid UUID for Supabase foreign key
     const isValidUuid = profile?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profile.id);
@@ -590,15 +556,6 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
         }
         return r;
       });
-
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
-          localStorage.setItem('laporkuy_store_sync', Date.now().toString());
-          window.dispatchEvent(new Event('laporkuy_store_update'));
-        } catch (e) {}
-      }
-
       return updated;
     });
     
@@ -691,17 +648,12 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
   };
 
   const deleteReport = async (reportId: string): Promise<boolean> => {
-    setReports(prev => {
-      const updated = prev.filter(r => r.id !== reportId);
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
-          localStorage.setItem('laporkuy_store_sync', Date.now().toString());
-          window.dispatchEvent(new Event('laporkuy_store_update'));
-        } catch (e) {}
-      }
-      return updated;
-    });
+    setReports(prev => prev.filter(r => r.id !== reportId));
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('laporkuy_local_reports');
+      } catch (e) {}
+    }
 
     try {
       const { error } = await supabase.from('reports').delete().eq('id', reportId);
@@ -730,8 +682,6 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('laporkuy_local_reports');
-        localStorage.setItem('laporkuy_store_sync', Date.now().toString());
-        window.dispatchEvent(new Event('laporkuy_store_update'));
       } catch (e) {}
     }
     return true;
@@ -770,9 +720,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
         setReports(mappedRemote);
         if (typeof window !== 'undefined') {
           try {
-            localStorage.setItem('laporkuy_local_reports', JSON.stringify(mappedRemote));
-            localStorage.setItem('laporkuy_store_sync', Date.now().toString());
-            window.dispatchEvent(new Event('laporkuy_store_update'));
+            localStorage.removeItem('laporkuy_local_reports');
           } catch (e) {}
         }
       }
