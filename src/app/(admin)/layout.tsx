@@ -150,6 +150,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
           </div>
         </div>
+
+        {/* Mobile & Tablet Nav Row */}
+        <div className="md:hidden border-t border-slate-800/80 px-4 py-1.5 flex items-center gap-1 overflow-x-auto scrollbar-none">
+          <Link
+            href="/admin"
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${
+              pathname === '/admin'
+                ? 'text-white bg-slate-800 border border-slate-700'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            Dashboard
+          </Link>
+          <Link
+            href="/transparansi"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-slate-400 hover:text-white whitespace-nowrap"
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            Pantau SLA
+          </Link>
+          <Link
+            href="/embed/map"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-slate-400 hover:text-white whitespace-nowrap"
+          >
+            <Map className="w-3.5 h-3.5" />
+            Peta Sebaran
+          </Link>
+        </div>
       </header>
 
       {/* Page content */}
