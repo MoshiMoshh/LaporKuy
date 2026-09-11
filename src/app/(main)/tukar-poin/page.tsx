@@ -87,14 +87,6 @@ function TukarPoinContent() {
     }
   }, [profile.id, showHistoryModal, redeemSuccess]);
 
-  useEffect(() => {
-    if (codeParam) {
-      setInputCode(codeParam);
-      resolveCodeInfo(codeParam);
-      setActiveMainTab('voucher');
-    }
-  }, [codeParam]);
-
   // Helper to inspect and resolve any claim code
   const resolveCodeInfo = (codeToInspect: string) => {
     const cleanCode = codeToInspect.trim().toUpperCase();
@@ -198,6 +190,7 @@ function TukarPoinContent() {
     if (codeParam) {
       setInputCode(codeParam);
       resolveCodeInfo(codeParam);
+      setActiveMainTab('voucher');
     }
   }, [codeParam, historyList]);
 

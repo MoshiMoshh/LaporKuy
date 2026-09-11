@@ -292,7 +292,7 @@ export default function MisiPage() {
             </div>
             <div>
               <p className="text-xs font-bold">Ada {quests.filter(q => q.progress >= q.target && !q.isClaimed).length} Misi Selesai Siap Diklaim!</p>
-              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Klik tombol hijau "Klaim Poin" di bawah ini untuk mengambil hadiah Anda.</p>
+              <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Klik tombol hijau &quot;Klaim Poin&quot; di bawah ini untuk mengambil hadiah Anda.</p>
             </div>
           </div>
         </div>

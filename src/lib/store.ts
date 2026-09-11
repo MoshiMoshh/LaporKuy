@@ -268,7 +268,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
               }
             }
 
-            let currentLevel = profileData.level || (savedXp >= 2000 ? 'Legenda Kota' : savedXp >= 1000 ? 'Pahlawan Kota' : savedXp >= 300 ? 'Warga Aktif' : 'Pemula');
+            const currentLevel = profileData.level || (savedXp >= 2000 ? 'Legenda Kota' : savedXp >= 1000 ? 'Pahlawan Kota' : savedXp >= 300 ? 'Warga Aktif' : 'Pemula');
 
             setProfile({
               ...profileData,

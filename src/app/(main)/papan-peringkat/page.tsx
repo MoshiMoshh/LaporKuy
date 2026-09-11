@@ -124,6 +124,7 @@ export default function LeaderboardPage() {
   const currentLeaderboardData = useMemo<LeaderboardUser[]>(() => {
     if (!profiles || profiles.length === 0) return [];
 
+    // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
     const oneMonthAgo = now - 30 * 24 * 60 * 60 * 1000;

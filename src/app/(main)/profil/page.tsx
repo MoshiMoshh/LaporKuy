@@ -89,6 +89,7 @@ export default function ProfilPage() {
         }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const [statusFilter, setStatusFilter] = useState<'Semua' | 'Terverifikasi' | 'Diproses' | 'Selesai' | 'Pending'>('Semua');
