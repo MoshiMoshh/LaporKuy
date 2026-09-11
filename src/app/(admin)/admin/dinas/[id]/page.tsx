@@ -120,7 +120,13 @@ export default function PortalDinasPage({ params }: { params: Promise<{ id: stri
             >
               <div className="flex items-start gap-3.5 min-w-0">
                 <img
-                  src={r.photoUrl || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&auto=format&fit=crop&q=80'}
+                  src={r.photoUrl || (
+                    r.category.includes('Lampu') ? '/images/reports/streetlight.jpg' :
+                    r.category.includes('Banjir') ? '/images/reports/flood.jpg' :
+                    r.category.includes('Sampah') ? '/images/reports/trash.jpg' :
+                    r.category.includes('Trotoar') ? '/images/reports/trotoar.jpg' :
+                    '/images/reports/pothole.jpg'
+                  )}
                   alt={r.title || 'Foto Laporan'}
                   className="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                 />

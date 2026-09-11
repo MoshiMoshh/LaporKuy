@@ -8,6 +8,7 @@ const footerLinks = [
       { label: "Buat Laporan", href: "/buat-laporan" },
       { label: "Dashboard", href: "/dashboard" },
       { label: "Leaderboard", href: "/papan-peringkat" },
+      { label: "Portal Admin", href: "/admin" },
     ],
   },
   {

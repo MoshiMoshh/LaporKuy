@@ -27,7 +27,8 @@ import {
   X,
   Sparkles,
   RefreshCw,
-  Coins
+  Coins,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -39,6 +40,15 @@ const dinasOptions = [
   'Dinas Perumahan Rakyat & Kawasan Permukiman',
   'BPBD & Penanggulangan Bencana'
 ];
+
+const getFallbackImg = (category: string) => {
+  if (category.includes('Lampu')) return '/images/reports/streetlight.jpg';
+  if (category.includes('Banjir')) return '/images/reports/flood.jpg';
+  if (category.includes('Sampah')) return '/images/reports/trash.jpg';
+  if (category.includes('Trotoar')) return '/images/reports/trotoar.jpg';
+  if (category.includes('Fasilitas')) return '/images/reports/rusak3.jpg';
+  return '/images/reports/pothole.jpg';
+};
 
 const getCategoryBadgeClass = (category: string) => {
   if (category.includes('Lampu')) return 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60';
@@ -66,12 +76,17 @@ const getStatusBadgeClass = (status: Report['status']) => {
 };
 
 export default function AdminPage() {
-  const { reports, updateReportStatus } = useLaporKuyStore();
+  const { reports, updateReportStatus, deleteReport, refreshReports } = useLaporKuyStore();
 
   const [activeTab, setActiveTab] = useState<'all' | 'dinas'>('all');
   const [selectedDinasFilter, setSelectedDinasFilter] = useState<string>('Semua Dinas');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('Semua');
   const [search, setSearch] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Delete modal state
+  const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Update Status Modal
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
@@ -153,6 +168,33 @@ export default function AdminPage() {
 
   const handleApplyPresetPhoto = (url: string) => {
     setAfterPhotoInput(url);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshReports();
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast.success('Data laporan berhasil disegarkan dari Supabase!');
+    }, 400);
+  };
+
+  const handleDeleteReport = async () => {
+    if (!reportToDelete) return;
+    setIsDeleting(true);
+    try {
+      const ok = await deleteReport(reportToDelete.id);
+      if (ok) {
+        toast.success(`Laporan #${reportToDelete.id} berhasil dihapus dari sistem.`);
+        setReportToDelete(null);
+      } else {
+        toast.error('Gagal menghapus laporan dari Supabase.');
+      }
+    } catch (e) {
+      toast.error('Terjadi kesalahan saat menghapus laporan.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -296,6 +338,19 @@ export default function AdminPage() {
           )}
         </div>
 
+        {/* Refresh button from Supabase */}
+        <Button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          variant="outline"
+          size="sm"
+          className="h-10 px-3.5 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold gap-2 shrink-0 cursor-pointer shadow-2xs"
+          title="Sinkronisasi data terbaru langsung dari database Supabase"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 text-blue-600 dark:text-blue-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span className="hidden sm:inline">{isRefreshing ? 'Menyinkron...' : 'Segarkan Data'}</span>
+        </Button>
+
         {/* Dinas Filter (if in dinas tab) */}
         {activeTab === 'dinas' && (
           <select
@@ -314,7 +369,7 @@ export default function AdminPage() {
 
         {/* Status Filter Chips */}
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-1 sm:pb-0 shrink-0">
-          {['Semua', 'Pending', 'Terverifikasi', 'Diproses', 'Selesai'].map((st) => (
+          {['Semua', 'Pending', 'Terverifikasi', 'Diproses', 'Selesai', 'Ditolak'].map((st) => (
             <button
               key={st}
               onClick={() => setSelectedStatusFilter(st)}
@@ -354,13 +409,7 @@ export default function AdminPage() {
           </div>
         ) : (
           filteredReports.map((report) => {
-            const fallbackImg = report.category.includes('Lampu')
-              ? '/images/reports/streetlight.jpg'
-              : report.category.includes('Banjir')
-              ? '/images/reports/flood.jpg'
-              : report.category.includes('Sampah')
-              ? '/images/reports/trash.jpg'
-              : '/images/reports/pothole.jpg';
+            const fallbackImg = getFallbackImg(report.category);
 
             return (
               <div
@@ -442,6 +491,15 @@ export default function AdminPage() {
                   >
                     Eksekusi & Update Status
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReportToDelete(report)}
+                    className="h-9 w-9 p-0 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 dark:border-rose-900/60 dark:hover:bg-rose-950/40 cursor-pointer"
+                    title="Hapus Laporan Ini"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
                   <Link href={`/laporan/${report.id}`}>
                     <Button
                       variant="outline"
@@ -483,13 +541,7 @@ export default function AdminPage() {
                   </tr>
                 ) : (
                   filteredReports.map((report) => {
-                    const fallbackImg = report.category.includes('Lampu')
-                      ? '/images/reports/streetlight.jpg'
-                      : report.category.includes('Banjir')
-                      ? '/images/reports/flood.jpg'
-                      : report.category.includes('Sampah')
-                      ? '/images/reports/trash.jpg'
-                      : '/images/reports/pothole.jpg';
+                    const fallbackImg = getFallbackImg(report.category);
 
                     return (
                       <tr key={report.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
@@ -564,6 +616,15 @@ export default function AdminPage() {
                               className="h-8 px-3 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-2xs cursor-pointer"
                             >
                               Update Status
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setReportToDelete(report)}
+                              className="h-8 w-8 p-0 rounded-lg border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 dark:border-rose-900/60 dark:hover:bg-rose-950/40 cursor-pointer"
+                              title="Hapus Laporan Ini"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                             <Link href={`/laporan/${report.id}`}>
                               <Button
@@ -717,8 +778,15 @@ export default function AdminPage() {
                       </label>
 
                       {/* Quick Presets for Demo / Instant Fix */}
-                      <div className="flex items-center gap-1.5 pt-1">
+                      <div className="flex items-center gap-1.5 pt-1 flex-wrap">
                         <span className="text-[10px] text-slate-400 font-medium">Contoh Cepat:</span>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPresetPhoto('/images/reports/repair.jpg')}
+                          className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:border-emerald-400 cursor-pointer"
+                        >
+                          Aspal Ditambal Rata
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleApplyPresetPhoto('https://images.unsplash.com/photo-1517649763962-0c623266010b?w=800&auto=format&fit=crop&q=80')}
@@ -728,10 +796,10 @@ export default function AdminPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleApplyPresetPhoto('https://images.unsplash.com/photo-1578991624414-276ef23a534f?w=800&auto=format&fit=crop&q=80')}
+                          onClick={() => handleApplyPresetPhoto('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80')}
                           className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:border-emerald-400 cursor-pointer"
                         >
-                          Aspal Rata
+                          Bebas Sampah
                         </button>
                       </div>
                     </div>
@@ -773,6 +841,63 @@ export default function AdminPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* ── 6. DELETE CONFIRMATION MODAL ── */}
+      {reportToDelete && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-xl border border-slate-200/80 dark:border-slate-800 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/60 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
+                  Hapus Laporan #{reportToDelete.id}?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Tindakan ini permanen dan akan menghapus laporan dari database Supabase serta tampilan warga.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-3">
+              <img
+                src={reportToDelete.photoUrl || getFallbackImg(reportToDelete.category)}
+                alt={reportToDelete.title}
+                className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+              />
+              <div className="min-w-0 text-xs">
+                <h4 className="font-bold text-slate-900 dark:text-slate-100 truncate">
+                  {reportToDelete.title}
+                </h4>
+                <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                  📍 {reportToDelete.address}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <Button
+                variant="outline"
+                type="button"
+                size="sm"
+                onClick={() => setReportToDelete(null)}
+                className="h-9 px-4 rounded-xl border-slate-200 dark:border-slate-800 cursor-pointer"
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={isDeleting}
+                onClick={handleDeleteReport}
+                className="h-9 px-5 font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs cursor-pointer"
+              >
+                {isDeleting ? 'Menghapus...' : 'Ya, Hapus Laporan'}
+              </Button>
+            </div>
           </div>
         </div>
       )}

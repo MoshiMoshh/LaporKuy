@@ -96,7 +96,7 @@ export const defaultMockReports: Report[] = [
     district: 'Kec. Sukaraja',
     lat: -6.5246,
     lng: 106.8432,
-    photoUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80',
+    photoUrl: '/images/reports/pothole.jpg',
     description: 'Jalan berlubang dan aspal mengelupas cukup dalam membahayakan pengendara motor.',
     status: 'Terverifikasi',
     createdAt: '2026-08-28T09:30:00Z',
@@ -122,7 +122,7 @@ export const defaultMockReports: Report[] = [
     district: 'Kec. Babakan Madang',
     lat: -6.5562,
     lng: 106.8621,
-    photoUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80',
+    photoUrl: '/images/reports/amblas.jpg',
     description: 'Aspal jalan amblas sedalam 12cm di lajur kiri dekat jembatan. Membahayakan keselamatan pengendara.',
     status: 'Diproses',
     createdAt: '2026-08-27T09:30:00Z',
@@ -151,7 +151,7 @@ export const defaultMockReports: Report[] = [
     district: 'Kec. Sukaraja',
     lat: -6.5298,
     lng: 106.8395,
-    photoUrl: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800&auto=format&fit=crop&q=80',
+    photoUrl: '/images/reports/streetlight.jpg',
     afterPhotoUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266010b?w=800&auto=format&fit=crop&q=80',
     description: '3 tiang lampu PJU padam berturut-turut. Gelap gulita di persimpangan jalan.',
     status: 'Selesai',
@@ -180,7 +180,7 @@ export const defaultMockReports: Report[] = [
     district: 'Kec. Sukaraja',
     lat: -6.5350,
     lng: 106.8350,
-    photoUrl: 'https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=800&auto=format&fit=crop&q=80',
+    photoUrl: '/images/reports/trash.jpg',
     description: 'Warga membuang sampah sembarangan di pinggir selokan, bau menyengat dan berpotensi banjir saat hujan.',
     status: 'Diproses',
     createdAt: '2026-08-28T07:15:00Z',
@@ -206,7 +206,7 @@ export const defaultMockReports: Report[] = [
     district: 'Kec. Bogor Tengah',
     lat: -6.5950,
     lng: 106.8050,
-    photoUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
+    photoUrl: '/images/reports/flood.jpg',
     description: 'Air setinggi 20cm tidak surut setelah hujan reda selama 4 jam. Menghambat arus lalu lintas.',
     status: 'Pending',
     createdAt: '2026-08-28T08:00:00Z',
@@ -232,7 +232,7 @@ export const defaultMockReports: Report[] = [
     district: 'Kec. Bogor Tengah',
     lat: -6.5985,
     lng: 106.7970,
-    photoUrl: 'https://images.unsplash.com/photo-1584463699039-44e2b027878d?w=800&auto=format&fit=crop&q=80',
+    photoUrl: '/images/reports/trotoar.jpg',
     description: 'Guiding block untuk tuna netra pecah dan amblas sekitar 2 meter membahayakan pejalan kaki.',
     status: 'Diproses',
     createdAt: '2026-08-26T14:10:00Z',
@@ -264,6 +264,8 @@ interface LaporKuyStoreValue {
   toggleUpvote: (reportId: string) => Promise<void>;
   addComment: (reportId: string, content: string) => Promise<void>;
   updateReportStatus: (reportId: string, newStatus: Report['status'], notes?: string, afterPhotoUrl?: string, assignedDinas?: string) => Promise<void>;
+  deleteReport: (reportId: string) => Promise<boolean>;
+  refreshReports: () => Promise<void>;
   claimQuest: (questId: string) => Promise<void>;
   redeemReward: (rewardId: string) => Promise<boolean>;
   markNotificationsRead: () => Promise<void>;
@@ -878,8 +880,104 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
           is_official: true
         });
       }
+
+      // Notify citizen who reported this
+      if (targetReport?.userId) {
+        try {
+          const notifId = `n-status-${Date.now()}`;
+          const notifTitle = newStatus === 'Selesai'
+            ? `Laporan #${reportId} Selesai Dikerjakan! 🎉`
+            : `Laporan #${reportId} Status: ${newStatus}`;
+          const notifMessage = notes
+            ? `Status laporan diperbarui: "${newStatus}". Catatan dinas: ${notes}`
+            : `Status laporan Anda saat ini adalah "${newStatus}" dan ditangani oleh ${assignedDinas || targetReport.assignedDinas || 'dinas terkait'}.`;
+
+          await supabase.from('notifications').insert({
+            id: notifId,
+            user_id: targetReport.userId,
+            title: notifTitle,
+            message: notifMessage,
+            timestamp: 'Baru saja',
+            type: 'status',
+            is_read: false,
+            link: `/laporan/${reportId}`
+          });
+        } catch (e) {
+          console.warn('Notification insert warning:', e);
+        }
+      }
     } catch (err) {
       console.warn('Supabase status sync error:', err);
+    }
+  };
+
+  const deleteReport = async (reportId: string): Promise<boolean> => {
+    setReports(prev => {
+      const updated = prev.filter(r => r.id !== reportId);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('laporkuy_local_reports', JSON.stringify(updated.slice(0, 50)));
+          localStorage.setItem('laporkuy_store_sync', Date.now().toString());
+          window.dispatchEvent(new Event('laporkuy_store_update'));
+        } catch (e) {}
+      }
+      return updated;
+    });
+
+    try {
+      const { error } = await supabase.from('reports').delete().eq('id', reportId);
+      if (error) {
+        console.error('Error deleting report in Supabase:', error);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('Exception deleting report in Supabase:', err);
+      return false;
+    }
+  };
+
+  const refreshReports = async () => {
+    try {
+      const { data: reportsData } = await supabase
+        .from('reports')
+        .select('*, comments(*)')
+        .order('created_at', { ascending: false });
+
+      if (reportsData && reportsData.length > 0) {
+        const mappedRemote = reportsData.map((r: any) => ({
+          ...r,
+          photoUrl: r.photo_url,
+          afterPhotoUrl: r.after_photo_url,
+          createdAt: r.created_at,
+          updatedAt: r.updated_at,
+          userId: r.user_id,
+          userName: r.user_name,
+          userAvatar: r.user_avatar,
+          isUrgent: r.is_urgent,
+          aiAuthenticityScore: r.ai_authenticity_score,
+          aiConfidence: r.ai_confidence,
+          assignedDinas: r.assigned_dinas,
+          slaTargetDays: r.sla_target_days,
+          slaDaysRemaining: r.sla_days_remaining,
+          comments: (r.comments || []).map((c: any) => ({
+             ...c,
+             createdAt: c.created_at,
+             isOfficial: c.is_official
+          }))
+        }));
+
+        setReports(mappedRemote);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('laporkuy_local_reports', JSON.stringify(mappedRemote.slice(0, 50)));
+            localStorage.setItem('laporkuy_store_sync', Date.now().toString());
+            window.dispatchEvent(new Event('laporkuy_store_update'));
+          } catch (e) {}
+        }
+      }
+    } catch (err) {
+      console.error("Failed to refresh reports from Supabase", err);
     }
   };
 
@@ -1078,6 +1176,8 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     toggleUpvote,
     addComment,
     updateReportStatus,
+    deleteReport,
+    refreshReports,
     claimQuest,
     redeemReward,
     markNotificationsRead,
