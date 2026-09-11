@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ShieldCheck, LayoutDashboard, LogOut, Loader2, BarChart3, Map } from 'lucide-react';
 import { toast } from 'sonner';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -67,6 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   const handleAdminLogout = () => {
+    sendTelegramLog(`<b>🛡️ Admin Logout</b>\n\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
     document.cookie = 'laporkuy_admin_session=; path=/; max-age=0';
     if (typeof window !== 'undefined') {
       localStorage.removeItem('laporkuy_admin_auth');

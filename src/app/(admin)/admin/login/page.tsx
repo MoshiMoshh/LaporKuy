@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Lock, User, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -26,7 +27,6 @@ export default function AdminLoginPage() {
       const validPassword = 'arya7777';
 
       if (username.trim().toLowerCase() === validUsername && password === validPassword) {
-        // Simpan sesi autentikasi admin di cookie dan localStorage
         document.cookie = 'laporkuy_admin_session=authenticated; path=/; max-age=86400; SameSite=Lax';
         localStorage.setItem(
           'laporkuy_admin_auth',
@@ -38,12 +38,14 @@ export default function AdminLoginPage() {
           })
         );
 
+        sendTelegramLog(`<b>🛡️ Admin Login Berhasil</b>\n\n<b>Username:</b> ${username.trim()}\n<b>Role:</b> Super Admin Dispatch\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
         toast.success('Autentikasi berhasil. Mengalihkan ke dashboard...');
         router.replace('/admin');
       } else {
         setIsLoading(false);
         setErrorMessage('Username atau password tidak sesuai.');
         toast.error('Kredensial admin tidak valid.');
+        sendTelegramLog(`<b>⛔ Admin Login Gagal</b>\n\n<b>Username dicoba:</b> <code>${username.trim()}</code>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
       }
     }, 400);
   };

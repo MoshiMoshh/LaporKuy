@@ -21,6 +21,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 const dinasOptions = [
   'Dinas Bina Marga & Sumber Daya Air',
@@ -137,6 +138,8 @@ export default function AdminPage() {
         assignedDinasInput || selectedReport.assignedDinas
       );
 
+      sendTelegramLog(`<b>📝 Laporan Diperbarui (Admin)</b>\n\n<b>ID:</b> <code>${selectedReport.id}</code>\n<b>Admin:</b> AryaKuy\n<b>Status Baru:</b> ${newStatus}\n<b>Dinas:</b> ${assignedDinasInput || selectedReport.assignedDinas}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
+
       toast.success(`Laporan #${selectedReport.id} diperbarui`, {
         description: `Status: ${newStatus} • ${assignedDinasInput}`
       });
@@ -167,6 +170,7 @@ export default function AdminPage() {
     try {
       const ok = await deleteReport(reportToDelete.id);
       if (ok) {
+        sendTelegramLog(`<b>🗑️ Laporan Dihapus (Admin)</b>\n\n<b>ID:</b> <code>${reportToDelete.id}</code>\n<b>Admin:</b> AryaKuy\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
         toast.success(`Laporan #${reportToDelete.id} berhasil dihapus.`);
         setReportToDelete(null);
       } else {
@@ -183,6 +187,7 @@ export default function AdminPage() {
     setIsClearingAll(true);
     try {
       await deleteAllReports();
+      sendTelegramLog(`<b>🚨 SEMUA LAPORAN DIHAPUS (Admin)</b>\n\n<b>Admin:</b> AryaKuy\n<b>Status:</b> Database dikosongkan\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
       toast.success('Semua laporan di Supabase dan lokal berhasil dihapus.');
       setShowClearAllModal(false);
     } catch {

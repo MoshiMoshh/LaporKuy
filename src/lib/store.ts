@@ -4,6 +4,7 @@ import { useState, useEffect, createContext, useContext, createElement, type Rea
 import { Report, UserProfile, Quest, Reward, NotificationItem, Comment } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { sendTelegramLog } from '@/app/actions/telegram';
 
 const supabase = createClient();
 
@@ -461,6 +462,8 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
     const isUpvoted = !report.hasUpvoted;
     const newUpvotes = isUpvoted ? report.upvotes + 1 : Math.max(0, report.upvotes - 1);
 
+    sendTelegramLog(`<b>${isUpvoted ? '👍 Upvote Ditambahkan' : '👎 Upvote Dihapus'}</b>\n\n<b>User:</b> ${profile.name || 'Anonim'}\n<b>ID Laporan:</b> <code>${reportId}</code>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
+
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, upvotes: newUpvotes, hasUpvoted: isUpvoted } : r));
 
     if (isUpvoted) {
@@ -505,6 +508,8 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
       content,
       createdAt: now
     };
+
+    sendTelegramLog(`<b>💬 Komentar Baru</b>\n\n<b>User:</b> ${profile.name || 'Anonim'}\n<b>ID Laporan:</b> <code>${reportId}</code>\n<b>Isi Komentar:</b> <i>"${content}"</i>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
 
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, comments: [...r.comments, newComment] } : r));
 
@@ -738,6 +743,8 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
 
     const updatedQuests = quests.map(q => q.id === questId ? { ...q, isClaimed: true, progress: q.target } : q);
     setQuests(updatedQuests);
+
+    sendTelegramLog(`<b>🎯 Misi Diklaim</b>\n\n<b>User:</b> ${profile.name || 'Anonim'}\n<b>Misi:</b> ${quest.title}\n<b>Reward Poin:</b> +${reward}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
     
     if (typeof window !== 'undefined' && profile.id) {
       localStorage.setItem(`laporkuy_quests_${profile.id}`, JSON.stringify(updatedQuests));
@@ -795,6 +802,8 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
 
     const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
     const claimCode = `LK-${rewardId.replace('r-', '').toUpperCase()}-${randomSuffix}`;
+
+    sendTelegramLog(`<b>🎁 Reward Ditukar</b>\n\n<b>User:</b> ${profile.name || 'Anonim'}\n<b>Reward:</b> ${reward.title}\n<b>Biaya Poin:</b> ${reward.pointsCost}\n<b>Kode Klaim:</b> <code>${claimCode}</code>\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
 
     if (typeof window !== 'undefined' && profile.id) {
       localStorage.setItem(`laporkuy_points_v3_${profile.id}`, JSON.stringify({
@@ -862,6 +871,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
   };
 
   const updateProfile = async (updatedData: Partial<UserProfile>) => {
+    sendTelegramLog(`<b>👤 Profil Diperbarui</b>\n\n<b>User:</b> ${profile.name || 'Anonim'}\n<b>Data Diubah:</b> ${Object.keys(updatedData).join(', ')}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
     setProfile(prev => {
       const newProfile = { ...prev, ...updatedData };
       if (typeof window !== 'undefined' && newProfile.id) {
