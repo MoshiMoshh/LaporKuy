@@ -11,6 +11,16 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
+  // Protect /admin routes (except /admin/login)
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+    const adminSession = request.cookies.get('laporkuy_admin_session');
+    if (!adminSession || adminSession.value !== 'authenticated') {
+      const loginUrl = new URL('/admin/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   return NextResponse.next();
 }
 
