@@ -2,7 +2,6 @@
 
 import { headers } from 'next/headers';
 
-// ── Country code → full name (common Southeast Asian + major countries) ──
 const COUNTRY_NAMES: Record<string, string> = {
   ID: 'Indonesia', MY: 'Malaysia', SG: 'Singapura', TH: 'Thailand',
   PH: 'Filipina', VN: 'Vietnam', MM: 'Myanmar', KH: 'Kamboja',
@@ -13,137 +12,115 @@ const COUNTRY_NAMES: Record<string, string> = {
   AE: 'Uni Emirat Arab', TR: 'Turki', RU: 'Rusia', BR: 'Brasil',
 };
 
-/**
- * Parse a raw User-Agent string into a human-readable "Browser vX on OS" label.
- * Handles Chrome, Firefox, Safari, Edge, Opera, Samsung, and mobile variants.
- */
-function parseUserAgent(raw: string): { browser: string; os: string; device: string } {
-  if (!raw || raw === 'Perangkat Tidak Diketahui') {
-    return { browser: 'Tidak diketahui', os: 'Tidak diketahui', device: 'Tidak diketahui' };
+function parseUA(ua: string) {
+  if (!ua) return { browser: '-', os: '-', device: '-' };
+
+  // OS
+  let os = '-';
+  const osRules: [RegExp, string | ((m: RegExpMatchArray) => string)][] = [
+    [/Windows NT 10/i, 'Windows 10/11'],
+    [/Windows NT 6\.3/i, 'Windows 8.1'],
+    [/Windows NT 6\.1/i, 'Windows 7'],
+    [/Windows/i, 'Windows'],
+    [/Mac OS X ([\d._]+)/i, m => `macOS ${m[1].replace(/_/g, '.')}`],
+    [/Android ([\d.]+)/i, m => `Android ${m[1]}`],
+    [/(?:iPhone OS|CPU OS) ([\d_]+)/i, m => `iOS ${m[1].replace(/_/g, '.')}`],
+    [/iPad/i, 'iPadOS'],
+    [/CrOS/i, 'Chrome OS'],
+    [/Linux/i, 'Linux'],
+  ];
+  for (const [re, val] of osRules) {
+    const m = ua.match(re);
+    if (m) { os = typeof val === 'function' ? val(m) : val; break; }
   }
 
-  // ── Detect OS ──
-  let os = 'Tidak diketahui';
-  if (/Windows NT 10/i.test(raw)) os = 'Windows 10/11';
-  else if (/Windows NT 6\.3/i.test(raw)) os = 'Windows 8.1';
-  else if (/Windows NT 6\.1/i.test(raw)) os = 'Windows 7';
-  else if (/Windows/i.test(raw)) os = 'Windows';
-  else if (/Mac OS X (\d+[._]\d+)/i.test(raw)) {
-    const ver = raw.match(/Mac OS X (\d+[._]\d+[._]?\d*)/i)?.[1]?.replace(/_/g, '.') || '';
-    os = `macOS ${ver}`;
-  } else if (/Android (\d+(\.\d+)?)/i.test(raw)) {
-    const ver = raw.match(/Android (\d+(\.\d+)?)/i)?.[1] || '';
-    os = `Android ${ver}`;
-  } else if (/iPhone OS (\d+[._]\d+)/i.test(raw) || /iPad/i.test(raw)) {
-    const ver = raw.match(/(?:iPhone OS|CPU OS) (\d+[._]\d+)/i)?.[1]?.replace(/_/g, '.') || '';
-    os = `iOS ${ver}`;
-  } else if (/CrOS/i.test(raw)) os = 'Chrome OS';
-  else if (/Linux/i.test(raw)) os = 'Linux';
-
-  // ── Detect Browser (order matters — more specific first) ──
-  let browser = 'Tidak diketahui';
-  if (/SamsungBrowser\/(\d+(\.\d+)?)/i.test(raw)) {
-    browser = `Samsung Browser ${raw.match(/SamsungBrowser\/(\d+(\.\d+)?)/i)?.[1]}`;
-  } else if (/Edg\/(\d+(\.\d+)?)/i.test(raw)) {
-    browser = `Microsoft Edge ${raw.match(/Edg\/(\d+(\.\d+)?)/i)?.[1]}`;
-  } else if (/OPR\/(\d+(\.\d+)?)/i.test(raw) || /Opera\/(\d+(\.\d+)?)/i.test(raw)) {
-    browser = `Opera ${(raw.match(/OPR\/(\d+(\.\d+)?)/i) || raw.match(/Opera\/(\d+(\.\d+)?)/i))?.[1]}`;
-  } else if (/Firefox\/(\d+(\.\d+)?)/i.test(raw)) {
-    browser = `Firefox ${raw.match(/Firefox\/(\d+(\.\d+)?)/i)?.[1]}`;
-  } else if (/CriOS\/(\d+(\.\d+)?)/i.test(raw)) {
-    browser = `Chrome iOS ${raw.match(/CriOS\/(\d+(\.\d+)?)/i)?.[1]}`;
-  } else if (/Chrome\/(\d+(\.\d+)?)/i.test(raw) && !/Edg/i.test(raw)) {
-    browser = `Chrome ${raw.match(/Chrome\/(\d+(\.\d+)?)/i)?.[1]}`;
-  } else if (/Safari\/(\d+)/i.test(raw) && /Version\/(\d+(\.\d+)?)/i.test(raw) && !/Chrome/i.test(raw)) {
-    browser = `Safari ${raw.match(/Version\/(\d+(\.\d+)?)/i)?.[1]}`;
+  // Browser (order: specific → generic)
+  let browser = '-';
+  const brRules: [RegExp, string][] = [
+    [/SamsungBrowser\/([\d.]+)/i, 'Samsung Browser'],
+    [/Edg\/([\d.]+)/i, 'Edge'],
+    [/OPR\/([\d.]+)/i, 'Opera'],
+    [/Firefox\/([\d.]+)/i, 'Firefox'],
+    [/CriOS\/([\d.]+)/i, 'Chrome iOS'],
+  ];
+  for (const [re, name] of brRules) {
+    const m = ua.match(re);
+    if (m) { browser = `${name} ${m[1]}`; break; }
+  }
+  if (browser === '-') {
+    if (/Chrome\/([\d.]+)/i.test(ua) && !/Edg/i.test(ua)) {
+      browser = `Chrome ${ua.match(/Chrome\/([\d.]+)/i)![1]}`;
+    } else if (/Version\/([\d.]+).*Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+      browser = `Safari ${ua.match(/Version\/([\d.]+)/i)![1]}`;
+    }
   }
 
-  // ── Detect Device Type ──
-  let device = 'Desktop';
-  if (/Mobile|Android.*Mobile|iPhone/i.test(raw)) device = 'Smartphone';
-  else if (/iPad|Android(?!.*Mobile)|Tablet/i.test(raw)) device = 'Tablet';
-  else if (/Bot|Crawler|Spider|Scrapy/i.test(raw)) device = 'Bot/Crawler';
+  // Device
+  let device = '💻 Desktop';
+  if (/Mobile|iPhone/i.test(ua)) device = '📱 Smartphone';
+  else if (/iPad|Tablet/i.test(ua)) device = '📱 Tablet';
+  else if (/Bot|Crawler|Spider/i.test(ua)) device = '🤖 Bot';
 
   return { browser, os, device };
 }
 
 export async function sendTelegramLog(message: string) {
   try {
-    const botToken = "8897180730:AAF23K8_zm4HB_h47k_nkAUNKQWdiVyRsDE";
-    const chatId = "-1004334495025";
+    const botToken = '8897180730:AAF23K8_zm4HB_h47k_nkAUNKQWdiVyRsDE';
+    const chatId = '-1004334495025';
 
-    if (!botToken || !chatId) {
-      console.warn('Telegram logger is not configured properly.');
-      return { success: false, error: 'Telegram not configured' };
-    }
-
-    let enrichedMessage = message;
+    let text = message;
 
     try {
-      const headersList = await headers();
+      const h = await headers();
 
-      // ── IP Address: take only the first (client) IP from x-forwarded-for chain ──
-      const rawIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || '';
-      const ip = rawIp.split(',')[0]?.trim() || 'Tidak diketahui';
+      const rawIp = h.get('x-forwarded-for') || h.get('x-real-ip') || '';
+      const ip = rawIp.split(',')[0]?.trim() || '-';
 
-      // ── Geo Location from Vercel edge headers (URL-decode city names) ──
-      const countryCode = headersList.get('x-vercel-ip-country') || '';
-      const countryName = COUNTRY_NAMES[countryCode] || countryCode || 'Tidak diketahui';
-      const rawCity = headersList.get('x-vercel-ip-city') || '';
+      const cc = h.get('x-vercel-ip-country') || '';
+      const country = COUNTRY_NAMES[cc] || cc || '-';
+      const rawCity = h.get('x-vercel-ip-city') || '';
       const city = rawCity ? decodeURIComponent(rawCity) : '';
-      const region = headersList.get('x-vercel-ip-country-region') || '';
-      const latitude = headersList.get('x-vercel-ip-latitude') || '';
-      const longitude = headersList.get('x-vercel-ip-longitude') || '';
-      const timezone = headersList.get('x-vercel-ip-timezone') || '';
+      const region = h.get('x-vercel-ip-country-region') || '';
+      const lat = h.get('x-vercel-ip-latitude') || '';
+      const lng = h.get('x-vercel-ip-longitude') || '';
+      const tz = h.get('x-vercel-ip-timezone') || '';
 
-      // Build readable location string
-      const locationParts = [city, region, countryName].filter(Boolean);
-      const locationStr = locationParts.length > 0 ? locationParts.join(', ') : 'Tidak diketahui';
+      const loc = [city, region, country].filter(Boolean).join(', ') || '-';
+      const { browser, os, device } = parseUA(h.get('user-agent') || '');
 
-      // ── User-Agent parsing ──
-      const rawUA = headersList.get('user-agent') || '';
-      const { browser, os, device } = parseUserAgent(rawUA);
+      const lines = [
+        `\n\n<b>🌐 Detail Perangkat & Jaringan:</b>`,
+        `├ <b>IP:</b>  <code>${ip}</code>`,
+        `├ <b>Lokasi:</b>  ${loc}`,
+      ];
+      if (lat && lng) lines.push(`├ <b>Koordinat:</b>  <code>${lat}, ${lng}</code>`);
+      if (tz) lines.push(`├ <b>Zona Waktu:</b>  ${tz}`);
+      lines.push(
+        `├ <b>Perangkat:</b>  ${device}`,
+        `├ <b>OS:</b>  ${os}`,
+        `└ <b>Browser:</b>  ${browser}`,
+      );
 
-      // ── Build the info block ──
-      enrichedMessage += `\n\n<b>🌐 Detail Perangkat & Jaringan:</b>\n`;
-      enrichedMessage += `├ <b>IP:</b> <code>${ip}</code>\n`;
-      enrichedMessage += `├ <b>Lokasi:</b> ${locationStr}\n`;
-      if (latitude && longitude) {
-        enrichedMessage += `├ <b>Koordinat:</b> <code>${latitude}, ${longitude}</code>\n`;
-      }
-      if (timezone) {
-        enrichedMessage += `├ <b>Timezone:</b> ${timezone}\n`;
-      }
-      enrichedMessage += `├ <b>Perangkat:</b> ${device}\n`;
-      enrichedMessage += `├ <b>OS:</b> ${os}\n`;
-      enrichedMessage += `└ <b>Browser:</b> ${browser}`;
-    } catch (e) {
-      console.warn('Could not read request headers for telegram log');
+      text += lines.join('\n');
+    } catch {
+      // headers() unavailable outside request context
     }
 
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    const response = await fetch(url, {
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: enrichedMessage,
-        parse_mode: 'HTML',
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
     });
 
-    const data = await response.json();
-    if (!response.ok) {
+    const data = await res.json();
+    if (!res.ok) {
       console.error('Telegram API error:', data);
       return { success: false, error: data.description };
     }
-
     return { success: true };
   } catch (error: any) {
-    console.error('Error sending telegram log:', error);
+    console.error('Telegram log error:', error);
     return { success: false, error: error.message };
   }
 }
-
