@@ -78,74 +78,71 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100">
       {/* Admin Dedicated Navbar */}
-      <header className="bg-gradient-to-r from-[#002244] via-[#003366] to-[#004080] text-white sticky top-0 z-50 border-b border-blue-900/60 shadow-md">
+      <header className="bg-slate-950 text-white sticky top-0 z-50 border-b border-slate-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-3 shrink-0">
-            <Link href="/admin" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-white/15 border border-white/20 flex items-center justify-center text-blue-200 group-hover:bg-white/25 transition-all shadow-inner">
-                <ShieldCheck className="w-4 h-4 text-white" />
+            <Link href="/admin" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 group-hover:border-slate-700 transition-colors">
+                <ShieldCheck className="w-4 h-4 text-blue-400" />
               </div>
               <div className="leading-tight">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-extrabold tracking-tight text-white">LaporKuy</span>
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 shadow-sm">
-                    Portal Admin
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold tracking-tight text-white">LaporKuy</span>
+                  <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    Admin
                   </span>
                 </div>
-                <span className="text-[10px] text-blue-200/70 hidden sm:block">Sistem Dispatch & Verifikasi Kota</span>
+                <span className="text-[10px] text-slate-400 hidden sm:block">Panel Dispatch Kota</span>
               </div>
             </Link>
           </div>
 
           {/* Nav links */}
-          <nav className="hidden md:flex items-center gap-1.5">
+          <nav className="hidden md:flex items-center gap-1">
             <Link
               href="/admin"
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors border ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                 pathname === '/admin'
-                  ? 'text-white bg-white/20 border-white/20 shadow-sm'
-                  : 'text-white/80 hover:text-white hover:bg-white/10 border-transparent'
+                  ? 'text-white bg-slate-800 border border-slate-700'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
-              Dispatch Dashboard
+              Dashboard
             </Link>
             <Link
               href="/transparansi"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/75 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-transparent"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900 rounded-md transition-colors"
             >
               <BarChart3 className="w-3.5 h-3.5" />
-              Pantau SLA Kota
+              Pantau SLA
             </Link>
             <Link
               href="/embed/map"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white/75 hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-transparent"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900 rounded-md transition-colors"
             >
               <Map className="w-3.5 h-3.5" />
-              Peta Persebaran
+              Peta Sebaran
             </Link>
           </nav>
 
           {/* Right: Admin User Profile & Logout */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-2 px-2.5 py-1 bg-white/10 border border-white/15 rounded-lg">
-              <div className="w-6 h-6 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center text-xs font-black shrink-0">
+            <div className="flex items-center gap-2 px-2.5 py-1 bg-slate-900 border border-slate-800 rounded-md">
+              <div className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">
                 A
               </div>
               <div className="hidden sm:block text-left leading-none">
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-medium text-slate-200 block">
                   {adminUser?.username || 'AryaKuy'}
-                </span>
-                <span className="text-[9px] text-blue-200/80 font-medium">
-                  {adminUser?.role || 'Super Admin'}
                 </span>
               </div>
             </div>
 
             <button
               onClick={handleAdminLogout}
-              className="flex items-center gap-1.5 text-xs font-semibold text-rose-200 hover:text-white bg-rose-500/20 hover:bg-rose-600/40 transition-colors border border-rose-400/30 rounded-lg px-2.5 py-1.5 cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-rose-400 bg-slate-900 hover:bg-rose-950/30 transition-colors border border-slate-800 hover:border-rose-900/50 rounded-md px-2.5 py-1.5 cursor-pointer"
               title="Keluar dari Portal Admin"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -161,8 +158,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </main>
 
       {/* Admin footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-3.5 px-6 text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-        LaporKuy Dispatch & Command Hub — Sistem Tertutup Otoritas Pemerintah Kota
+      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-3.5 px-6 text-center text-xs text-slate-500 font-normal">
+        © {new Date().getFullYear()} LaporKuy • Panel Administrasi & Dispatch Kota
       </footer>
     </div>
   );

@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Lock, User, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Lock, User, Eye, EyeOff, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
 import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
@@ -36,108 +38,106 @@ export default function AdminLoginPage() {
           })
         );
 
-        toast.success('Autentikasi Berhasil! Selamat datang kembali, Administrator AryaKuy.');
+        toast.success('Autentikasi berhasil. Mengalihkan ke dashboard...');
         router.replace('/admin');
       } else {
         setIsLoading(false);
-        setErrorMessage('Username atau Password Admin salah. Akses ditolak.');
-        toast.error('Kredensial admin tidak valid. Silakan periksa kembali.');
+        setErrorMessage('Username atau password tidak sesuai.');
+        toast.error('Kredensial admin tidak valid.');
       }
     }, 400);
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-950 via-[#071328] to-slate-900 px-4 py-12 relative overflow-hidden font-sans">
-      {/* Decorative Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
-      
-      {/* Glow Effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-full flex flex-col justify-between bg-slate-950 text-slate-100 font-sans px-4 py-8 sm:py-12 selection:bg-blue-600/30 selection:text-blue-200">
+      {/* Top bar back link */}
+      <div className="w-full max-w-sm mx-auto flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors py-1 px-2 rounded-md hover:bg-slate-900"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Kembali ke Beranda</span>
+        </Link>
+        <span className="text-[11px] font-mono text-slate-500">v2.4</span>
+      </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Header Branding */}
-        <div className="text-center mb-8 space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-xl shadow-blue-500/20 border border-blue-400/30 mb-1">
-            <ShieldCheck className="w-8 h-8 text-white" />
+      {/* Main card container */}
+      <div className="w-full max-w-sm mx-auto my-auto py-6">
+        {/* Brand header */}
+        <div className="text-center mb-6 space-y-2">
+          <div className="inline-flex items-center justify-center mb-1">
+            <Logo variant="full" size={32} theme="dark" />
           </div>
           <div>
-            <div className="flex items-center justify-center gap-2">
-              <h1 className="text-2xl font-black tracking-tight text-white">LaporKuy</h1>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 shadow-sm">
-                Internal Admin
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 font-medium mt-1">
-              Pusat Kendali & Verifikasi Dispatch Kota
+            <h1 className="text-lg font-semibold tracking-tight text-white">
+              Portal Administrator
+            </h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Masuk untuk verifikasi dan penanganan laporan kota.
             </p>
           </div>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-2xl backdrop-blur-xl p-6 sm:p-8 space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <h2 className="text-base font-bold text-slate-100">
-              Autentikasi Petugas
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Masukkan kredensial khusus untuk mengakses dashboard dispatch.
-            </p>
-          </div>
-
+        {/* Card */}
+        <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-6 shadow-sm">
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-rose-950/50 border border-rose-800/60 text-rose-300 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in zoom-in duration-200">
+            <div className="mb-5 p-3 rounded-lg bg-rose-950/40 border border-rose-900/60 text-rose-300 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           <form onSubmit={handleAdminLogin} className="space-y-4">
-            {/* Username Input */}
+            {/* Username */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">
-                Username Admin
+              <label htmlFor="admin-username" className="text-xs font-medium text-slate-300 block">
+                Username
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                   <User className="h-4 w-4" />
                 </div>
                 <input
+                  id="admin-username"
                   type="text"
                   required
                   autoFocus
                   autoComplete="username"
-                  placeholder="Masukkan username admin..."
+                  placeholder="Masukkan username admin"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm font-semibold text-white placeholder:text-slate-500 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-inner"
+                  className="w-full pl-9 pr-3.5 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 />
               </div>
             </div>
 
-            {/* Password Input */}
+            {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">
-                Password Admin
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="admin-password" className="text-xs font-medium text-slate-300 block">
+                  Password
+                </label>
+              </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
+                  id="admin-password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   autoComplete="current-password"
-                  placeholder="Masukkan password admin..."
+                  placeholder="Masukkan password admin"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm font-semibold text-white placeholder:text-slate-500 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-inner"
+                  className="w-full pl-9 pr-10 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors"
-                  aria-label="Toggle password visibility"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                  aria-label={showPassword ? 'Sembunyikan password' : 'Lihat password'}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -148,29 +148,31 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-sm rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Memverifikasi Akses...</span>
+                  <span>Memverifikasi...</span>
                 </>
               ) : (
-                <>
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Masuk ke Sistem Dispatch</span>
-                </>
+                <span>Masuk ke Panel Admin</span>
               )}
             </button>
           </form>
-
-          {/* Security Notice */}
-          <div className="pt-2 border-t border-slate-800/80 text-center">
-            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-              Sistem ini dilindungi enkripsi terbatas. Aktivitas verifikasi dicatat secara berkala untuk integritas operasional dinas.
-            </p>
-          </div>
         </div>
+
+        {/* Security disclaimer */}
+        <p className="text-[11px] text-slate-500 text-center mt-4">
+          Halaman ini dikhususkan bagi petugas dinas dan verifikator internal.
+        </p>
+      </div>
+
+      {/* Footer copyright */}
+      <div className="w-full max-w-sm mx-auto text-center">
+        <p className="text-[11px] text-slate-600">
+          © {new Date().getFullYear()} LaporKuy. Hak cipta dilindungi.
+        </p>
       </div>
     </div>
   );
