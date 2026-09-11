@@ -916,6 +916,7 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
   const login = () => { /* Now handled by login page OAuth flow */ };
 
   const logout = async () => {
+    sendTelegramLog(`<b>👋 Logout</b>\n\n<b>User:</b> ${profile.name || 'Anonim'}\n<b>Email:</b> ${profile.email || 'Tidak diketahui'}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
     await supabase.auth.signOut();
     setIsLoggedIn(false);
     setProfile(defaultProfile);

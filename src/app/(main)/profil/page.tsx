@@ -44,7 +44,7 @@ import { toast } from 'sonner';
 
 export default function ProfilPage() {
   const router = useRouter();
-  const { profile, reports, updateProfile, isInitialized } = useLaporKuyStore();
+  const { profile, reports, updateProfile, isInitialized, logout } = useLaporKuyStore();
   const { location: userLoc } = useUserLocation();
   const [activeTab, setActiveTab] = useState<'ringkasan' | 'laporan' | 'pengaturan'>('ringkasan');
   const [copied, setCopied] = useState(false);
@@ -660,11 +660,7 @@ export default function ProfilPage() {
           <Button
             variant="outline"
             onClick={async () => {
-              const { data: { user } } = await supabase.auth.getUser();
-              const email = user?.email || profile?.email || 'Email tidak diketahui';
-              const name = user?.user_metadata?.full_name || user?.user_metadata?.name || profile?.name || 'Nama tidak tersedia';
-              await sendTelegramLog(`<b>👋 Logout</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
-              await supabase.auth.signOut();
+              await logout();
               router.push('/login');
             }}
             className="w-full flex items-center justify-center gap-2 h-11 text-xs font-bold text-destructive hover:bg-destructive/10 border-destructive/30 rounded-xl transition-colors shadow-2xs mt-4"
