@@ -448,8 +448,23 @@ function useLaporKuyStoreInternal(): LaporKuyStoreValue {
         total_reports: newTotal,
         completed_reports: newCompleted
       }).eq('id', profile.id);
+      
+      // Auto-generate notification for the newly created report
+      if (validUserId) {
+        const notifId = `n-rep-${Date.now()}`;
+        await supabase.from('notifications').insert({
+          id: notifId,
+          user_id: validUserId,
+          title: 'Laporan Berhasil Diterima!',
+          message: `Laporan "${newReport.title}" telah kami terima dan sedang diteruskan ke dinas terkait.`,
+          timestamp: 'Baru saja',
+          type: 'system',
+          is_read: false,
+          link: `/laporan/${newReport.id}`
+        });
+      }
     } catch (e) {
-      console.error("Error updating profile in supabase", e);
+      console.error("Error updating profile or notification in supabase", e);
     }
     
     return newReport;
