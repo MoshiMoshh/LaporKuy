@@ -85,17 +85,31 @@ function DashboardContent() {
       // ignore
     }
 
-    const moveY = Math.abs(e.clientY - dragStartY.current);
-    if (moveY < 5) {
-      if (sheetHeight < 30) animateToHeight(42);
-      else if (sheetHeight < 70) animateToHeight(95);
-      else animateToHeight(42);
-      return;
+    const deltaY = dragStartY.current - e.clientY; // positive = dragged up, negative = dragged down
+    const moveY = Math.abs(deltaY);
+    
+    // Directional snapping for better UX
+    if (deltaY > 30) {
+      // Dragged UP
+      if (startHeight.current < 30) animateToHeight(40);
+      else animateToHeight(88); // 88% instead of 95% to avoid search bar overlap
+    } else if (deltaY < -30) {
+      // Dragged DOWN
+      if (startHeight.current > 70) animateToHeight(40);
+      else animateToHeight(15);
+    } else {
+      // Didn't drag enough, snap to nearest state
+      if (sheetHeight < 25) animateToHeight(15);
+      else if (sheetHeight > 70) animateToHeight(88);
+      else animateToHeight(40);
     }
+  };
 
-    if (sheetHeight < 25) animateToHeight(15);
-    else if (sheetHeight > 70) animateToHeight(95);
-    else animateToHeight(42);
+  const handleHandleClick = () => {
+    // If not actively dragging, toggle between states
+    if (sheetHeight < 30) animateToHeight(40);
+    else if (sheetHeight < 70) animateToHeight(88);
+    else animateToHeight(40);
   };
 
   const filteredReports = reports.filter((report) => {
@@ -158,7 +172,7 @@ function DashboardContent() {
         "
         style={{ 
           height: isMobile ? `${sheetHeight}%` : '100%',
-          maxHeight: isMobile ? '95%' : 'auto' 
+          maxHeight: isMobile ? '88%' : 'auto' // Prevent overlap with top search bar (z-30)
         }}
       >
         <div 
@@ -167,7 +181,8 @@ function DashboardContent() {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          aria-label="Tarik untuk memperluas peta aduan"
+          onClick={handleHandleClick}
+          aria-label="Tarik atau klik untuk memperluas peta aduan"
         >
           <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full group-hover:bg-slate-400 transition-colors" />
         </div>

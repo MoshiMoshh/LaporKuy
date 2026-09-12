@@ -39,6 +39,18 @@ import { sendTelegramLog } from '@/app/actions/telegram';
 import { INDONESIA_REGIONS } from '@/lib/indonesia-locations';
 import { CustomSelect } from '@/components/ui/custom-select';
 
+function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  return R * c;
+}
+
 const sampleAIResults: Record<string, { category: ReportCategory; severity: number; confidence: number; authenticity: number; recommendation: string; assignedDinas: string }> = {
   pothole: { category: 'Jalan Rusak', severity: 9, confidence: 97, authenticity: 99, recommendation: 'Rekomendasi URC: Penambalan aspal dingin / hotmix darurat.', assignedDinas: 'Dinas Bina Marga & Sumber Daya Air' },
   lamp: { category: 'Lampu Mati', severity: 6, confidence: 94, authenticity: 98, recommendation: 'Rekomendasi URC: Penggantian bohlam LED PJU 150W.', assignedDinas: 'Dinas Perumahan Rakyat & Kawasan Permukiman' },
@@ -100,6 +112,7 @@ function BuatLaporanForm() {
   const [isCustomDistrict, setIsCustomDistrict] = useState(false);
   const [customDistrict, setCustomDistrict] = useState('');
   const [streetAddress, setStreetAddress] = useState(addressParam || '');
+  const [isLocating, setIsLocating] = useState(false);
 
   const [location, setLocation] = useState({
     address: addressParam || '',
@@ -211,7 +224,56 @@ function BuatLaporanForm() {
   const [aiScanStep, setAiScanStep] = useState<string>('');
   const [aiProgress, setAiProgress] = useState(0);
 
+  const handleAutoLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Browser Anda tidak mendukung fitur lokasi GPS.');
+      return;
+    }
 
+    setIsLocating(true);
+    const loadingToastId = toast.loading('Mencari lokasi terdekat...');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        let nearestDistance = Infinity;
+        let bestIslandId = '';
+        let bestProvId = '';
+        let bestCityId = '';
+
+        for (const isl of INDONESIA_REGIONS) {
+          for (const prv of isl.provinces) {
+            for (const cty of prv.cities) {
+              const d = getDistanceFromLatLonInKm(latitude, longitude, cty.lat, cty.lng);
+              if (d < nearestDistance) {
+                nearestDistance = d;
+                bestIslandId = isl.id;
+                bestProvId = prv.id;
+                bestCityId = cty.id;
+              }
+            }
+          }
+        }
+
+        if (bestCityId) {
+          setSelectedIslandId(bestIslandId);
+          setSelectedProvinceId(bestProvId);
+          setSelectedCityId(bestCityId);
+          setSelectedDistrict('');
+          toast.success('Lokasi kota berhasil ditemukan!', { id: loadingToastId });
+        } else {
+          toast.error('Lokasi di luar jangkauan.', { id: loadingToastId });
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error(error);
+        toast.error('Gagal mengambil lokasi GPS. Pastikan izin lokasi diaktifkan.', { id: loadingToastId });
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
 
   const handlePhotoSelected = async (imgUrl: string, fileObj?: File) => {
     setPhotoUrl(imgUrl);
@@ -476,15 +538,23 @@ function BuatLaporanForm() {
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       Lokasi Fasilitas Publik
                     </span>
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-900 text-[10px] font-bold px-1.5 py-0.5 rounded">
-                      Formulir Lokasi Manual
-                    </Badge>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 font-medium truncate">
-                    Pilih wilayah administrasi (Pulau → Provinsi → Kota/Kabupaten → Kecamatan)
+                    Pilih wilayah administrasi (Pulau → Provinsi → Kota)
                   </p>
                 </div>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAutoLocation}
+                disabled={isLocating}
+                className="text-xs font-bold shrink-0 bg-white dark:bg-slate-900 border-[#0057B8] text-[#0057B8] hover:bg-blue-50 dark:hover:bg-blue-950"
+              >
+                {isLocating ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <MapPinned className="w-4 h-4 mr-1.5" />}
+                Gunakan GPS Saat Ini
+              </Button>
             </div>
 
             {/* Hierarchical Cascading Dropdowns */}
@@ -610,10 +680,10 @@ function BuatLaporanForm() {
                 </label>
                 <Input
                   type="text"
-                  placeholder="Contoh: Jl. Sudirman No. 12, RT 01/RW 02, depan ruko / samping halte bus"
+                  placeholder="Cth: Jl. Sudirman No. 12, RT 01/RW 02, patokan..."
                   value={streetAddress}
                   onChange={(e) => setStreetAddress(e.target.value)}
-                  className="text-xs sm:text-sm bg-white dark:bg-slate-900 h-10 font-medium"
+                  className="text-xs sm:text-sm bg-white dark:bg-slate-900 h-11 font-medium px-4"
                   required
                 />
               </div>
@@ -668,47 +738,44 @@ function BuatLaporanForm() {
             )}
 
             {!photoUrl ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer bg-white dark:bg-slate-900 group">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    capture="environment" 
-                    className="sr-only" 
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const compressedBase64 = await compressImage(file);
-                        handlePhotoSelected(compressedBase64, file);
-                      }
-                    }}
-                  />
-                  <Camera className="h-8 w-8 text-slate-400 group-hover:text-[#0057B8] mb-3 transition-colors" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#0057B8]">Gunakan Kamera</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">
-                    Ambil gambar langsung dari HP
-                  </span>
-                </label>
-
-                <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:border-[#0057B8] hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer bg-white dark:bg-slate-900 group">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="sr-only" 
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const compressedBase64 = await compressImage(file);
-                        handlePhotoSelected(compressedBase64, file);
-                      }
-                    }}
-                  />
-                  <Upload className="h-8 w-8 text-slate-400 group-hover:text-[#0057B8] mb-3 transition-colors" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#0057B8]">Unggah File</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">
-                    Pilih gambar dari galeri Anda
-                  </span>
-                </label>
+              <div className="relative flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 overflow-hidden group hover:border-[#0057B8] hover:bg-blue-50/30 transition-all">
+                <Camera className="w-10 h-10 text-slate-400 group-hover:text-[#0057B8] mb-4 transition-colors" />
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">Unggah atau Ambil Foto Kerusakan</p>
+                <p className="text-xs text-slate-500 mb-6 text-center max-w-xs">Pastikan foto jelas dan menunjukkan letak masalah. (Maksimal 5MB)</p>
+                
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-md">
+                  <label className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer hover:border-[#0057B8] hover:text-[#0057B8] transition-all">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      capture="environment" 
+                      className="sr-only" 
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const compressedBase64 = await compressImage(file);
+                          handlePhotoSelected(compressedBase64, file);
+                        }
+                      }}
+                    />
+                    <Camera className="w-4 h-4" /> Buka Kamera
+                  </label>
+                  <label className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm text-sm font-bold text-slate-700 dark:text-slate-200 cursor-pointer hover:border-[#0057B8] hover:text-[#0057B8] transition-all">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="sr-only" 
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const compressedBase64 = await compressImage(file);
+                          handlePhotoSelected(compressedBase64, file);
+                        }
+                      }}
+                    />
+                    <Upload className="w-4 h-4" /> Pilih dari Galeri
+                  </label>
+                </div>
               </div>
             ) : (
               <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900">
@@ -824,7 +891,7 @@ function BuatLaporanForm() {
           {/* SUBMIT BUTTON */}
           <Button
             onClick={handleSubmit}
-            disabled={!photoUrl || isSubmitting || isCheckingDuplicates || isClassifying || (location.lat === 0 && location.lng === 0)}
+            disabled={isSubmitting || isCheckingDuplicates || isClassifying}
             className="w-full h-12 text-base font-bold bg-[#0057B8] hover:bg-[#004494] text-white shadow-md rounded-xl"
           >
             {isSubmitting ? (
