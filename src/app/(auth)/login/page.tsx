@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -19,6 +19,11 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    // Prefetch home page for instant transition after login
+    router.prefetch('/');
+  }, [router]);
 
   const formatAuthError = (msg?: string) => {
     if (!msg) return 'Terjadi kesalahan saat masuk. Silakan coba lagi.';
@@ -53,7 +58,7 @@ export default function LoginPage() {
       });
       setIsLoading(false);
     } else {
-      await sendTelegramLog(`<b>🔐 Login Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
+      sendTelegramLog(`<b>🔐 Login Berhasil</b>\n\n<b>Email:</b> ${email}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`).catch(console.error);
       router.push('/');
     }
   };
@@ -77,7 +82,7 @@ export default function LoginPage() {
       });
       setIsLoading(false);
     } else {
-      await sendTelegramLog(`<b>🔄 OAuth Login Dimulai</b>\n\n<b>Provider:</b> Google\n<b>Alur:</b> Login (dari halaman masuk)\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
+      sendTelegramLog(`<b>🔄 OAuth Login Dimulai</b>\n\n<b>Provider:</b> Google\n<b>Alur:</b> Login (dari halaman masuk)\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`).catch(console.error);
     }
   };
 

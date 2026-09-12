@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,11 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    // Prefetch home page for instant transition after registration
+    router.prefetch('/');
+  }, [router]);
 
   const formatAuthError = (msg?: string) => {
     if (!msg) return 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.';
@@ -83,7 +88,7 @@ export default function RegisterPage() {
       toast.success('Akun berhasil dibuat!', {
         description: 'Anda akan diarahkan ke halaman utama.',
       });
-      await sendTelegramLog(`<b>🎉 Registrasi Akun Baru</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>No HP:</b> ${phone || 'Tidak diisi'}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
+      sendTelegramLog(`<b>🎉 Registrasi Akun Baru</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>No HP:</b> ${phone || 'Tidak diisi'}\n<b>Metode:</b> Email/Password\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`).catch(console.error);
       router.push('/');
     }
   };
@@ -107,7 +112,7 @@ export default function RegisterPage() {
       });
       setIsLoading(false);
     } else {
-      await sendTelegramLog(`<b>🔄 OAuth Register Dimulai</b>\n\n<b>Provider:</b> Google\n<b>Alur:</b> Registrasi (dari halaman daftar)\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`);
+      sendTelegramLog(`<b>🔄 OAuth Register Dimulai</b>\n\n<b>Provider:</b> Google\n<b>Alur:</b> Registrasi (dari halaman daftar)\n<b>Waktu:</b> ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`).catch(console.error);
     }
   };
 
