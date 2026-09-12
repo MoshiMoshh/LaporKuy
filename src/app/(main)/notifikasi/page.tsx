@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useLaporKuyStore } from '@/lib/store';
-import { Badge } from '@/components/ui/badge';
+import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bell, CheckCheck, Gift, ThumbsUp, ShieldCheck, Flame, ChevronRight, Clock } from 'lucide-react';
+import { Bell, CheckCheck, Gift, ThumbsUp, ShieldCheck, ChevronRight, Clock, Loader2 } from 'lucide-react';
 
 function formatTimeAgo(dateString: string) {
+  // If it's already a relative string from mock data (e.g., '10 menit lalu')
+  if (dateString.includes('lalu')) return dateString;
+
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return dateString;
 
@@ -43,8 +45,35 @@ function formatExact(dateString: string) {
 }
 
 export default function NotifikasiPage() {
-  const { notifications, markNotificationsRead } = useLaporKuyStore();
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'status' | 'community' | 'reward'>('all');
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*');
+
+      if (data && !error) {
+        // Sort manually if needed, or rely on insert order for mock data
+        const sortedData = data.sort((a, b) => {
+          // simple sort by id descending (n-4, n-3...) for mock data
+          return a.id > b.id ? -1 : 1;
+        });
+        setNotifications(sortedData);
+      }
+      setIsLoading(false);
+    }
+    fetchNotifications();
+  }, []);
+
+  const markNotificationsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    await supabase.from('notifications').update({ is_read: true }).neq('id', '0'); // update all
+  };
 
   const filteredNotifs = notifications.filter((n) => {
     if (filter !== 'all' && n.type !== filter) return false;
@@ -81,6 +110,7 @@ export default function NotifikasiPage() {
           size="sm"
           onClick={markNotificationsRead}
           className="text-xs gap-1.5"
+          disabled={isLoading || notifications.length === 0}
         >
           <CheckCheck className="h-4 w-4" /> Tandai Semua Dibaca
         </Button>
@@ -110,7 +140,11 @@ export default function NotifikasiPage() {
 
       {/* Notifications List */}
       <Card className="divide-y border-border/60 overflow-hidden">
-        {filteredNotifs.length === 0 ? (
+        {isLoading ? (
+          <div className="py-12 flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          </div>
+        ) : filteredNotifs.length === 0 ? (
           <div className="py-12 text-center text-xs text-muted-foreground">
             Belum ada notifikasi di kategori ini.
           </div>
@@ -137,7 +171,7 @@ export default function NotifikasiPage() {
                       <h3 className="text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
                         {item.title}
                       </h3>
-                      {!item.isRead && (
+                      {!item.is_read && (
                         <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
                       )}
                     </div>
@@ -174,7 +208,7 @@ export default function NotifikasiPage() {
             );
 
             const cardClasses = `p-4 flex items-start justify-between gap-3 transition-colors group ${
-              !item.isRead ? 'bg-primary/5 font-medium' : 'hover:bg-muted/20'
+              !item.is_read ? 'bg-primary/5 font-medium' : 'hover:bg-muted/20'
             } ${targetLink ? 'cursor-pointer hover:bg-muted/30' : ''}`;
 
             if (targetLink) {
