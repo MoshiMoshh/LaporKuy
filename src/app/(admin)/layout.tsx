@@ -114,13 +114,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Dashboard
             </Link>
             <Link
-              href="/transparansi"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900 rounded-md transition-colors"
-            >
-              <BarChart3 className="w-3.5 h-3.5" />
-              Pantau SLA
-            </Link>
-            <Link
               href="/embed/map"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900 rounded-md transition-colors"
             >
@@ -165,13 +158,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
             Dashboard
-          </Link>
-          <Link
-            href="/transparansi"
-            className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-slate-400 hover:text-white whitespace-nowrap"
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            Pantau SLA
           </Link>
           <Link
             href="/embed/map"

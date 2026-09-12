@@ -14,8 +14,8 @@ export default function TentangPage() {
         <h1 className="text-4xl font-extrabold text-foreground tracking-tight sm:text-5xl">
           Tentang LaporKuy v2.0
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          LaporKuy lahir dari semangat menghubungkan warga kota dengan pemerintah daerah menggunakan kecerdasan buatan (AI), transparansi SLA publik, dan gamifikasi civic.
+        <p className="mt-4 max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300 mx-auto">
+          LaporKuy lahir dari semangat menghubungkan warga kota dengan pemerintah daerah menggunakan kecerdasan buatan (AI) dan gamifikasi civic. Kami percaya bahwa kota yang cerdas dimulai dari warganya yang peduli.
         </p>
       </div>
 
@@ -27,16 +27,6 @@ export default function TentangPage() {
           <h3 className="font-bold text-base text-foreground">AI Multi-Model Vision</h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             Klasifikasi otomatis jenis masalah, skor keparahan, deteksi keaslian foto, dan routing dinas dalam waktu kurang dari 3 detik.
-          </p>
-        </Card>
-
-        <Card className="p-6 border-border/60 text-center space-y-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <h3 className="font-bold text-base text-foreground">Transparansi SLA Publik</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Menampilkan performa penanganan aduan setiap dinas secara terbuka untuk menciptakan kompetisi positif & akuntabilitas pemerintah.
           </p>
         </Card>
 

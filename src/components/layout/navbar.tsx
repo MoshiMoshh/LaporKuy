@@ -30,7 +30,6 @@ const mainNavLinks = [
   { href: '/', label: 'Beranda', icon: Home },
   { href: '/buat-laporan', label: 'Buat Laporan', icon: FilePlus },
   { href: '/dashboard', label: 'Peta & Lacak', icon: MapPin },
-  { href: '/transparansi', label: 'Transparansi SLA', icon: BarChart3 },
   { href: '/papan-peringkat', label: 'Peringkat', icon: Trophy },
   { href: '/misi', label: 'Misi & Poin', icon: Gift },
   { href: '/tukar-poin', label: 'Tukar Poin', icon: Coins },

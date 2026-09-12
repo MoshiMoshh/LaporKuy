@@ -43,7 +43,7 @@ const faqs: FaqItem[] = [
   {
     category: 'status',
     q: 'Berapa lama rata-rata aduan ditangani oleh dinas (SLA)?',
-    a: 'Setiap dinas memiliki target Service Level Agreement (SLA) rata-rata 2 hingga 7 hari kerja tergantung tingkat keparahan masalah. Anda bisa memantau hitung mundur sisa hari penanganan dan riwayat dinas terkait di menu "Transparansi SLA" atau di halaman detail masing-masing laporan.',
+    a: 'Setiap dinas memiliki target Service Level Agreement (SLA) rata-rata 2 hingga 7 hari kerja tergantung tingkat keparahan masalah. Anda bisa memantau hitung mundur sisa hari penanganan dan riwayat dinas terkait di halaman detail masing-masing laporan.',
   },
   {
     category: 'poin',
@@ -98,7 +98,7 @@ export default function BantuanPage() {
       </div>
 
       {/* Quick Nav Shortcut Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         <Link
           href="/buat-laporan"
           className="p-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all group flex flex-col justify-between"
@@ -115,21 +115,6 @@ export default function BantuanPage() {
           </div>
         </Link>
 
-        <Link
-          href="/transparansi"
-          className="p-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl hover:border-emerald-300 dark:hover:border-emerald-700 transition-all group flex flex-col justify-between"
-        >
-          <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-2">
-            <Clock className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center justify-between">
-              SLA & Dinas
-              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 block">Waktu tindak lanjut</span>
-          </div>
-        </Link>
 
         <Link
           href="/misi"
