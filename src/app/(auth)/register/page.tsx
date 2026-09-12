@@ -46,6 +46,23 @@ export default function RegisterPage() {
     if (!email || !password || !name) return;
     
     setIsLoading(true);
+
+    try {
+      // Validate disposable emails
+      const { isDisposableEmail } = await import('@/app/actions/auth');
+      const isDisposable = await isDisposableEmail(email);
+      
+      if (isDisposable) {
+        toast.error('Email Ditolak', {
+          description: 'Pendaftaran menggunakan email sementara (temp email) tidak diizinkan demi keamanan. Silakan gunakan alamat email utama Anda.',
+        });
+        setIsLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.warn("Failed to check disposable email", err);
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
