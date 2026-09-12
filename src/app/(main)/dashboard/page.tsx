@@ -35,6 +35,7 @@ function DashboardContent() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('Semua');
+  const [sortBy, setSortBy] = useState<'terbaru' | 'terpopuler'>('terbaru');
 
   // Bottom Sheet Drag Logic
   const [sheetHeight, setSheetHeight] = useState(40); // 40vh default
@@ -123,13 +124,20 @@ function DashboardContent() {
     return matchesSearch && matchesCategory;
   });
 
+  const sortedReports = [...filteredReports].sort((a, b) => {
+    if (sortBy === 'terpopuler') {
+      return b.upvotes - a.upvotes;
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   return (
     <div className="relative flex flex-col md:flex-row h-[calc(100dvh-128px)] md:h-[calc(100vh-64px)] bg-[#F5F7FA] overflow-hidden font-sans">
       
       {/* MAP VIEW */}
       <div className="absolute inset-0 md:relative md:inset-auto md:flex-1 md:h-auto z-0 pointer-events-auto">
         <MapView
-          reports={filteredReports}
+          reports={sortedReports}
           mapMode="marker"
           showPredictiveZone={false}
           className="rounded-none md:rounded-2xl md:border md:shadow-inner"
@@ -151,8 +159,14 @@ function DashboardContent() {
               className="pl-10 h-10 w-full rounded-xl border border-slate-200 bg-white text-base sm:text-xs font-medium focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md"
             />
           </div>
-          <Button variant="outline" size="icon" aria-label="Filter aduan" className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md">
+          <Button 
+            variant="outline" 
+            onClick={() => setSortBy(prev => prev === 'terbaru' ? 'terpopuler' : 'terbaru')}
+            aria-label="Urutkan laporan" 
+            className="h-10 px-3 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md flex items-center gap-1.5 transition-colors"
+          >
             <Filter className="h-4 w-4" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">{sortBy === 'terbaru' ? 'Baru' : 'Top'}</span>
           </Button>
         </div>
       </div>
@@ -270,8 +284,16 @@ function DashboardContent() {
                 className="pl-9 h-10 w-full rounded-md border-[#D9DEE5] text-sm focus-visible:ring-[#0057B8]"
               />
             </div>
-            <Button variant="outline" size="icon" aria-label="Filter aduan" className="h-10 w-10 shrink-0 rounded-md border-[#D9DEE5] text-slate-600 hover:text-[#0057B8]">
+            <Button 
+              variant="outline" 
+              onClick={() => setSortBy(prev => prev === 'terbaru' ? 'terpopuler' : 'terbaru')}
+              aria-label="Urutkan aduan" 
+              className="h-10 px-4 shrink-0 rounded-md border-[#D9DEE5] text-slate-600 hover:text-[#0057B8] flex items-center gap-2 transition-colors bg-white hover:bg-slate-50"
+            >
               <Filter className="h-4 w-4" />
+              <span className="text-xs font-bold uppercase tracking-wider">
+                {sortBy === 'terbaru' ? 'Paling Baru' : 'Paling Populer'}
+              </span>
             </Button>
           </div>
         </div>
@@ -287,7 +309,7 @@ function DashboardContent() {
               <p className="text-xs text-slate-400 mt-1 max-w-[220px] mx-auto">Semua aduan telah dibersihkan atau belum ada laporan yang masuk.</p>
             </div>
           ) : (
-            filteredReports.map((report) => (
+            sortedReports.map((report) => (
               <Link key={report.id} href={`/laporan/${report.id}`} className="block">
                 <Card className="p-3.5 hover:shadow-md transition-all border-slate-200/80 rounded-xl group bg-white">
                   <div className="flex items-start gap-3">
