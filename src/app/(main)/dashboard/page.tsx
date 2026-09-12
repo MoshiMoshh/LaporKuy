@@ -35,7 +35,7 @@ function DashboardContent() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('Semua');
-  const [sortBy, setSortBy] = useState<'terbaru' | 'terpopuler'>('terbaru');
+  const [sortBy, setSortBy] = useState<'terbaru' | 'terpopuler' | 'mendesak' | 'terlama'>('terbaru');
 
   // Bottom Sheet Drag Logic
   const [sheetHeight, setSheetHeight] = useState(40); // 40vh default
@@ -128,6 +128,13 @@ function DashboardContent() {
     if (sortBy === 'terpopuler') {
       return b.upvotes - a.upvotes;
     }
+    if (sortBy === 'mendesak') {
+      return b.severity - a.severity;
+    }
+    if (sortBy === 'terlama') {
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    }
+    // Default: terbaru
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -159,15 +166,25 @@ function DashboardContent() {
               className="pl-10 h-10 w-full rounded-xl border border-slate-200 bg-white text-base sm:text-xs font-medium focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md"
             />
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => setSortBy(prev => prev === 'terbaru' ? 'terpopuler' : 'terbaru')}
-            aria-label="Urutkan laporan" 
-            className="h-10 px-3 shrink-0 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] shadow-md flex items-center gap-1.5 transition-colors"
-          >
-            <Filter className="h-4 w-4" />
-            <span className="text-[11px] font-bold uppercase tracking-wider">{sortBy === 'terbaru' ? 'Baru' : 'Top'}</span>
-          </Button>
+          <div className="relative shrink-0">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="appearance-none h-10 pl-9 pr-8 w-auto min-w-[120px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-[#003B73] focus-visible:ring-1 focus-visible:ring-[#003B73] shadow-md text-[11px] font-bold uppercase tracking-wider cursor-pointer outline-none transition-colors"
+              aria-label="Urutkan laporan"
+            >
+              <option value="terbaru">Terbaru</option>
+              <option value="terpopuler">Terpopuler</option>
+              <option value="mendesak">Mendesak</option>
+              <option value="terlama">Terlama</option>
+            </select>
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -284,17 +301,25 @@ function DashboardContent() {
                 className="pl-9 h-10 w-full rounded-md border-[#D9DEE5] text-sm focus-visible:ring-[#0057B8]"
               />
             </div>
-            <Button 
-              variant="outline" 
-              onClick={() => setSortBy(prev => prev === 'terbaru' ? 'terpopuler' : 'terbaru')}
-              aria-label="Urutkan aduan" 
-              className="h-10 px-4 shrink-0 rounded-md border-[#D9DEE5] text-slate-600 hover:text-[#0057B8] flex items-center gap-2 transition-colors bg-white hover:bg-slate-50"
-            >
-              <Filter className="h-4 w-4" />
-              <span className="text-xs font-bold uppercase tracking-wider">
-                {sortBy === 'terbaru' ? 'Paling Baru' : 'Paling Populer'}
-              </span>
-            </Button>
+            <div className="relative shrink-0">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="appearance-none h-10 pl-9 pr-8 w-auto min-w-[150px] rounded-md border border-[#D9DEE5] text-slate-600 hover:text-[#0057B8] bg-white hover:bg-slate-50 text-xs font-bold uppercase tracking-wider cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0057B8] transition-colors"
+                aria-label="Urutkan aduan"
+              >
+                <option value="terbaru">Paling Baru</option>
+                <option value="terpopuler">Paling Populer</option>
+                <option value="mendesak">Paling Mendesak</option>
+                <option value="terlama">Paling Lama</option>
+              </select>
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
