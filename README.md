@@ -1,84 +1,89 @@
 <div align="center">
-  <img src="public/icons/icon-512x512.png" alt="LaporKuy Logo" width="150" height="150" />
-  
-  # LaporKuy 🏙️
-  **Platform Pelaporan Infrastruktur Kota Berbasis Komunitas & AI**
-  
-  <p align="center">
-    <a href="#-problem-latar-belakang">Problem</a> •
-    <a href="#-tujuan">Tujuan</a> •
-    <a href="#-problem-solving-solusi">Problem Solving</a> •
-    <a href="#-output-fitur-utama">Output</a> •
-    <a href="#-tech-stack">Tech Stack</a>
-  </p>
+
+# LaporKuy
+**Sistem Pelaporan Infrastruktur Kota Berbasis AI dan Partisipasi Publik**
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database_&_Auth-green?logo=supabase)](https://supabase.com/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 </div>
 
 ---
 
-## 🚨 Problem (Latar Belakang)
-Infrastruktur kota yang rusak (seperti jalan berlubang, lampu jalan mati, atau tumpukan sampah liar) seringkali lambat ditangani. Masalah utama yang sering terjadi:
-1. **Birokrasi Pelaporan yang Rumit**: Warga malas melapor karena prosesnya berbelit-belit dan tidak tahu harus melapor ke dinas mana.
-2. **Kurangnya Transparansi**: Warga yang sudah melapor sering merasa diabaikan karena tidak ada *update* status penyelesaian.
-3. **Laporan Palsu & Duplikat**: Banyaknya laporan *spam* atau foto lama yang diunggah ulang membuat pihak berwenang membuang waktu untuk verifikasi manual.
-4. **Kurangnya Partisipasi**: Tidak ada insentif atau apresiasi bagi warga yang aktif peduli terhadap lingkungan kotanya.
+## Ringkasan Eksekutif (Executive Summary)
 
-## 🎯 Tujuan
-Membangun platform terpusat yang menjembatani komunikasi antara warga dan pemerintah daerah secara **transparan, cepat, dan akurat**. LaporKuy bertujuan untuk memberdayakan warga agar lebih peduli pada kotanya, sekaligus membantu dinas terkait bekerja lebih efisien dengan bantuan teknologi masa kini.
+**LaporKuy** adalah sebuah platform berbasis *Progressive Web Application (PWA)* yang dirancang untuk merevolusi cara warga berinteraksi dengan pemerintah daerah terkait pemeliharaan infrastruktur kota. Platform ini menjembatani kesenjangan komunikasi antara masyarakat dan instansi pemerintah melalui pemanfaatan kecerdasan buatan (AI) untuk verifikasi laporan, otomatisasi distribusi data berbasis geolokasi, serta pendekatan gamifikasi untuk meningkatkan partisipasi publik.
 
-## 💡 Problem Solving (Solusi)
-LaporKuy hadir dengan pendekatan inovatif untuk menyelesaikan masalah di atas:
-- **Deteksi AI (AI Authenticity)** 🤖: Setiap foto yang diunggah akan dianalisis menggunakan *mock-AI* untuk menentukan tingkat keaslian gambar dan tingkat urgensi (Severity), mencegah laporan palsu/spam.
-- **Auto-Routing Berbasis GPS** 📍: Pengguna tidak perlu pusing memilih dinas. Sistem menggunakan geolokasi otomatis untuk mendeteksi koordinat (Provinsi/Kota/Kecamatan) dan langsung mengarahkan laporan ke dinas yang tepat (misal: *Dinas Bina Marga* untuk jalan berlubang).
-- **Sistem Gamifikasi (Quest & Poin)** 🏆: Memberikan elemen *fun* dan apresiasi. Warga yang melapor, melakukan *upvote*, atau aktif di komunitas akan mendapatkan Poin, XP, Badge, dan naik level (misal: *Warga Aktif* ➡️ *Pahlawan Kota*). Poin dapat ditukar dengan *Reward* menarik.
-- **Transparansi & Notifikasi Real-time** 🔔: Terintegrasi langsung dengan database Supabase, warga akan menerima notifikasi secara instan setiap kali status laporan mereka berubah (Diterima ➡️ Diproses ➡️ Selesai).
+## Latar Belakang Masalah (Problem Statement)
 
-## 📱 Output (Fitur Utama)
-Hasil dari pengembangan ini adalah **Aplikasi Web (PWA) Mobile-First** dengan *user experience* (UX) yang sangat mulus, responsif, dan menyerupai aplikasi *native*.
+Pengelolaan infrastruktur perkotaan saat ini seringkali terhambat oleh beberapa kendala sistemik:
+1. **Birokrasi Pelaporan yang Inefisien:** Masyarakat seringkali kesulitan mengidentifikasi instansi spesifik yang berwenang untuk menangani suatu kerusakan infrastruktur, sehingga pelaporan menjadi lambat atau salah sasaran.
+2. **Kurangnya Visibilitas dan Transparansi:** Pelapor jarang mendapatkan pembaruan (update) status secara *real-time* mengenai tindak lanjut laporan mereka, yang berujung pada menurunnya tingkat kepercayaan publik.
+3. **Validitas dan Kualitas Data:** Tingginya volume laporan palsu, *spam*, atau duplikasi data (seperti menggunakan foto lama dari internet) membebani sumber daya pemerintah dalam proses verifikasi manual.
+4. **Rendahnya Partisipasi Aktif:** Kurangnya sistem insentif membuat masyarakat cenderung apatis terhadap kondisi infrastruktur di lingkungan sekitarnya.
 
-### Core Features:
-1. **Smart Report Form (`/buat-laporan`)**: Form pelaporan dengan auto-GPS, deteksi lokasi berjenjang, dan *drag-and-drop* pengunggahan foto.
-2. **Community Dashboard (`/dashboard`)**: Halaman *feed* untuk melihat laporan di sekitar, memberikan *upvote*, dan berdiskusi via komentar. Dilengkapi filter cerdas dan *bottom-sheet* interaktif.
-3. **Gamification Center (`/misi`)**: Halaman khusus untuk klaim Misi Harian/Bulanan dan menukarkan Poin dengan *Rewards*.
-4. **Real-time Notification Center (`/notifikasi`)**: Pusat pemberitahuan progres laporan secara langsung.
-5. **Keamanan Ekstra (Security Headers & Anti-Spam)**: Perlindungan *Strict-Transport-Security (HSTS)*, *CSP*, dan sistem blokir pendaftaran menggunakan *temporary email* (Temp Mail Blocker).
+## Solusi yang Ditawarkan (Proposed Solution)
 
-## 🛠 Tech Stack
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) + [Framer Motion](https://www.framer.com/motion/) (Animasi)
-- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
-- **Database & Auth:** [Supabase](https://supabase.com/)
-- **UI Components:** [Radix UI](https://www.radix-ui.com/) & Lucide Icons
-- **Deployment:** [Vercel](https://vercel.com/)
+LaporKuy merestrukturisasi alur pelaporan tradisional menjadi sebuah ekosistem digital yang efisien, transparan, dan otonom melalui pendekatan berikut:
+
+- **AI-Powered Verification:** Mengintegrasikan model analisis gambar untuk menentukan tingkat keaslian foto (*AI Authenticity Score*) dan tingkat keparahan (*Severity Analysis*), sehingga menyaring laporan palsu secara otomatis sebelum masuk ke antrean petugas.
+- **Geospatial Auto-Routing:** Memanfaatkan kapabilitas *Geolocation API* dan pemrosesan koordinat spasial untuk mendeteksi hierarki wilayah (Provinsi/Kota/Kecamatan) dan mengarahkan laporan secara langsung ke *dashboard* instansi yang relevan secara *real-time*.
+- **Integrated Gamification Engine:** Menerapkan sistem penghargaan (*Points, Badges, Quests*) berskala dinamis untuk mendorong pelaporan yang berkualitas dan memotivasi keterlibatan komunitas secara berkelanjutan.
+
+## Fitur Utama dan Inovasi (Key Features)
+
+1. **Smart Report Form & Validation**
+   - Form pelaporan dinamis dengan deteksi lokasi presisi tinggi.
+   - Analisis *metadata* gambar secara otomatis.
+   - Proteksi keamanan terhadap pendaftaran menggunakan *disposable email* untuk menjaga integritas data pengguna.
+
+2. **Community Dashboard & Triage**
+   - *Feed* interaktif yang menampilkan laporan di area sekitar pengguna.
+   - Fitur *upvote* (dukungan) untuk laporan infrastruktur kritis, membantu algoritma dalam menentukan prioritas penanganan oleh instansi.
+   - Diskusi publik transparan dalam bentuk utas komentar.
+
+3. **Real-time Notification Architecture**
+   - Notifikasi berbasis *push* dan *in-app* yang terhubung langsung dengan perubahan *state* di *database*.
+   - Pelapor menerima pemberitahuan transisi status (Diterima $\rightarrow$ Diproses $\rightarrow$ Selesai) lengkap dengan foto hasil perbaikan (*after-repair photo*).
+
+## Arsitektur Sistem dan Teknologi (Tech Stack)
+
+LaporKuy dibangun di atas infrastruktur modern yang berorientasi pada performa, skalabilitas, dan keamanan:
+
+- **Frontend & Server Framework:** Next.js 16 (App Router)
+- **Styling & UI Components:** Tailwind CSS, Radix UI, Framer Motion
+- **State Management:** Zustand (Client-side state)
+- **Backend-as-a-Service (BaaS):** Supabase (PostgreSQL, Row Level Security, Real-time Subscriptions, Authentication)
+- **Deployment & Edge Network:** Vercel (dengan implementasi HTTP Security Headers mutakhir termasuk HSTS dan CSP)
 
 ---
 
-### Cara Menjalankan Proyek Secara Lokal
+## Panduan Instalasi (Local Development Setup)
 
-1. **Clone repository:**
+Prasyarat: Pastikan Anda telah menginstal Node.js (v18+) dan Git.
+
+1. **Kloning Repositori**
    ```bash
    git clone https://github.com/MoshiMoshh/LaporKuy.git
    cd LaporKuy
    ```
 
-2. **Install dependencies:**
+2. **Instalasi Dependensi**
    ```bash
    npm install
    ```
 
-3. **Setup Environment Variables:**
-   Buat file `.env.local` dan masukkan *keys* Supabase Anda:
+3. **Konfigurasi Variabel Lingkungan (Environment Variables)**
+   Buat salinan dari `.env.example` menjadi `.env.local` dan masukkan kredensial Supabase Anda.
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-4. **Jalankan Development Server:**
+4. **Menjalankan Server Pengembangan**
    ```bash
    npm run dev
    ```
-   Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
-
-<div align="center">
-  <br />
-  <i>Dibuat dengan ❤️ untuk infrastruktur kota yang lebih baik.</i>
-</div>
+   Akses aplikasi melalui `http://localhost:3000`.
