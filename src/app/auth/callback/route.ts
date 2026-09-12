@@ -26,8 +26,11 @@ export async function GET(request: Request) {
       const isNewUser = createdAt && (now.getTime() - createdAt.getTime()) < 60_000
       const statusLabel = isNewUser ? '🆕 Registrasi Baru via OAuth' : '✅ Login via OAuth'
 
-      await sendTelegramLog(`<b>${statusLabel}</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>Provider:</b> ${provider.charAt(0).toUpperCase() + provider.slice(1)}\n<b>User ID:</b> <code>${user?.id || '-'}</code>\n<b>Waktu:</b> ${now.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`)
-
+      try {
+        await sendTelegramLog(`<b>${statusLabel}</b>\n\n<b>Nama:</b> ${name}\n<b>Email:</b> ${email}\n<b>Provider:</b> ${provider.charAt(0).toUpperCase() + provider.slice(1)}\n<b>User ID:</b> <code>${user?.id || '-'}</code>\n<b>Waktu:</b> ${now.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'long', timeStyle: 'medium' })}`)
+      } catch (err) {
+        console.error('Gagal mengirim log telegram:', err)
+      }
       const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'
       if (isLocalEnv) {
